@@ -12,20 +12,6 @@ public class ContentGenerator : MonoBehaviour
     public GameObject player;
     [SerializeField] public int playerSpawnMargins = 2;
 
-    // Clears all children under this GameObject
-    public void ClearChildren()
-    {
-        for (int i = transform.childCount - 1; i >= 0; i--)
-        {
-#if UNITY_EDITOR
-            if (!Application.isPlaying) DestroyImmediate(transform.GetChild(i).gameObject);
-            else Destroy(transform.GetChild(i).gameObject);
-#else
-            Destroy(transform.GetChild(i).gameObject);
-#endif
-        }
-    }
-
     // Generates objects in the maze based on MazeData
     public void Generate(MazeGenerator.MazeData maze)
     {
@@ -40,19 +26,8 @@ public class ContentGenerator : MonoBehaviour
 
     private void PlayerGen(MazeGenerator.MazeData maze, float s)
     {
-        List<Vector2Int> options = new List<Vector2Int>();
-        for (int r = 0; r < maze.tilesH; r++)
-        {
-            for (int c = 0; c < maze.tilesW; c++)
-            {
-                if ((maze.open[r, c]) && ((r < playerSpawnMargins) || (c < playerSpawnMargins) || (r >= maze.tilesH - playerSpawnMargins) || (c >= maze.tilesW - playerSpawnMargins)))
-                {
-                    options.Add(new Vector2Int(r, c));
-                }
-            }
-        }
-
-        Vector2Int playerPos2D = options[UnityEngine.Random.Range(0, options.Count)];
+        Vector2Int playerPos2D = GetTilePosition.WithinEdgeMargin(maze, playerSpawnMargins);
+        
         Vector3 playerPos = new Vector3(
             playerPos2D.x * s,
             player.GetComponent<Renderer>().bounds.size.y / 2,
@@ -65,28 +40,7 @@ public class ContentGenerator : MonoBehaviour
 
     private void MinotaurGen(MazeGenerator.MazeData maze, float s)
     {
-        int centerR = maze.tilesH / 2;
-        int centerC = maze.tilesW / 2;
-        Vector2Int trueCenter = new Vector2Int(centerR, centerC);
-        Vector2Int minotaurPos2D = Vector2Int.zero;
-        float minDist = float.MaxValue;
-
-        // Find the open tile closest to the center
-        for (int r = 0; r < maze.tilesH; r++)
-        {
-            for (int c = 0; c < maze.tilesW; c++)
-            {
-                if (maze.open[r, c])
-                {
-                    float dist = Vector2Int.Distance(new Vector2Int(r, c), trueCenter);
-                    if (dist < minDist)
-                    {
-                        minDist = dist;
-                        minotaurPos2D = new Vector2Int(r, c);
-                    }
-                }
-            }
-        }
+        Vector2Int minotaurPos2D = GetTilePosition.ClosestToCenter(maze, s);
 
         // Convert 2D tile coords to 3D world position
         Vector3 minotaurPos = new Vector3(
