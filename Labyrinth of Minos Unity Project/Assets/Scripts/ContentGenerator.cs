@@ -1,11 +1,16 @@
+using NUnit.Framework;
+using System;
 using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 public class ContentGenerator : MonoBehaviour
 {
     [Header("Prefabs")]
     public GameObject minotaur;
     public GameObject player;
+    [SerializeField] public int playerSpawnMargins = 2;
 
     // Clears all children under this GameObject
     public void ClearChildren()
@@ -29,6 +34,37 @@ public class ContentGenerator : MonoBehaviour
         int H = maze.tilesH, W = maze.tilesW;
         float s = maze.tileSize;
 
+        MinotaurGen(maze, s);
+        PlayerGen(maze, s);
+    }
+
+    private void PlayerGen(MazeGenerator.MazeData maze, float s)
+    {
+        List<Vector2Int> options = new List<Vector2Int>();
+        for (int r = 0; r < maze.tilesH; r++)
+        {
+            for (int c = 0; c < maze.tilesW; c++)
+            {
+                if ((maze.open[r, c]) && ((r < playerSpawnMargins) || (c < playerSpawnMargins) || (r >= maze.tilesH - playerSpawnMargins) || (c >= maze.tilesW - playerSpawnMargins)))
+                {
+                    options.Add(new Vector2Int(r, c));
+                }
+            }
+        }
+
+        Vector2Int playerPos2D = options[UnityEngine.Random.Range(0, options.Count)];
+        Vector3 playerPos = new Vector3(
+            playerPos2D.x * s,
+            player.GetComponent<Renderer>().bounds.size.y / 2,
+            playerPos2D.y * s
+        );
+
+        var playerObj = Instantiate(player, playerPos, Quaternion.identity, transform);
+
+    }
+
+    private void MinotaurGen(MazeGenerator.MazeData maze, float s)
+    {
         int centerR = maze.tilesH / 2;
         int centerC = maze.tilesW / 2;
         Vector2Int trueCenter = new Vector2Int(centerR, centerC);
@@ -60,6 +96,6 @@ public class ContentGenerator : MonoBehaviour
         );
 
         // Instantiate the minotaur at the calculated position
-        var go = Instantiate(minotaur, minotaurPos, Quaternion.identity, transform);
+        var minotaurObj = Instantiate(minotaur, minotaurPos, Quaternion.identity, transform);
     }
 }
