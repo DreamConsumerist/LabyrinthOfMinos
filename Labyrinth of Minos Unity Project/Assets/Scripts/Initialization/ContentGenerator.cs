@@ -51,5 +51,7 @@ public class ContentGenerator : MonoBehaviour
 
         // Instantiate the minotaur at the calculated position
         var minotaurObj = Instantiate(minotaur, minotaurPos, Quaternion.identity, transform);
+        var minotaurBehavior = minotaurObj.GetComponent<MinotaurBehaviorController>();
+        minotaurBehavior.Initialize(maze);
     }
 }
