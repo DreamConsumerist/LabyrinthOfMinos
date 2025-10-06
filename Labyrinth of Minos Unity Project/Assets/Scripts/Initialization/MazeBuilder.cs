@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MazeBuilder : MonoBehaviour
@@ -32,10 +33,18 @@ public class MazeBuilder : MonoBehaviour
                 bool isFloor = maze.open[r, c];
                 var prefab = isFloor ? floorPrefab : wallPrefab;
                 if (!prefab) continue;
-
-                Vector3 pos = xz ? new Vector3(c * s, 0f, r * s)
-                                 : new Vector3(c * s, r * s, 0f);
-                var go = Instantiate(prefab, pos, Quaternion.identity, transform);
+                Vector3 pos = new Vector3(r, c);
+                if (isFloor)
+                {
+                    pos = xz ? new Vector3(c * s, 0f, r * s)
+                             : new Vector3(c * s, r * s, 0f);
+                }
+                else
+                {
+                    pos = xz ? new Vector3(c * s, prefab.GetComponent<Renderer>().bounds.size.y / 2, r * s)
+                             : new Vector3(c * s, r * s, 0f);
+                }
+                    var go = Instantiate(prefab, pos, Quaternion.identity, transform);
                 go.name = (isFloor ? "Floor_" : "Wall_") + r + "_" + c;
             }
         }
