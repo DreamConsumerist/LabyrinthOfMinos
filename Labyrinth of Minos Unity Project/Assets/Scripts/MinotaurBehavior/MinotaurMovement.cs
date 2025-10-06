@@ -9,13 +9,23 @@ public class MinotaurMovement : MonoBehaviour
     Vector2Int targetPos;
     Vector2Int prevTargetPos = new Vector2Int(-1, -1);
     Vector2Int minotaurPos2D;
-    Vector2Int prevMinotaurPos2D;
     List<Vector2Int> currPath;
     MinotaurBehaviorController controller;
+    private bool isInitialized = false;
+
+    [SerializeField] float maxPatrolSpeed = 1f;
+    [SerializeField] float maxChaseSpeed = 3f;
+    Rigidbody rb;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
 
     public void Initialize(MinotaurBehaviorController behaviorController)
     {
         controller = behaviorController;
+        isInitialized = true;
     }
 
     public void UpdateTarget(Vector2Int target)
@@ -28,30 +38,37 @@ public class MinotaurMovement : MonoBehaviour
         minotaurPos2D = new Vector2Int(
             Mathf.RoundToInt(transform.position.x / controller.maze.tileSize),
             Mathf.RoundToInt(transform.position.z / controller.maze.tileSize));
-        MoveToTarget();
+    }
+
+    private void FixedUpdate()
+    {
+        if (isInitialized)
+        {
+            MoveToTarget();
+        }
     }
 
     public void MoveToTarget()
     {
+        //if (currPath == null || currPath.Count == 0) return;
+
         if (targetPos != prevTargetPos)
         {
             currPath = A_StarPathfinding.FindPath(minotaurPos2D, targetPos, controller.maze.open);
             prevTargetPos = targetPos;
-            Debug.Log(currPath?.Count ?? 0);
         }
-        if (currPath != null)
+
+        Vector3 nextPoint = new Vector3(currPath[0].x * controller.maze.tileSize, this.GetComponent<Renderer>().bounds.size.y / 2, currPath[0].y * controller.maze.tileSize);
+
+        if (Vector3.Distance(rb.position, nextPoint) < 0.1f)
         {
-            Debug.Log("Path coordinates:");
-            foreach (var pos in currPath)
-            {
-                bool walkable = controller.maze.open[pos.x, pos.y];
-                Debug.Log($"({pos.x}, {pos.y}) - walkable: {walkable}");
-            }
+            currPath.RemoveAt(0);
+            nextPoint = new Vector3(currPath[0].x * controller.maze.tileSize, this.GetComponent<Renderer>().bounds.size.y / 2, currPath[0].y * controller.maze.tileSize);
         }
-        else
-        {
-            Debug.Log("No path found.");
-        }
+        Debug.Log("Next point: " + nextPoint.x + ", " + nextPoint.y + ", " + nextPoint.x);
+        Vector3 direction = (nextPoint - rb.position).normalized;
+        Vector3 move = direction * maxPatrolSpeed * Time.fixedDeltaTime;
+        rb.MovePosition(rb.position + move);
     }
     void OnDrawGizmos()
     {
