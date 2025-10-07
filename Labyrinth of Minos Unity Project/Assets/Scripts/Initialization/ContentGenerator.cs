@@ -35,7 +35,8 @@ public class ContentGenerator : MonoBehaviour
         );
 
         var playerObj = Instantiate(player, playerPos, Quaternion.identity, transform);
-
+        var playerBehav = playerObj.GetComponent<AutonomousPatrol>();
+        playerBehav.Initialize(maze);
     }
 
     private void MinotaurGen(MazeGenerator.MazeData maze, float s)

@@ -46,4 +46,20 @@ public static class GetTilePosition
         Vector2Int pos2D = options[UnityEngine.Random.Range(0, options.Count)];
         return pos2D;
     }
+
+    public static List<Vector2Int> GetOpenTiles(MazeGenerator.MazeData maze)
+    {
+        List<Vector2Int> options = new List<Vector2Int>();
+        for (int r = 0; r < maze.tilesH; r++)
+        {
+            for (int c = 0; c < maze.tilesW; c++)
+            {
+                if (maze.open[r, c])
+                {
+                    options.Add(new Vector2Int(r, c));
+                }
+            }
+        }
+        return options;
+    }
 }

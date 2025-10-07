@@ -10,9 +10,9 @@ public class MinotaurBehaviorController : MonoBehaviour
     PlayerData player;
 
     // Initializing variables and data structures related to the aggro system
-    [SerializeField] float aggroDecayRate = 5f;
-    [SerializeField] float maxAggro = 100f;
-    private Dictionary<PlayerData, float> playerAggro = new Dictionary<PlayerData, float> { };
+    //[SerializeField] float aggroDecayRate = 5f;
+    //[SerializeField] float maxAggro = 100f;
+    //private Dictionary<PlayerData, float> playerAggro = new Dictionary<PlayerData, float> { };
 
     private void Awake()
     {
