@@ -22,6 +22,20 @@ public class MinotaurMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
     }
+    private void Update()
+    {
+        if (controller == null || controller.maze == null) return;
+        minotaurPos2D = new Vector2Int(
+            Mathf.RoundToInt(transform.position.x / controller.maze.tileSize),
+            Mathf.RoundToInt(transform.position.z / controller.maze.tileSize));
+    }
+    private void FixedUpdate()
+    {
+        if (isInitialized)
+        {
+            MoveToTarget();
+        }
+    }
 
     public void Initialize(MinotaurBehaviorController behaviorController)
     {
@@ -32,21 +46,6 @@ public class MinotaurMovement : MonoBehaviour
     public void UpdateTarget(Vector2Int target)
     {
         targetPos = target;
-    }
-    private void Update()
-    {
-        if (controller == null || controller.maze == null) return;
-        minotaurPos2D = new Vector2Int(
-            Mathf.RoundToInt(transform.position.x / controller.maze.tileSize),
-            Mathf.RoundToInt(transform.position.z / controller.maze.tileSize));
-    }
-
-    private void FixedUpdate()
-    {
-        if (isInitialized)
-        {
-            MoveToTarget();
-        }
     }
 
     public void MoveToTarget()
@@ -97,37 +96,6 @@ public class MinotaurMovement : MonoBehaviour
             currPath.RemoveAt(0);
         }
     }
-
-    //public void MoveToTarget()
-    //{
-    //    //if (currPath == null || currPath.Count == 0) return;
-
-    //    if (targetPos != prevTargetPos)
-    //    {
-    //        if ((currPath != null) && ((currPath.Count > 0) && (currPath[0] == minotaurPos2D)))
-    //        {
-    //            currPath = A_StarPathfinding.FindPath(minotaurPos2D, targetPos, controller.maze.open);
-    //            currPath.RemoveAt(0);
-    //        }
-    //        else
-    //        {
-    //            currPath = A_StarPathfinding.FindPath(minotaurPos2D, targetPos, controller.maze.open);
-    //        }
-    //        prevTargetPos = targetPos;
-    //    }
-
-    //    Vector3 nextPoint = new Vector3(currPath[0].x * controller.maze.tileSize, this.GetComponent<Renderer>().bounds.size.y / 2, currPath[0].y * controller.maze.tileSize);
-
-    //    if (Vector3.Distance(rb.position, nextPoint) < 0.1f)
-    //    {
-    //        currPath.RemoveAt(0);
-    //        nextPoint = new Vector3(currPath[0].x * controller.maze.tileSize, this.GetComponent<Renderer>().bounds.size.y / 2, currPath[0].y * controller.maze.tileSize);
-    //    }
-    //    //Debug.Log("Next point: " + nextPoint.x + ", " + nextPoint.y + ", " + nextPoint.x);
-    //    Vector3 direction = (nextPoint - rb.position).normalized;
-    //    Vector3 move = direction * maxPatrolSpeed * Time.fixedDeltaTime;
-    //    rb.MovePosition(rb.position + move);
-    //}
     void OnDrawGizmos()
     {
         if (currPath == null || controller == null || controller.maze == null)
@@ -152,6 +120,35 @@ public class MinotaurMovement : MonoBehaviour
             Gizmos.DrawLine(from, to);
         }
     }
-
-
 }
+
+//public void MoveToTarget()
+//{
+//    //if (currPath == null || currPath.Count == 0) return;
+
+//    if (targetPos != prevTargetPos)
+//    {
+//        if ((currPath != null) && ((currPath.Count > 0) && (currPath[0] == minotaurPos2D)))
+//        {
+//            currPath = A_StarPathfinding.FindPath(minotaurPos2D, targetPos, controller.maze.open);
+//            currPath.RemoveAt(0);
+//        }
+//        else
+//        {
+//            currPath = A_StarPathfinding.FindPath(minotaurPos2D, targetPos, controller.maze.open);
+//        }
+//        prevTargetPos = targetPos;
+//    }
+
+//    Vector3 nextPoint = new Vector3(currPath[0].x * controller.maze.tileSize, this.GetComponent<Renderer>().bounds.size.y / 2, currPath[0].y * controller.maze.tileSize);
+
+//    if (Vector3.Distance(rb.position, nextPoint) < 0.1f)
+//    {
+//        currPath.RemoveAt(0);
+//        nextPoint = new Vector3(currPath[0].x * controller.maze.tileSize, this.GetComponent<Renderer>().bounds.size.y / 2, currPath[0].y * controller.maze.tileSize);
+//    }
+//    //Debug.Log("Next point: " + nextPoint.x + ", " + nextPoint.y + ", " + nextPoint.x);
+//    Vector3 direction = (nextPoint - rb.position).normalized;
+//    Vector3 move = direction * maxPatrolSpeed * Time.fixedDeltaTime;
+//    rb.MovePosition(rb.position + move);
+//}

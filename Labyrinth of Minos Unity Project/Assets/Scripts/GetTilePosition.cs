@@ -62,4 +62,22 @@ public static class GetTilePosition
         }
         return options;
     }
+
+    public static Vector2Int OpenInRange(MazeGenerator.MazeData maze, int rMin, int rMax, int cMax, int cMin)
+    {
+        List<Vector2Int> options = new List<Vector2Int>();
+        for (int r = rMin; r < rMax; r++)
+        {
+            for (int c = cMin; c < rMax; c++)
+            {
+                if (maze.open[r, c])
+                {
+                    options.Add(new Vector2Int(r, c));
+                }
+            }
+        }
+
+        Vector2Int pos2D = options[UnityEngine.Random.Range(0, options.Count)];
+        return pos2D;
+    }
 }
