@@ -45,7 +45,15 @@ public class MazeBuilder : MonoBehaviour
                              : new Vector3(c * s, r * s, 0f);
                 }
                     var go = Instantiate(prefab, pos, Quaternion.identity, transform);
-                go.name = (isFloor ? "Floor_" : "Wall_") + r + "_" + c;
+                if (!isFloor)
+                {
+                    go.transform.localScale = new Vector3(s, s, s);
+                }
+                else
+                {
+                    go.transform.localScale = new Vector3(s, go.transform.localScale.y, s);
+                }
+                    go.name = (isFloor ? "Floor_" : "Wall_") + r + "_" + c;
             }
         }
     }
