@@ -5,18 +5,23 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(Button))]
 public class UIButtonSounds : MonoBehaviour, IPointerEnterHandler
 {
-    public AudioSource audioSource;
     public AudioClip hoverClip;
     public AudioClip clickClip;
 
+    Button btn;
+
     void Awake()
     {
-        var btn = GetComponent<Button>();
-        if (btn) btn.onClick.AddListener(() => { if (audioSource && clickClip) audioSource.PlayOneShot(clickClip); });
+        btn = GetComponent<Button>();
+        if (btn != null)
+            btn.onClick.AddListener(() =>
+            {
+                if (clickClip) AudioManager.Instance?.PlayUI(clickClip);
+            });
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public void OnPointerEnter(PointerEventData _)
     {
-        if (audioSource && hoverClip) audioSource.PlayOneShot(hoverClip);
+        if (hoverClip) AudioManager.Instance?.PlayUI(hoverClip);
     }
 }

@@ -4,11 +4,13 @@ using UnityEngine.SceneManagement;
 public class MainMenuUI : MonoBehaviour
 {
     [SerializeField] string gameSceneName = "Game";
+    public AudioClip clickSfx;                       // assign your click sound
 
     public void OnPlay()
     {
         Time.timeScale = 1f; // safety in case coming back from pause
-        SceneManager.LoadScene(gameSceneName); // or start a coroutine for async with fade
+        // play fade-out, load scene, then fade-in (TransitionManager handles all of this)
+        TransitionManager.Instance?.Go(gameSceneName, clickSfx);
     }
 
     public void OnSettings()
