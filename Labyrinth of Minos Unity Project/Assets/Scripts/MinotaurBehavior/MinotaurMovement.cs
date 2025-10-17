@@ -11,35 +11,23 @@ public class MinotaurMovement : MonoBehaviour
     Vector2Int prevTargetPos = new Vector2Int(-1, -1);
     Vector2Int minotaurPos2D;
     List<Vector2Int> currPath;
-    MinotaurBehaviorController controller;
-    private bool isInitialized = false;
+    MinotaurBehaviorController minotaur;
+    public bool isInitialized = false;
 
     [SerializeField] float maxPatrolSpeed = 1f;
     //[SerializeField] float maxChaseSpeed = 3f;
-    Rigidbody rb;
 
-    private void Awake()
-    {
-        rb = GetComponent<Rigidbody>();
-    }
     private void Update()
     {
-        if (controller == null || controller.maze == null) return;
+        if (minotaur == null || minotaur.maze == null) return;
         minotaurPos2D = new Vector2Int(
-            Mathf.RoundToInt(transform.position.x / controller.maze.tileSize),
-            Mathf.RoundToInt(transform.position.z / controller.maze.tileSize));
-    }
-    private void FixedUpdate()
-    {
-        if (isInitialized)
-        {
-            MoveToTarget();
-        }
+            Mathf.RoundToInt(transform.position.x / minotaur.maze.tileSize),
+            Mathf.RoundToInt(transform.position.z / minotaur.maze.tileSize));
     }
 
     public void Initialize(MinotaurBehaviorController behaviorController)
     {
-        controller = behaviorController;
+        minotaur = behaviorController;
         isInitialized = true;
     }
 
@@ -50,13 +38,15 @@ public class MinotaurMovement : MonoBehaviour
 
     public void MoveToTarget()
     {
-        if (controller == null || controller.maze == null)
+        if (minotaur == null || minotaur.maze == null)
             return;
-
+        Debug.Log("targetPos: " + targetPos.x + " " + targetPos.y);
+        Debug.Log("prevTargetPos: " + prevTargetPos.x + " " + prevTargetPos.y);
+        Debug.Log("minotaurPos: " + minotaurPos2D.x + " " +  minotaurPos2D.y);
         // Recalculate path only if the target has changed
         if (targetPos != prevTargetPos)
         {
-            var newPath = A_StarPathfinding.FindPath(minotaurPos2D, targetPos, controller.maze.open);
+            var newPath = A_StarPathfinding.FindPath(minotaurPos2D, targetPos, minotaur.maze.open);
 
             if (newPath != null && newPath.Count > 0)
             {
@@ -80,29 +70,52 @@ public class MinotaurMovement : MonoBehaviour
 
         // Calculate the next world-space position
         Vector3 nextPoint = new Vector3(
-            currPath[0].x * controller.maze.tileSize,
+            currPath[0].x * minotaur.maze.tileSize,
             this.GetComponent<Renderer>().bounds.size.y / 2,
-            currPath[0].y * controller.maze.tileSize
+            currPath[0].y * minotaur.maze.tileSize
         );
 
         // Move towards the next node
-        Vector3 direction = (nextPoint - rb.position).normalized;
+        Vector3 direction = (nextPoint - minotaur.rb.position).normalized;
         Vector3 move = direction * maxPatrolSpeed * Time.fixedDeltaTime;
-        rb.MovePosition(rb.position + move);
+        minotaur.rb.MovePosition(minotaur.rb.position + move);
 
         // Check if node reached
-        if (Vector3.Distance(rb.position, nextPoint) < 0.1f)
+        if (Vector3.Distance(minotaur.rb.position, nextPoint) < 0.1f)
         {
             currPath.RemoveAt(0);
         }
     }
+
+    public void FollowPatrolRoute(List<Vector2Int> patrolRoute)
+    {
+        if (patrolRoute == null || patrolRoute.Count == 0)
+            return;
+        Vector3 nextPoint = new Vector3(
+            patrolRoute[0].x * minotaur.maze.tileSize,
+            this.GetComponent<Renderer>().bounds.size.y / 2,
+            patrolRoute[0].y * minotaur.maze.tileSize
+        );
+
+        // Move towards the next node
+        Vector3 direction = (nextPoint - minotaur.rb.position).normalized;
+        Vector3 move = direction * maxPatrolSpeed * Time.fixedDeltaTime;
+        minotaur.rb.MovePosition(minotaur.rb.position + move);
+
+        if (Vector3.Distance(minotaur.rb.position, nextPoint) < 0.1f)
+        {
+            Vector2Int temp = patrolRoute[0];
+            patrolRoute.RemoveAt(0);
+            patrolRoute.Add(temp);
+        }
+    }
     void OnDrawGizmos()
     {
-        if (currPath == null || controller == null || controller.maze == null)
+        if (currPath == null || minotaur == null || minotaur.maze == null)
             return;
 
         Gizmos.color = Color.green;
-        float s = controller.maze.tileSize;
+        float s = minotaur.maze.tileSize;
 
         for (int i = 0; i < currPath.Count - 1; i++)
         {

@@ -63,12 +63,12 @@ public static class GetTilePosition
         return options;
     }
 
-    public static Vector2Int OpenInRange(MazeGenerator.MazeData maze, int rMin, int rMax, int cMax, int cMin)
+    public static Vector2Int OpenInRange(MazeGenerator.MazeData maze, int rMin, int rMax, int cMin, int cMax)
     {
         List<Vector2Int> options = new List<Vector2Int>();
         for (int r = rMin; r < rMax; r++)
         {
-            for (int c = cMin; c < rMax; c++)
+            for (int c = cMin; c < cMax; c++)
             {
                 if (maze.open[r, c])
                 {
@@ -77,7 +77,15 @@ public static class GetTilePosition
             }
         }
 
-        Vector2Int pos2D = options[UnityEngine.Random.Range(0, options.Count)];
-        return pos2D;
+        Vector2Int pos2D = new Vector2Int();
+        if (options.Count > 0)
+        {
+            pos2D = options[UnityEngine.Random.Range(0, options.Count)];
+        }
+        else
+        {
+            Debug.Log("No options available!");
+        }
+            return pos2D;
     }
 }

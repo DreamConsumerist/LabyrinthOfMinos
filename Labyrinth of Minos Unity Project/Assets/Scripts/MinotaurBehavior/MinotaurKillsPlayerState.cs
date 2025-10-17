@@ -10,6 +10,10 @@ public class MinotaurKillsPlayerState : MinotaurBaseState
     {
 
     }
+    public override void FixedUpdateState(MinotaurBehaviorController minotaur)
+    {
+
+    }
 
     public override void OnCollisionEnter(MinotaurBehaviorController minotaur)
     {
