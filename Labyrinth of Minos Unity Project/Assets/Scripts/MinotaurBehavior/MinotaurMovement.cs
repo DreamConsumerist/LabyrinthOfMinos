@@ -14,21 +14,24 @@ public class MinotaurMovement : MonoBehaviour
     MinotaurBehaviorController minotaur;
     public bool isInitialized = false;
 
-    [SerializeField] float maxPatrolSpeed = 1f;
-    //[SerializeField] float maxChaseSpeed = 3f;
-
     private void Update()
     {
         if (minotaur == null || minotaur.maze == null) return;
-        minotaurPos2D = new Vector2Int(
-            Mathf.RoundToInt(transform.position.x / minotaur.maze.tileSize),
-            Mathf.RoundToInt(transform.position.z / minotaur.maze.tileSize));
+        if (isInitialized)
+        {
+            minotaurPos2D = new Vector2Int(
+                Mathf.RoundToInt(minotaur.rb.position.x / minotaur.maze.tileSize),
+                Mathf.RoundToInt(minotaur.rb.position.z / minotaur.maze.tileSize));
+        }
     }
 
     public void Initialize(MinotaurBehaviorController behaviorController)
     {
         minotaur = behaviorController;
         isInitialized = true;
+        minotaurPos2D = new Vector2Int(
+                Mathf.RoundToInt(minotaur.rb.position.x / minotaur.maze.tileSize),
+                Mathf.RoundToInt(minotaur.rb.position.z / minotaur.maze.tileSize));
     }
 
     public void UpdateTarget(Vector2Int target)
@@ -36,7 +39,7 @@ public class MinotaurMovement : MonoBehaviour
         targetPos = target;
     }
 
-    public void MoveToTarget()
+    public void MoveToTarget(float maxPatrolSpeed)
     {
         if (minotaur == null || minotaur.maze == null)
             return;
@@ -66,7 +69,10 @@ public class MinotaurMovement : MonoBehaviour
 
         // Nothing to do if there’s no path
         if (currPath == null || currPath.Count == 0)
+        {
+            Debug.Log("There's no path!!!");
             return;
+        }
 
         // Calculate the next world-space position
         Vector3 nextPoint = new Vector3(
@@ -81,13 +87,13 @@ public class MinotaurMovement : MonoBehaviour
         minotaur.rb.MovePosition(minotaur.rb.position + move);
 
         // Check if node reached
-        if (Vector3.Distance(minotaur.rb.position, nextPoint) < 0.1f)
+        if (Vector3.Distance(minotaur.rb.position, nextPoint) < 0.5f)
         {
             currPath.RemoveAt(0);
         }
     }
 
-    public void FollowPatrolRoute(List<Vector2Int> patrolRoute)
+    public void FollowPatrolRoute(List<Vector2Int> patrolRoute, float maxPatrolSpeed)
     {
         if (patrolRoute == null || patrolRoute.Count == 0)
             return;

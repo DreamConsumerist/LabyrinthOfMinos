@@ -12,6 +12,7 @@ public class MinotaurBehaviorController : MonoBehaviour
     public MazeGenerator.MazeData maze;
     public List<Vector2Int> patrolPath;
     public PlayerData player;
+    [SerializeField] public GameObject indicator;
 
     MinotaurBaseState currentState;
     MinotaurChaseState ChaseState = new MinotaurChaseState();
@@ -19,11 +20,6 @@ public class MinotaurBehaviorController : MonoBehaviour
     MinotaurPatrolState PatrolState = new MinotaurPatrolState();
 
     public Rigidbody rb;
-
-    // Initializing variables and data structures related to the aggro system
-    //[SerializeField] float aggroDecayRate = 5f;
-    //[SerializeField] float maxAggro = 100f;
-    //private Dictionary<PlayerData, float> playerAggro = new Dictionary<PlayerData, float> { };
 
     private void Awake()
     {
@@ -53,4 +49,27 @@ public class MinotaurBehaviorController : MonoBehaviour
         maze = mazeObj;
         movement.Initialize(this);
     }
+
+    void OnDrawGizmos()
+    {
+        if (PatrolState == null || PatrolState.patrolPath == null || maze == null)
+            return;
+
+        Gizmos.color = Color.yellow; // a different color
+        float s = maze.tileSize;
+
+        var path = PatrolState.patrolPath;
+        for (int i = 0; i < path.Count - 1; i++)
+        {
+            Vector3 from = new Vector3(path[i].x * s, 0.5f, path[i].y * s);
+            Vector3 to = new Vector3(path[i + 1].x * s, 0.5f, path[i + 1].y * s);
+            Gizmos.DrawLine(from, to);
+        }
+    }
 }
+
+
+// Initializing variables and data structures related to the aggro system
+//[SerializeField] float aggroDecayRate = 5f;
+//[SerializeField] float maxAggro = 100f;
+//private Dictionary<PlayerData, float> playerAggro = new Dictionary<PlayerData, float> { };

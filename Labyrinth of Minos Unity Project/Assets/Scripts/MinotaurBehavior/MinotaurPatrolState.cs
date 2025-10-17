@@ -7,7 +7,7 @@ using UnityEngine.InputSystem.XR;
 
 public class MinotaurPatrolState : MinotaurBaseState
 {
-    List<Vector2Int> patrolPath = new List<Vector2Int>();
+    public List<Vector2Int> patrolPath = new List<Vector2Int>();
     bool returningToPath = false;
     MinotaurBehaviorController controller;
     public override void EnterState(MinotaurBehaviorController minotaur)
@@ -16,7 +16,7 @@ public class MinotaurPatrolState : MinotaurBaseState
         Debug.Log("Entering patrol state");
         if (patrolPath == null || patrolPath.Count == 0)
         {
-            patrolPath = PatrolPathGeneration(minotaur.maze);
+            patrolPath = PatrolPathGeneration(minotaur);
         }
         StartWithClosestInPath(patrolPath, minotaur);
         minotaur.movement.UpdateTarget(patrolPath[0]);
@@ -48,12 +48,12 @@ public class MinotaurPatrolState : MinotaurBaseState
             if (returningToPath)
             {
                 Debug.Log("Moving to patrol path");
-                minotaur.movement.MoveToTarget();
+                minotaur.movement.MoveToTarget(3);
             }
             else
             {
                 Debug.Log("Following patrol path");
-                minotaur.movement.FollowPatrolRoute(patrolPath);
+                minotaur.movement.FollowPatrolRoute(patrolPath, 3);
             }
         }
     }
@@ -63,18 +63,22 @@ public class MinotaurPatrolState : MinotaurBaseState
 
     }
 
-    private List<Vector2Int> PatrolPathGeneration(MazeGenerator.MazeData maze)
+    private List<Vector2Int> PatrolPathGeneration(MinotaurBehaviorController minotaur)
     {
-        Vector2Int A = GetTilePosition.OpenInRange(maze, 0, Mathf.RoundToInt(maze.tilesW / 2), 0, Mathf.RoundToInt(maze.tilesH / 2));
-        Vector2Int B = GetTilePosition.OpenInRange(maze, 0, Mathf.RoundToInt(maze.tilesW / 2), Mathf.RoundToInt(maze.tilesH / 2), maze.tilesH);
-        Vector2Int C = GetTilePosition.OpenInRange(maze, Mathf.RoundToInt(maze.tilesW / 2), maze.tilesW, Mathf.RoundToInt(maze.tilesH / 2), maze.tilesH);
-        Vector2Int D = GetTilePosition.OpenInRange(maze, Mathf.RoundToInt(maze.tilesW / 2), maze.tilesW, 0, Mathf.RoundToInt(maze.tilesH / 2));
+        Vector2Int A = GetTilePosition.OpenInRange(minotaur.maze, 0, Mathf.RoundToInt(minotaur.maze.tilesW / 2), 0, Mathf.RoundToInt(minotaur.maze.tilesH / 2));
+        GetTilePosition.SpawnIndicator(A, Color.red, minotaur.indicator);
+        Vector2Int B = GetTilePosition.OpenInRange(minotaur.maze, 0, Mathf.RoundToInt(minotaur.maze.tilesW / 2), Mathf.RoundToInt(minotaur.maze.tilesH / 2), minotaur.maze.tilesH);
+        GetTilePosition.SpawnIndicator(B, Color.blue, minotaur.indicator);
+        Vector2Int C = GetTilePosition.OpenInRange(minotaur.maze, Mathf.RoundToInt(minotaur.maze.tilesW / 2), minotaur.maze.tilesW, Mathf.RoundToInt(minotaur.maze.tilesH / 2), minotaur.maze.tilesH);
+        GetTilePosition.SpawnIndicator(C, Color.green, minotaur.indicator);
+        Vector2Int D = GetTilePosition.OpenInRange(minotaur.maze, Mathf.RoundToInt(minotaur.maze.tilesW / 2), minotaur.maze.tilesW, 0, Mathf.RoundToInt(minotaur.maze.tilesH / 2));
+        GetTilePosition.SpawnIndicator(D, Color.yellow, minotaur.indicator);
 
         List<Vector2Int> totalPath = new List<Vector2Int>();
-        List<Vector2Int> pathAB = A_StarPathfinding.FindPath(A, B, maze.open);
-        List<Vector2Int> pathBC = A_StarPathfinding.FindPath(B, C, maze.open);
-        List<Vector2Int> pathCD = A_StarPathfinding.FindPath(C, D, maze.open);
-        List<Vector2Int> pathDA = A_StarPathfinding.FindPath(D, A, maze.open);
+        List<Vector2Int> pathAB = A_StarPathfinding.FindPath(A, B, minotaur.maze.open);
+        List<Vector2Int> pathBC = A_StarPathfinding.FindPath(B, C, minotaur.maze.open);
+        List<Vector2Int> pathCD = A_StarPathfinding.FindPath(C, D, minotaur.maze.open);
+        List<Vector2Int> pathDA = A_StarPathfinding.FindPath(D, A, minotaur.maze.open);
 
         totalPath.AddRange(pathAB);
         totalPath.AddRange(pathBC.Skip(1));
@@ -93,7 +97,6 @@ public class MinotaurPatrolState : MinotaurBaseState
         
         float minDist = float.MaxValue;
         Vector2Int closestPoint = patrolPath[0];
-        bool reordered = false;
 
         for (int i = 0; i < patrolPath.Count; i++)
         {
@@ -105,18 +108,13 @@ public class MinotaurPatrolState : MinotaurBaseState
         }
 
         // Point of inefficiency, can do this quicker
-        while (!reordered)
+        int closestIndex = patrolPath.IndexOf(closestPoint);
+        if (closestIndex > 0)
         {
-            if (patrolPath[0] == closestPoint)
-            {
-                reordered = true;
-            }
-            else
-            {
-                Vector2Int temp = patrolPath[0];
-                patrolPath.RemoveAt(0);
-                patrolPath.Add(temp);
-            }
+            // Take everything before the closest point and move it to the end
+            var prefix = patrolPath.GetRange(0, closestIndex);
+            patrolPath.RemoveRange(0, closestIndex);
+            patrolPath.AddRange(prefix);
         }
     }
     void OnDrawGizmos()
