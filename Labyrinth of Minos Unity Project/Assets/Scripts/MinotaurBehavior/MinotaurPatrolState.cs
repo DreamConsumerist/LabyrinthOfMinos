@@ -33,11 +33,9 @@ public class MinotaurPatrolState : MinotaurBaseState
         {
             if (minotaurPos2D == patrolPath[0])
             {
-                Debug.Log("On patrol path");
                 returningToPath = false;
             }
             minotaur.movement.UpdateTarget(patrolPath[0]);
-            Debug.Log("Targeting patrol path part deux");
         }
     }
 
@@ -47,12 +45,10 @@ public class MinotaurPatrolState : MinotaurBaseState
         {
             if (returningToPath)
             {
-                Debug.Log("Moving to patrol path");
                 minotaur.movement.MoveToTarget(3);
             }
             else
             {
-                Debug.Log("Following patrol path");
                 minotaur.movement.FollowPatrolRoute(patrolPath, 3);
             }
         }
