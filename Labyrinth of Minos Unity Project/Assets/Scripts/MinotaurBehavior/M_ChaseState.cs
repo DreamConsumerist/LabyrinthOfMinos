@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class MinotaurChaseState : MinotaurBaseState
 {
@@ -16,6 +17,11 @@ public class MinotaurChaseState : MinotaurBaseState
     }
     public override void OnCollisionEnter(MinotaurBehaviorController minotaur)
     {
-
+        // Add logic to make this specific to player otherwise it'll trigger on any collision.
+        // minotaur.ChangeState(minotaur.KillsPlayerState);
+    }
+    public override void ExitState(MinotaurBehaviorController minotaur)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -6,4 +6,6 @@ public abstract class MinotaurBaseState
     public abstract void UpdateState(MinotaurBehaviorController minotaur);
     public abstract void OnCollisionEnter(MinotaurBehaviorController minotaur);
     public abstract void FixedUpdateState(MinotaurBehaviorController minotaur);
+
+    public abstract void ExitState(MinotaurBehaviorController minotaur);
 }

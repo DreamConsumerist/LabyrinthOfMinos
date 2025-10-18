@@ -15,9 +15,9 @@ public class MinotaurBehaviorController : MonoBehaviour
     [SerializeField] public GameObject indicator;
 
     MinotaurBaseState currentState;
-    MinotaurChaseState ChaseState = new MinotaurChaseState();
-    MinotaurKillsPlayerState KillsPlayerState = new MinotaurKillsPlayerState();
-    MinotaurPatrolState PatrolState = new MinotaurPatrolState();
+    public MinotaurChaseState ChaseState = new MinotaurChaseState();
+    public MinotaurKillsPlayerState KillsPlayerState = new MinotaurKillsPlayerState();
+    public MinotaurPatrolState PatrolState = new MinotaurPatrolState();
 
     public Rigidbody rb;
 
@@ -48,6 +48,13 @@ public class MinotaurBehaviorController : MonoBehaviour
     {
         maze = mazeObj;
         movement.Initialize(this);
+    }
+
+    public void ChangeState(MinotaurBaseState state)
+    {
+        currentState.ExitState(this);
+        currentState = state;
+        currentState.EnterState(this);
     }
 
     void OnDrawGizmos()

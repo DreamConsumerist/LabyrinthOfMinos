@@ -1,3 +1,4 @@
+// I don't know why we have System, Unity.VisualScripting, or UnityEngine.InputSystem.XR, but I'm not touching them until I have clarity.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,20 +10,18 @@ public class MinotaurPatrolState : MinotaurBaseState
 {
     public List<Vector2Int> patrolPath = new List<Vector2Int>();
     bool returningToPath = false;
-    MinotaurBehaviorController controller;
     public override void EnterState(MinotaurBehaviorController minotaur)
     {
-        controller = minotaur;
-        Debug.Log("Entering patrol state");
         if (patrolPath == null || patrolPath.Count == 0)
         {
             patrolPath = PatrolPathGeneration(minotaur);
         }
+        // Important note is that this targets the closest by Euclidean distance, not the closest via pathfinding. Some unnatural pathing maybe, but not really an issue at this stage.
         StartWithClosestInPath(patrolPath, minotaur);
         minotaur.movement.UpdateTarget(patrolPath[0]);
         returningToPath = true;
-        Debug.Log("Targeting patrol path");
     }
+
     public override void UpdateState(MinotaurBehaviorController minotaur)
     {
         Vector2Int minotaurPos2D = new Vector2Int(
@@ -56,11 +55,19 @@ public class MinotaurPatrolState : MinotaurBaseState
 
     public override void OnCollisionEnter(MinotaurBehaviorController minotaur)
     {
+        // When colliding with a player while patrolling, maybe we do some kind of surprise behavior? It shouldn't really happen because the minotaur
+        // should sense them before it gets touched. I think, as a failsafe, this either switches directly to KillsPlayer or to Chase and then to
+        // KillsPlayer from there. 
+    }
+
+    public override void ExitState(MinotaurBehaviorController minotaur)
+    {
 
     }
 
     private List<Vector2Int> PatrolPathGeneration(MinotaurBehaviorController minotaur)
     {
+        // Create toggleable debug system.
         Vector2Int A = GetTilePosition.OpenInRange(minotaur.maze, 0, Mathf.RoundToInt(minotaur.maze.tilesW / 2), 0, Mathf.RoundToInt(minotaur.maze.tilesH / 2));
         GetTilePosition.SpawnIndicator(A, Color.red, minotaur.indicator);
         Vector2Int B = GetTilePosition.OpenInRange(minotaur.maze, 0, Mathf.RoundToInt(minotaur.maze.tilesW / 2), Mathf.RoundToInt(minotaur.maze.tilesH / 2), minotaur.maze.tilesH);
@@ -103,7 +110,6 @@ public class MinotaurPatrolState : MinotaurBaseState
             }
         }
 
-        // Point of inefficiency, can do this quicker
         int closestIndex = patrolPath.IndexOf(closestPoint);
         if (closestIndex > 0)
         {
@@ -111,30 +117,6 @@ public class MinotaurPatrolState : MinotaurBaseState
             var prefix = patrolPath.GetRange(0, closestIndex);
             patrolPath.RemoveRange(0, closestIndex);
             patrolPath.AddRange(prefix);
-        }
-    }
-    void OnDrawGizmos()
-    {
-        if (patrolPath == null || controller == null || controller.maze == null)
-            return;
-
-        Gizmos.color = Color.green;
-        float s = controller.maze.tileSize;
-
-        for (int i = 0; i < patrolPath.Count - 1; i++)
-        {
-            // Note: maze[y,x] means currPath[i].y is the row, currPath[i].x is the column
-            Vector3 from = new Vector3(
-                patrolPath[i].x * s,
-                0.5f,
-                patrolPath[i].y * s
-            );
-            Vector3 to = new Vector3(
-                patrolPath[i + 1].x * s,
-                0.5f,
-                patrolPath[i + 1].y * s
-            );
-            Gizmos.DrawLine(from, to);
         }
     }
 }

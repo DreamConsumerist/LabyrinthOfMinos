@@ -19,4 +19,9 @@ public class MinotaurKillsPlayerState : MinotaurBaseState
     {
 
     }
+
+    public override void ExitState(MinotaurBehaviorController minotaur)
+    {
+
+    }
 }
