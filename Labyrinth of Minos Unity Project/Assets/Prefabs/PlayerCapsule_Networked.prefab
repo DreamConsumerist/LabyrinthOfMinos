@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: -36098843233929265}
   - component: {fileID: 8532481501581085161}
   - component: {fileID: 849112075973980462}
+  - component: {fileID: 2233371197290203010}
   m_Layer: 8
   m_Name: PlayerCapsule_Networked
   m_TagString: Player
@@ -431,6 +432,20 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &2233371197290203010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1677148472585727014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d196b5d8a4838584390db863727a6b95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerData
+  username: 
+  staminaValue: 0
 --- !u!1 &7620319688190338339
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,18 +1,13 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 [RequireComponent(typeof(MinotaurMovement))]
-public class MinotaurBehaviorController : MonoBehaviour
+public class MinotaurBehaviorController : NetworkBehaviour
 {
-    // Initializing maze data and passing reference to this component to MinotaurMovement
     [SerializeField] MinotaurMovement movement;
     public MazeGenerator.MazeData maze;
-    PlayerData player;
-
-    // Initializing variables and data structures related to the aggro system
-    //[SerializeField] float aggroDecayRate = 5f;
-    //[SerializeField] float maxAggro = 100f;
-    //private Dictionary<PlayerData, float> playerAggro = new Dictionary<PlayerData, float> { };
+    private PlayerData player;
 
     private void Awake()
     {
@@ -25,14 +20,27 @@ public class MinotaurBehaviorController : MonoBehaviour
         movement.Initialize(this);
     }
 
+    [System.Obsolete]
     void Start()
     {
+        // Only the server controls targeting logic
+        if (!IsServer) return;
+
+        // Find the first PlayerData in the scene (you can adjust this for multi-client support)
         player = FindObjectOfType<PlayerData>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        movement.UpdateTarget(new Vector2Int(Mathf.RoundToInt(player.transform.position.x / maze.tileSize), Mathf.RoundToInt(player.transform.position.z / maze.tileSize)));
+        // Only the server drives the AI's behavior
+        if (!IsServer || player == null || maze == null) return;
+
+        var playerPos = player.transform.position;
+        var target = new Vector2Int(
+            Mathf.RoundToInt(playerPos.x / maze.tileSize),
+            Mathf.RoundToInt(playerPos.z / maze.tileSize)
+        );
+
+        movement.UpdateTarget(target);
     }
 }

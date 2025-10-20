@@ -451,7 +451,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ContentGenerator
   minotaur: {fileID: 150018875950942331, guid: cbc7e85a4f23d0b43b8a82701b41d59c, type: 3}
-  player: {fileID: 7025342462492690379, guid: cf64278134dae4544939992553b4dbcd, type: 3}
+  player: {fileID: 1677148472585727014, guid: 3bd5859b731924d468ed42d12b19dce7, type: 3}
   playerSpawnMargins: 4
 --- !u!114 &1909405090
 MonoBehaviour:
