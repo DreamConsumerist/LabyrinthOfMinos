@@ -44,11 +44,11 @@ public class MinotaurPatrolState : MinotaurBaseState
         {
             if (returningToPath)
             {
-                minotaur.movement.MoveToTarget(3);
+                minotaur.movement.MoveToTarget(0.75f, 75);
             }
             else
             {
-                minotaur.movement.FollowPatrolRoute(patrolPath, 3);
+                minotaur.movement.FollowPatrolRoute(patrolPath, 0.75f, 75);
             }
         }
     }
