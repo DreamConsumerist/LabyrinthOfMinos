@@ -44,8 +44,8 @@ public class AutonomousPatrol : MonoBehaviour
         {
             MoveToTarget();
         }
-        Debug.Log("Curr pos: " + Mathf.RoundToInt(transform.position.x / maze.tileSize) + ", " + Mathf.RoundToInt(transform.position.z / maze.tileSize));
-        Debug.Log("Target pos: " + Mathf.RoundToInt(nextPoint.x / maze.tileSize) + ", " + Mathf.RoundToInt(nextPoint.z / maze.tileSize));
+        //Debug.Log("Curr pos: " + Mathf.RoundToInt(transform.position.x / maze.tileSize) + ", " + Mathf.RoundToInt(transform.position.z / maze.tileSize));
+        //Debug.Log("Target pos: " + Mathf.RoundToInt(nextPoint.x / maze.tileSize) + ", " + Mathf.RoundToInt(nextPoint.z / maze.tileSize));
 
     }
 
