@@ -46,7 +46,8 @@ public class ContentGenerator : MonoBehaviour
         // Convert 2D tile coords to 3D world position
         Vector3 minotaurPos = new Vector3(
             minotaurPos2D.x * s,
-            minotaur.GetComponent<Renderer>().bounds.size.y / 2,
+            //minotaur.GetComponentInChildren<Renderer>().bounds.size.y / 2,
+            0,
             minotaurPos2D.y * s
         );
 

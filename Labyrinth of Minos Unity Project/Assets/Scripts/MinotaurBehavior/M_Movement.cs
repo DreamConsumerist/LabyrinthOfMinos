@@ -43,9 +43,7 @@ public class MinotaurMovement : MonoBehaviour
     {
         if (minotaur == null || minotaur.maze == null)
             return;
-        Debug.Log("targetPos: " + targetPos.x + " " + targetPos.y);
-        Debug.Log("prevTargetPos: " + prevTargetPos.x + " " + prevTargetPos.y);
-        Debug.Log("minotaurPos: " + minotaurPos2D.x + " " +  minotaurPos2D.y);
+
         // Recalculate path only if the target has changed
         if (targetPos != prevTargetPos)
         {
@@ -77,7 +75,8 @@ public class MinotaurMovement : MonoBehaviour
         // Calculate the next world-space position
         Vector3 nextPoint = new Vector3(
             currPath[0].x * minotaur.maze.tileSize,
-            this.GetComponent<Renderer>().bounds.size.y / 2,
+            //this.GetComponent<Renderer>().bounds.size.y / 2,
+            0,
             currPath[0].y * minotaur.maze.tileSize
         );
 
@@ -99,7 +98,8 @@ public class MinotaurMovement : MonoBehaviour
             return;
         Vector3 nextPoint = new Vector3(
             patrolRoute[0].x * minotaur.maze.tileSize,
-            this.GetComponent<Renderer>().bounds.size.y / 2,
+            //this.GetComponent<Renderer>().bounds.size.y / 2,
+            0,
             patrolRoute[0].y * minotaur.maze.tileSize
         );
 
@@ -140,34 +140,3 @@ public class MinotaurMovement : MonoBehaviour
         }
     }
 }
-
-//public void MoveToTarget()
-//{
-//    //if (currPath == null || currPath.Count == 0) return;
-
-//    if (targetPos != prevTargetPos)
-//    {
-//        if ((currPath != null) && ((currPath.Count > 0) && (currPath[0] == minotaurPos2D)))
-//        {
-//            currPath = A_StarPathfinding.FindPath(minotaurPos2D, targetPos, controller.maze.open);
-//            currPath.RemoveAt(0);
-//        }
-//        else
-//        {
-//            currPath = A_StarPathfinding.FindPath(minotaurPos2D, targetPos, controller.maze.open);
-//        }
-//        prevTargetPos = targetPos;
-//    }
-
-//    Vector3 nextPoint = new Vector3(currPath[0].x * controller.maze.tileSize, this.GetComponent<Renderer>().bounds.size.y / 2, currPath[0].y * controller.maze.tileSize);
-
-//    if (Vector3.Distance(rb.position, nextPoint) < 0.1f)
-//    {
-//        currPath.RemoveAt(0);
-//        nextPoint = new Vector3(currPath[0].x * controller.maze.tileSize, this.GetComponent<Renderer>().bounds.size.y / 2, currPath[0].y * controller.maze.tileSize);
-//    }
-//    //Debug.Log("Next point: " + nextPoint.x + ", " + nextPoint.y + ", " + nextPoint.x);
-//    Vector3 direction = (nextPoint - rb.position).normalized;
-//    Vector3 move = direction * maxPatrolSpeed * Time.fixedDeltaTime;
-//    rb.MovePosition(rb.position + move);
-//}
