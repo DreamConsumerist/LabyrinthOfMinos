@@ -138,11 +138,11 @@ AudioMixerController:
   - guid: a2daaf80447b7ad40a77839727cc8267
     name: MyExposedParam
   - guid: 080be241a5891304b966ea82ceb1032f
-    name: MyExposedParam 1
+    name: MusicVol
   - guid: 12f9f153dd721b642b974992185775c4
-    name: MyExposedParam 2
+    name: SFXVol
   - guid: 4fbc9a4ca97969944aec7c1e809a5e58
-    name: MyExposedParam 3
+    name: UIVol
   m_AudioMixerGroupViews:
   - guids:
     - 5e87fe03575c1cc45b3920c6cf51c856
@@ -153,7 +153,7 @@ AudioMixerController:
     - b7801f64167e3bf4a93b50ac015cdad4
     name: View
   m_CurrentViewIndex: 0
-  m_TargetSnapshot: {fileID: -7853781455904171469}
+  m_TargetSnapshot: {fileID: 24500006}
 --- !u!243 &24300002
 AudioMixerGroupController:
   m_ObjectHideFlags: 0
@@ -201,6 +201,7 @@ AudioMixerSnapshotController:
   m_SnapshotID: a2c851124c05e9f4d8a267acbac9a7a3
   m_FloatValues:
     a2daaf80447b7ad40a77839727cc8267: -0.04203608
+    080be241a5891304b966ea82ceb1032f: 0.020936936
   m_TransitionOverrides: {}
 --- !u!244 &893967117934140835
 AudioMixerEffectController:

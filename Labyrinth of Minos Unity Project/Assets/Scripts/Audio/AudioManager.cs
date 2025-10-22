@@ -62,6 +62,20 @@ public class AudioManager : MonoBehaviour
         idleMusic = musicB;
     }
 
+    // AudioManager.cs
+    public void ApplySavedVolumesOnBoot()
+    {
+        SetVolume("MusicVol", PlayerPrefs.GetFloat("vol_music", 0.8f));
+        SetVolume("SFXVol", PlayerPrefs.GetFloat("vol_sfx", 0.8f));
+        SetVolume("UIVol", PlayerPrefs.GetFloat("vol_ui", 0.8f));
+    }
+
+    void Start()
+    {
+        // After Awake sets up sources, apply volumes from last save:
+        ApplySavedVolumesOnBoot();
+    }
+
     // ---------------- UI & 2D ----------------
     public void PlayUI(AudioClip clip, float vol = 1f)
     { if (clip && uiSfxSource) uiSfxSource.PlayOneShot(clip, vol); }
