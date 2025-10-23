@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 2255722948698162882}
   - component: {fileID: 1974201721530121584}
   - component: {fileID: -7091646846193606354}
-  - component: {fileID: 5232874384575106713}
   - component: {fileID: 8771459996864273319}
   - component: {fileID: -1027859881010312234}
+  - component: {fileID: 5731863422524119563}
   m_Layer: 0
   m_Name: Minotaur
   m_TagString: Untagged
@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f10b0680c776b946aad9e8c15a24288, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinotaurMovement
-  maxPatrolSpeed: 3
+  isInitialized: 1
 --- !u!114 &-7091646846193606354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -156,29 +156,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &5232874384575106713
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 150018875950942331}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b61febb7820e8c14caddfa1e38ba3a52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MinotaurBehaviorController
-  ShowTopMostFoldoutHeaderGroup: 1
-  movement: {fileID: 1974201721530121584}
-  maze:
-    tilesH: 0
-    tilesW: 0
-    cellsH: 0
-    cellsW: 0
-    start: {x: 0, y: 0}
-    end: {x: 0, y: 0}
-    tileSize: 0
-    useXZPlane: 0
 --- !u!54 &8771459996864273319
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -252,3 +229,30 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &5731863422524119563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 150018875950942331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8737391975197cb4bbb683dda589dce3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinotaurBehaviorController
+  ShowTopMostFoldoutHeaderGroup: 1
+  movement: {fileID: 1974201721530121584}
+  maze:
+    tilesH: 0
+    tilesW: 0
+    cellsH: 0
+    cellsW: 0
+    start: {x: 0, y: 0}
+    end: {x: 0, y: 0}
+    tileSize: 0
+    useXZPlane: 0
+  patrolPath: []
+  player: {fileID: 2233371197290203010, guid: 3bd5859b731924d468ed42d12b19dce7, type: 3}
+  indicator: {fileID: 4346424604894808028, guid: 8734ca56aec784f479b571f2e420a592, type: 3}
+  rb: {fileID: 8771459996864273319}

@@ -1,17 +1,58 @@
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
+using Unity.Netcode;
 
 [RequireComponent(typeof(MinotaurMovement))]
 public class MinotaurBehaviorController : NetworkBehaviour
 {
-    [SerializeField] MinotaurMovement movement;
+    public MinotaurMovement movement;
     public MazeGenerator.MazeData maze;
-    private PlayerData player;
+    public List<Vector2Int> patrolPath;
+    public PlayerData player;
+    [SerializeField] public GameObject indicator;
+
+    private MinotaurBaseState currentState;
+    public MinotaurChaseState ChaseState = new MinotaurChaseState();
+    public MinotaurKillsPlayerState KillsPlayerState = new MinotaurKillsPlayerState();
+    public MinotaurPatrolState PatrolState = new MinotaurPatrolState();
+
+    public Rigidbody rb;
 
     private void Awake()
     {
         if (!movement) movement = GetComponent<MinotaurMovement>();
+        rb = GetComponent<Rigidbody>();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (IsServer)
+        {
+            // Initialize maze and AI only on server
+            currentState = PatrolState;
+            currentState.EnterState(this);
+            movement.Initialize(this);
+            player = FindAnyObjectByType<PlayerData>();
+        }
+        else
+        {
+            // Client-only setup (visuals, indicators)
+            if (indicator != null) indicator.SetActive(true);
+        }
+    }
+
+    private void Update()
+    {
+        if (!IsServer) return;
+        currentState.UpdateState(this);
+    }
+
+    private void FixedUpdate()
+    {
+        if (!IsServer) return;
+        currentState.FixedUpdateState(this);
     }
 
     public void Initialize(MazeGenerator.MazeData mazeObj)
@@ -20,27 +61,27 @@ public class MinotaurBehaviorController : NetworkBehaviour
         movement.Initialize(this);
     }
 
-    [System.Obsolete]
-    void Start()
+    public void ChangeState(MinotaurBaseState state)
     {
-        // Only the server controls targeting logic
-        if (!IsServer) return;
-
-        // Find the first PlayerData in the scene (you can adjust this for multi-client support)
-        player = FindObjectOfType<PlayerData>();
+        currentState.ExitState(this);
+        currentState = state;
+        currentState.EnterState(this);
     }
 
-    void Update()
+    private void OnDrawGizmos()
     {
-        // Only the server drives the AI's behavior
-        if (!IsServer || player == null || maze == null) return;
+        if (PatrolState == null || PatrolState.patrolPath == null || maze == null)
+            return;
 
-        var playerPos = player.transform.position;
-        var target = new Vector2Int(
-            Mathf.RoundToInt(playerPos.x / maze.tileSize),
-            Mathf.RoundToInt(playerPos.z / maze.tileSize)
-        );
+        Gizmos.color = Color.yellow;
+        float s = maze.tileSize;
+        var path = PatrolState.patrolPath;
 
-        movement.UpdateTarget(target);
+        for (int i = 0; i < path.Count - 1; i++)
+        {
+            Vector3 from = new Vector3(path[i].x * s, 0.5f, path[i].y * s);
+            Vector3 to = new Vector3(path[i + 1].x * s, 0.5f, path[i + 1].y * s);
+            Gizmos.DrawLine(from, to);
+        }
     }
 }
