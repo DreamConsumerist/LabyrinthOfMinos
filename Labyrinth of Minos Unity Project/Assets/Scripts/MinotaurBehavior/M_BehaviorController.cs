@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem.DualShock.LowLevel;
 
 [RequireComponent(typeof(MinotaurMovement))]
 public class MinotaurBehaviorController : MonoBehaviour
 {
     // Initializing maze data and passing reference to this component to MinotaurMovement
     public MinotaurMovement movement;
+    public MinotaurSenses senses;
     public MazeGenerator.MazeData maze;
     public List<Vector2Int> patrolPath;
     public PlayerData player;
     [SerializeField] public GameObject indicator;
+
+    public MinotaurSenses.SenseReport currentKnowledge;
 
     MinotaurBaseState currentState;
     public MinotaurChaseState ChaseState = new MinotaurChaseState();
@@ -24,6 +28,7 @@ public class MinotaurBehaviorController : MonoBehaviour
     private void Awake()
     {
         if (!movement) movement = GetComponent<MinotaurMovement>();
+        if (!senses) senses = GetComponent<MinotaurSenses>();
         rb = GetComponent<Rigidbody>();
     }
     void Start()
@@ -36,7 +41,8 @@ public class MinotaurBehaviorController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        currentState.UpdateState(this);
+        currentKnowledge = senses.SensoryUpdate();
+        currentState.UpdateState(this, currentKnowledge);
     }
 
     private void FixedUpdate()
@@ -48,6 +54,7 @@ public class MinotaurBehaviorController : MonoBehaviour
     {
         maze = mazeObj;
         movement.Initialize(this);
+        senses.Initialize(this);
     }
 
     public void ChangeState(MinotaurBaseState state)

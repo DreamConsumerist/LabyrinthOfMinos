@@ -80,6 +80,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e1302708d0066e641a0a5c7db1f3836a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2526284229226465395}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e1302708d0066e641a0a5c7db1f3836a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -1196838029705443366}
   m_SourcePrefab: {fileID: 100100000, guid: e1302708d0066e641a0a5c7db1f3836a, type: 3}
 --- !u!1 &6132809874441367548 stripped
 GameObject:
@@ -161,6 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinotaurBehaviorController
   movement: {fileID: 0}
+  senses: {fileID: 0}
   maze:
     tilesH: 0
     tilesW: 0
@@ -174,3 +178,17 @@ MonoBehaviour:
   player: {fileID: 0}
   indicator: {fileID: 4346424604894808028, guid: 8734ca56aec784f479b571f2e420a592, type: 3}
   rb: {fileID: 0}
+--- !u!114 &-1196838029705443366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6132809874441367548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b836c3873634fb64bac9f63b4735c480, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinotaurSenses
+  visionDistance: 30
+  visionCone: 60

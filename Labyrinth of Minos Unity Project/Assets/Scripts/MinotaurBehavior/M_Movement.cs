@@ -24,7 +24,7 @@ public class MinotaurMovement : MonoBehaviour
         UpdateMinotaur2DPosition();
     }
 
-    private void UpdateMinotaur2DPosition()
+    public void UpdateMinotaur2DPosition()
     {
         if (minotaur == null || minotaur.rb == null || minotaur.maze == null) return;
 

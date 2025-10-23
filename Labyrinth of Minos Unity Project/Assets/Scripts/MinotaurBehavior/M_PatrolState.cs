@@ -22,7 +22,7 @@ public class MinotaurPatrolState : MinotaurBaseState
         returningToPath = true;
     }
 
-    public override void UpdateState(MinotaurBehaviorController minotaur)
+    public override void UpdateState(MinotaurBehaviorController minotaur, MinotaurSenses.SenseReport currentKnowledge)
     {
         Vector2Int minotaurPos2D = new Vector2Int(
             Mathf.RoundToInt(minotaur.transform.position.x / minotaur.maze.tileSize),
@@ -51,13 +51,6 @@ public class MinotaurPatrolState : MinotaurBaseState
                 minotaur.movement.FollowPatrolRoute(patrolPath, 0.75f, 75);
             }
         }
-    }
-
-    public override void OnCollisionEnter(MinotaurBehaviorController minotaur)
-    {
-        // When colliding with a player while patrolling, maybe we do some kind of surprise behavior? It shouldn't really happen because the minotaur
-        // should sense them before it gets touched. I think, as a failsafe, this either switches directly to KillsPlayer or to Chase and then to
-        // KillsPlayer from there. 
     }
 
     public override void ExitState(MinotaurBehaviorController minotaur)
