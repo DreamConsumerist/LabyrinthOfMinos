@@ -128,7 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f10b0680c776b946aad9e8c15a24288, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinotaurMovement
-  maxPatrolSpeed: 3
+  isInitialized: 0
 --- !u!114 &5232874384575106713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,6 +151,10 @@ MonoBehaviour:
     end: {x: 0, y: 0}
     tileSize: 0
     useXZPlane: 0
+  patrolPath: []
+  player: {fileID: 0}
+  indicator: {fileID: 4346424604894808028, guid: 8734ca56aec784f479b571f2e420a592, type: 3}
+  rb: {fileID: 0}
 --- !u!54 &8771459996864273319
 Rigidbody:
   m_ObjectHideFlags: 0
