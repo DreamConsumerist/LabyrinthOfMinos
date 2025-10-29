@@ -10,7 +10,7 @@ public class PlayerCameraController : NetworkBehaviour
     {
         Camera cam = GetComponentInChildren<Camera>(true);
         if (cam != null)
-            cam.enabled = IsOwner; // enable camera only for local player
+            cam.enabled = IsOwner; //for local player
     }
 }
     
