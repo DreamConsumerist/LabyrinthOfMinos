@@ -6,8 +6,6 @@ using Unity.Netcode;
 public class MinotaurBehaviorController : NetworkBehaviour
 {
     public MinotaurMovement movement;
-    public MinotaurSenses senses;
-    public MinotaurSenses.SenseReport currentKnowledge;
     public MazeGenerator.MazeData maze;
     public List<Vector2Int> patrolPath;
     public PlayerData player;
@@ -48,8 +46,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
     private void Update()
     {
         if (!IsServer) return;
-        currentKnowledge = senses.SensoryUpdate();
-        currentState.UpdateState(this, currentKnowledge);
+        currentState.UpdateState(this);
     }
 
     private void FixedUpdate()
