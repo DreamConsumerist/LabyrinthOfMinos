@@ -28,6 +28,11 @@ public class MinotaurPatrolState : MinotaurBaseState
             Mathf.RoundToInt(minotaur.transform.position.x / minotaur.maze.tileSize),
             Mathf.RoundToInt(minotaur.transform.position.z / minotaur.maze.tileSize));
 
+        if (currentKnowledge.playerSpotted)
+        {
+            minotaur.ChangeState(minotaur.ChaseState);
+        }
+
         if (returningToPath)
         {
             if (minotaurPos2D == patrolPath[0])
