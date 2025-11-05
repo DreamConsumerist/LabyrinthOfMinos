@@ -8,82 +8,72 @@ using UnityEngine.InputSystem.DualShock.LowLevel;
 [RequireComponent(typeof(MinotaurMovement))]
 public class MinotaurBehaviorController : MonoBehaviour
 {
-    // Initializing maze data and passing reference to this component to MinotaurMovement
-    public MinotaurMovement movement;
-    public MinotaurSenses senses;
+    // Initialize variables to store references to objects and data
+    public Rigidbody rb;
     public MazeGenerator.MazeData maze;
-    public List<Vector2Int> patrolPath;
     public PlayerData player;
     [SerializeField] public GameObject indicator;
 
+    // Initialize variables to store instances and outputs of helper classes
+    public MinotaurMovement movement;
+    public MinotaurSenses senses;
     public MinotaurSenses.SenseReport currentKnowledge;
 
+    // Initialize variables to store instances of states
     MinotaurBaseState currentState;
     public MinotaurChaseState ChaseState = new MinotaurChaseState();
     public MinotaurKillsPlayerState KillsPlayerState = new MinotaurKillsPlayerState();
     public MinotaurPatrolState PatrolState = new MinotaurPatrolState();
 
-    public Rigidbody rb;
-
-    private void Awake()
+    private void Awake() // Awake is called when 
     {
         if (!movement) movement = GetComponent<MinotaurMovement>();
         if (!senses) senses = GetComponent<MinotaurSenses>();
         rb = GetComponent<Rigidbody>();
     }
-    void Start()
+    void Start() // Start is called when 
     {
         currentState = PatrolState;
         currentState.EnterState(this);
         player = UnityEngine.Object.FindAnyObjectByType<PlayerData>();
     }
 
-    // Update is called once per frame
-    void Update()
+    void Update() // Update is called once per frame
     {
         currentKnowledge = senses.SensoryUpdate();
-        currentState.UpdateState(this, currentKnowledge);
+        currentState.UpdateState(currentKnowledge);
     }
 
-    private void FixedUpdate()
+    private void FixedUpdate() // FixedUpdate is called once per frame after Update has completed, except on initialization where it goes first.
     {
-        currentState.FixedUpdateState(this);
+        currentState.FixedUpdateState();
     }
 
-    public void Initialize(MazeGenerator.MazeData mazeObj)
+    public void Initialize(MazeGenerator.MazeData mazeObj) // Initialize is an externally called function to prepare for minotaur generation
     {
         maze = mazeObj;
         movement.Initialize(this);
         senses.Initialize(this);
     }
 
-    public void ChangeState(MinotaurBaseState state)
+    public void ChangeState(MinotaurBaseState state) // ChangeState is a function called by the state classes to operate the state machine
     {
-        currentState.ExitState(this);
+        currentState.ExitState();
         currentState = state;
         currentState.EnterState(this);
     }
 
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
-        if (PatrolState == null || PatrolState.patrolPath == null || maze == null)
-            return;
-
-        Gizmos.color = Color.yellow; // a different color
-        float s = maze.tileSize;
-
-        var path = PatrolState.patrolPath;
-        for (int i = 0; i < path.Count - 1; i++)
+        if (currentState != null)
         {
-            Vector3 from = new Vector3(path[i].x * s, 0.5f, path[i].y * s);
-            Vector3 to = new Vector3(path[i + 1].x * s, 0.5f, path[i + 1].y * s);
-            Gizmos.DrawLine(from, to);
+            currentState.DrawGizmos(); // If problems occur, may be because controller isn't initialized.
         }
     }
 }
 
 
-// Initializing variables and data structures related to the aggro system
+// Initializing variables and data structures related to the aggro system (I think this will be its own storage class or stored in M_Senses to reduce bloat)
 //[SerializeField] float aggroDecayRate = 5f;
 //[SerializeField] float maxAggro = 100f;
 //private Dictionary<PlayerData, float> playerAggro = new Dictionary<PlayerData, float> { };
