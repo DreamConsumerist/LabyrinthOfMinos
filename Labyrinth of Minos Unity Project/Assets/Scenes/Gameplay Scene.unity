@@ -256,6 +256,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1171327402}
   - component: {fileID: 1171327401}
+  - component: {fileID: 1171327403}
   m_Layer: 0
   m_Name: PauseMenuUI
   m_TagString: Untagged
@@ -293,6 +294,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1171327403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1171327400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b8da5aa19ebe814598731e0a991b489, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BackToMenu
+  menuSceneName: MainMenu
 --- !u!1 &1198909042
 GameObject:
   m_ObjectHideFlags: 0
@@ -304,6 +318,7 @@ GameObject:
   - component: {fileID: 1198909045}
   - component: {fileID: 1198909044}
   - component: {fileID: 1198909043}
+  - component: {fileID: 1198909046}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -398,6 +413,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1198909046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1198909042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c64d27df18beab4ea35de4f1e7bf139, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameplayAutoStartHost
+  playerPrefab: {fileID: 1677148472585727014, guid: 3bd5859b731924d468ed42d12b19dce7, type: 3}
+  networkManagerTimeout: 10
 --- !u!1 &1211788999
 GameObject:
   m_ObjectHideFlags: 0
@@ -1102,12 +1131,40 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8576543425857506154, guid: 5c2e10e989b5ebd46a78cda94d1ad764, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8576543425857506154, guid: 5c2e10e989b5ebd46a78cda94d1ad764, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8576543425857506154, guid: 5c2e10e989b5ebd46a78cda94d1ad764, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1171327401}
     - target: {fileID: 8576543425857506154, guid: 5c2e10e989b5ebd46a78cda94d1ad764, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1171327403}
+    - target: {fileID: 8576543425857506154, guid: 5c2e10e989b5ebd46a78cda94d1ad764, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8576543425857506154, guid: 5c2e10e989b5ebd46a78cda94d1ad764, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: OnQuitToMainMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 8576543425857506154, guid: 5c2e10e989b5ebd46a78cda94d1ad764, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ReturnToMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 8576543425857506154, guid: 5c2e10e989b5ebd46a78cda94d1ad764, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: BackToMenu, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8576543425857506154, guid: 5c2e10e989b5ebd46a78cda94d1ad764, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 8685524470553032564, guid: 5c2e10e989b5ebd46a78cda94d1ad764, type: 3}
       propertyPath: m_AnchorMax.x

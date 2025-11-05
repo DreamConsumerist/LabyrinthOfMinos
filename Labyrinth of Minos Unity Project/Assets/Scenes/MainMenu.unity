@@ -1456,14 +1456,14 @@ PrefabInstance:
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1133377040}
+      objectReference: {fileID: 1133377042}
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: StartHostFromMenu
+      value: StartHost
       objectReference: {fileID: 0}
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: MenuNetworkStarter, Assembly-CSharp
+      value: MenuStartHost, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 4389780061867333187, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_text
@@ -1653,7 +1653,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &965327770
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1914,7 +1914,7 @@ PrefabInstance:
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1133377040}
+      objectReference: {fileID: 0}
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: StartClientFromMenu
@@ -1952,28 +1952,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1133377041}
-  - component: {fileID: 1133377040}
   - component: {fileID: 1133377042}
   m_Layer: 0
-  m_Name: MenuNetworkStarter
+  m_Name: MenuStartHost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1133377040
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1133377039}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48dd13a07f670544a87032d1017ada6d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MenuNetworkStarter
-  gameplaySceneName: Gameplay Scene
 --- !u!4 &1133377041
 Transform:
   m_ObjectHideFlags: 0
@@ -1998,12 +1984,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1133377039}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5d08a4fff1513d479d9f03f3060a3ae, type: 3}
+  m_Script: {fileID: 11500000, guid: be2add403fb1ea84bab0a74dc1999d42, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameplayNetworkAutoStarter
-  startAsHostIfNoMenuIntent: 0
-  clientAddress: 127.0.0.1
-  clientPort: 7777
+  m_EditorClassIdentifier: Assembly-CSharp::MenuStartHost
+  gameplaySceneName: Gameplay Scene
 --- !u!1 &1382314872
 GameObject:
   m_ObjectHideFlags: 0
