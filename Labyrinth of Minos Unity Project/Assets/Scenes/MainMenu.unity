@@ -1914,14 +1914,14 @@ PrefabInstance:
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1133377042}
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: StartClientFromMenu
+      value: StartClient
       objectReference: {fileID: 0}
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: MenuNetworkStarter, Assembly-CSharp
+      value: MenuStartHost, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 4389780061867333187, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_text

@@ -1,9 +1,14 @@
 using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 
 public class GameplayAutoStartHost : MonoBehaviour
 {
+    [Header("Client connect (for Join Game)")]
+    [SerializeField] private string serverAddress = "127.0.0.1"; // change to your host’s IP when needed
+    [SerializeField] private ushort serverPort = 7777;
+
     [Header("Timing")]
     [SerializeField] private float networkManagerTimeout = 10f; // seconds
 
@@ -29,24 +34,41 @@ public class GameplayAutoStartHost : MonoBehaviour
             yield break;
         }
 
-        // Only start if the menu asked for it
-        if (!MenuStartHost.HostRequested)
+        // determine intent from menu
+        bool host = MenuStartHost.HostRequested;
+        bool client = MenuStartHost.ClientRequested;
+
+        // consume flags so a later reload doesn't auto-start unexpectedly
+        MenuStartHost.HostRequested = false;
+        MenuStartHost.ClientRequested = false;
+
+        if (!host && !client)
         {
-            Debug.Log("[GameplayAutoStartHost] No host intent set. Doing nothing.");
+            Debug.Log("[GameplayAutoStartHost] No start intent set. Doing nothing.");
             yield break;
         }
 
-        // Consume the flag so reloads don’t auto-host unintentionally
-        MenuStartHost.HostRequested = false;
-
-        // Helpful logs
-        nm.OnServerStarted += () => Debug.Log("[GameplayAutoStartHost] Server started");
-        nm.OnClientStarted += () => Debug.Log("[GameplayAutoStartHost] Client started (host's client)");
+        // helpful logs
+        nm.OnServerStarted += () => Debug.Log("[AutoStart] Server started");
+        nm.OnClientStarted += () => Debug.Log("[AutoStart] Client started");
         nm.OnClientConnectedCallback += id =>
-            Debug.Log($"[GameplayAutoStartHost] Client connected: {id} (Local={nm.LocalClientId})");
+            Debug.Log($"[AutoStart] Client connected: {id} (Local={nm.LocalClientId})");
 
-        var ok = nm.StartHost();
-        Debug.Log($"[GameplayAutoStartHost] StartHost returned: {ok}");
+        if (client)
+        {
+            // set address/port before starting client
+            if (nm.NetworkConfig.NetworkTransport is UnityTransport utp)
+            {
+                utp.SetConnectionData(serverAddress, serverPort);
+            }
+            var ok = nm.StartClient();
+            Debug.Log($"[AutoStart] StartClient returned: {ok}");
+        }
+        else // host
+        {
+            var ok = nm.StartHost();
+            Debug.Log($"[AutoStart] StartHost returned: {ok}");
+        }
     }
 
     // Unity 6-friendly helper (avoid deprecated FindObjectOfType)
