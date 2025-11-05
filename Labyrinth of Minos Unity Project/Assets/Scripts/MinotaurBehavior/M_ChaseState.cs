@@ -7,28 +7,37 @@ public class MinotaurChaseState : MinotaurBaseState
     Vector2Int prevPlayerPos;
     MinotaurBehaviorController controller;
     //Vector2Int lastKnownPlayerPos;
-    public override void EnterState(MinotaurBehaviorController minotaur)
+    public override void EnterState(MinotaurBehaviorController controllerRef)
     {
-        controller = minotaur;
+        if (controller == null)
+        {
+            controller = controllerRef;
+        }
+
         UpdateTarget2DPosition();
-        minotaur.movement.UpdateTarget(playerPos);
+        controller.movement.UpdateTarget(playerPos);
     }
-    public override void UpdateState(MinotaurBehaviorController minotaur, MinotaurSenses.SenseReport currentKnowledge)
+    public override void UpdateState(MinotaurSenses.SenseReport currentKnowledge)
     {
         UpdateTarget2DPosition();
         if (playerPos != prevPlayerPos)
         {
-            minotaur.movement.UpdateTarget(playerPos);
+            controller.movement.UpdateTarget(playerPos);
         }
     }
-    public override void FixedUpdateState(MinotaurBehaviorController minotaur)
+    public override void FixedUpdateState()
     {
-        minotaur.movement.MoveToTarget(1f, 80);
+        controller.movement.MoveToTarget(1f, 80);
     }
 
-    public override void ExitState(MinotaurBehaviorController minotaur)
+    public override void ExitState()
     {
         throw new NotImplementedException();
+    }
+
+    public override void DrawGizmos()
+    {
+        // This currently draws in movement, probably want to move it from movement over here.
     }
 
     public void UpdateTarget2DPosition()

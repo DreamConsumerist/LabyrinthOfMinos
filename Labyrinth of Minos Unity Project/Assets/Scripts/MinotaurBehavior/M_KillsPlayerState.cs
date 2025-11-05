@@ -2,21 +2,28 @@ using UnityEngine;
 
 public class MinotaurKillsPlayerState : MinotaurBaseState
 {
-    public override void EnterState(MinotaurBehaviorController minotaur)
+    MinotaurBehaviorController controller;
+    public override void EnterState(MinotaurBehaviorController controllerRef)
+    {
+        if (controller == null) { controller = controllerRef; }
+
+    }
+    public override void UpdateState(MinotaurSenses.SenseReport currentKnowledge)
     {
 
     }
-    public override void UpdateState(MinotaurBehaviorController minotaur, MinotaurSenses.SenseReport currentKnowledge)
-    {
-
-    }
-    public override void FixedUpdateState(MinotaurBehaviorController minotaur)
+    public override void FixedUpdateState()
     {
 
     }
 
-    public override void ExitState(MinotaurBehaviorController minotaur)
+    public override void ExitState()
     {
 
+    }
+
+    public override void DrawGizmos()
+    {
+        // Not necessary
     }
 }

@@ -8,29 +8,36 @@ using UnityEngine.InputSystem.XR;
 
 public class MinotaurPatrolState : MinotaurBaseState
 {
+    MinotaurBehaviorController controller;
+
     public List<Vector2Int> patrolPath = new List<Vector2Int>();
     bool returningToPath = false;
-    public override void EnterState(MinotaurBehaviorController minotaur)
+    public override void EnterState(MinotaurBehaviorController controllerRef)
     {
+        if (controller == null)
+        {
+            controller = controllerRef;
+        }
+
         if (patrolPath == null || patrolPath.Count == 0)
         {
-            patrolPath = PatrolPathGeneration(minotaur);
+            patrolPath = PatrolPathGeneration(controller);
         }
         // Important note is that this targets the closest by Euclidean distance, not the closest via pathfinding. Some unnatural pathing maybe, but not really an issue at this stage.
-        StartWithClosestInPath(patrolPath, minotaur);
-        minotaur.movement.UpdateTarget(patrolPath[0]);
+        StartWithClosestInPath(patrolPath, controller);
+        controller.movement.UpdateTarget(patrolPath[0]);
         returningToPath = true;
     }
 
-    public override void UpdateState(MinotaurBehaviorController minotaur, MinotaurSenses.SenseReport currentKnowledge)
+    public override void UpdateState(MinotaurSenses.SenseReport currentKnowledge)
     {
         Vector2Int minotaurPos2D = new Vector2Int(
-            Mathf.RoundToInt(minotaur.transform.position.x / minotaur.maze.tileSize),
-            Mathf.RoundToInt(minotaur.transform.position.z / minotaur.maze.tileSize));
+            Mathf.RoundToInt(controller.transform.position.x / controller.maze.tileSize),
+            Mathf.RoundToInt(controller.transform.position.z / controller.maze.tileSize));
 
         if (currentKnowledge.playerSpotted)
         {
-            minotaur.ChangeState(minotaur.ChaseState);
+            controller.ChangeState(controller.ChaseState);
         }
 
         if (returningToPath)
@@ -39,26 +46,26 @@ public class MinotaurPatrolState : MinotaurBaseState
             {
                 returningToPath = false;
             }
-            minotaur.movement.UpdateTarget(patrolPath[0]);
+            controller.movement.UpdateTarget(patrolPath[0]);
         }
     }
 
-    public override void FixedUpdateState(MinotaurBehaviorController minotaur)
+    public override void FixedUpdateState()
     {
-        if (minotaur.movement.isInitialized)
+        if (controller.movement.isInitialized)
         {
             if (returningToPath)
             {
-                minotaur.movement.MoveToTarget(0.75f, 75);
+                controller.movement.MoveToTarget(0.75f, 75);
             }
             else
             {
-                minotaur.movement.FollowPatrolRoute(patrolPath, 0.75f, 75);
+                controller.movement.FollowPatrolRoute(patrolPath, 0.75f, 75);
             }
         }
     }
 
-    public override void ExitState(MinotaurBehaviorController minotaur)
+    public override void ExitState()
     {
 
     }
@@ -66,14 +73,14 @@ public class MinotaurPatrolState : MinotaurBaseState
     private List<Vector2Int> PatrolPathGeneration(MinotaurBehaviorController minotaur)
     {
         // Create toggleable debug system.
-        Vector2Int A = GetTilePosition.OpenInRange(minotaur.maze, 0, Mathf.RoundToInt(minotaur.maze.tilesW / 2), 0, Mathf.RoundToInt(minotaur.maze.tilesH / 2));
-        GetTilePosition.SpawnIndicator(A, Color.red, minotaur.indicator);
-        Vector2Int B = GetTilePosition.OpenInRange(minotaur.maze, 0, Mathf.RoundToInt(minotaur.maze.tilesW / 2), Mathf.RoundToInt(minotaur.maze.tilesH / 2), minotaur.maze.tilesH);
-        GetTilePosition.SpawnIndicator(B, Color.blue, minotaur.indicator);
-        Vector2Int C = GetTilePosition.OpenInRange(minotaur.maze, Mathf.RoundToInt(minotaur.maze.tilesW / 2), minotaur.maze.tilesW, Mathf.RoundToInt(minotaur.maze.tilesH / 2), minotaur.maze.tilesH);
-        GetTilePosition.SpawnIndicator(C, Color.green, minotaur.indicator);
-        Vector2Int D = GetTilePosition.OpenInRange(minotaur.maze, Mathf.RoundToInt(minotaur.maze.tilesW / 2), minotaur.maze.tilesW, 0, Mathf.RoundToInt(minotaur.maze.tilesH / 2));
-        GetTilePosition.SpawnIndicator(D, Color.yellow, minotaur.indicator);
+        Vector2Int A = GetTilePosition.OpenInRange(controller.maze, 0, Mathf.RoundToInt(controller.maze.tilesW / 2), 0, Mathf.RoundToInt(controller.maze.tilesH / 2));
+        GetTilePosition.SpawnIndicator(A, Color.red, controller.indicator);
+        Vector2Int B = GetTilePosition.OpenInRange(controller.maze, 0, Mathf.RoundToInt(controller.maze.tilesW / 2), Mathf.RoundToInt(controller.maze.tilesH / 2), controller.maze.tilesH);
+        GetTilePosition.SpawnIndicator(B, Color.blue, controller.indicator);
+        Vector2Int C = GetTilePosition.OpenInRange(controller.maze, Mathf.RoundToInt(controller.maze.tilesW / 2), controller.maze.tilesW, Mathf.RoundToInt(controller.maze.tilesH / 2), controller.maze.tilesH);
+        GetTilePosition.SpawnIndicator(C, Color.green, controller.indicator);
+        Vector2Int D = GetTilePosition.OpenInRange(controller.maze, Mathf.RoundToInt(controller.maze.tilesW / 2), controller.maze.tilesW, 0, Mathf.RoundToInt(controller.maze.tilesH / 2));
+        GetTilePosition.SpawnIndicator(D, Color.yellow, controller.indicator);
 
         List<Vector2Int> totalPath = new List<Vector2Int>();
         List<Vector2Int> pathAB = A_StarPathfinding.FindPath(A, B, minotaur.maze.open);
@@ -115,6 +122,22 @@ public class MinotaurPatrolState : MinotaurBaseState
             var prefix = patrolPath.GetRange(0, closestIndex);
             patrolPath.RemoveRange(0, closestIndex);
             patrolPath.AddRange(prefix);
+        }
+    }
+    public override void DrawGizmos()
+    {
+        if (patrolPath == null || controller.maze == null)
+            return;
+
+        Gizmos.color = Color.yellow; // a different color
+        float s = controller.maze.tileSize;
+
+        var path = patrolPath;
+        for (int i = 0; i < path.Count - 1; i++)
+        {
+            Vector3 from = new Vector3(path[i].x * s, 0.5f, path[i].y * s);
+            Vector3 to = new Vector3(path[i + 1].x * s, 0.5f, path[i + 1].y * s);
+            Gizmos.DrawLine(from, to);
         }
     }
 }

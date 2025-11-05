@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class MinotaurMovement : MonoBehaviour
 {
-    private MinotaurBehaviorController minotaur;
+    private MinotaurBehaviorController controller;
 
     private Vector2Int targetPos;
     private Vector2Int prevTargetPos = new Vector2Int(-1, -1);
@@ -16,9 +16,9 @@ public class MinotaurMovement : MonoBehaviour
     // --------------------------
     // Initialization
     // --------------------------
-    public void Initialize(MinotaurBehaviorController behaviorController)
+    public void Initialize(MinotaurBehaviorController controllerRef)
     {
-        minotaur = behaviorController;
+        controller = controllerRef;
         isInitialized = true;
 
         UpdateMinotaur2DPosition();
@@ -26,11 +26,11 @@ public class MinotaurMovement : MonoBehaviour
 
     public void UpdateMinotaur2DPosition()
     {
-        if (minotaur == null || minotaur.rb == null || minotaur.maze == null) return;
+        if (controller == null || controller.rb == null || controller.maze == null) return;
 
         minotaurPos2D = new Vector2Int(
-            Mathf.RoundToInt(minotaur.rb.position.x / minotaur.maze.tileSize),
-            Mathf.RoundToInt(minotaur.rb.position.z / minotaur.maze.tileSize)
+            Mathf.RoundToInt(controller.rb.position.x / controller.maze.tileSize),
+            Mathf.RoundToInt(controller.rb.position.z / controller.maze.tileSize)
         );
     }
 
@@ -50,7 +50,7 @@ public class MinotaurMovement : MonoBehaviour
 
     public void MoveToTarget(float moveSpeed, float rotationSpeed)
     {
-        if (!isInitialized || minotaur.maze == null) return;
+        if (!isInitialized || controller.maze == null) return;
 
         RecalculatePath();
 
@@ -72,15 +72,15 @@ public class MinotaurMovement : MonoBehaviour
         if (patrolRoute == null || patrolRoute.Count == 0) return;
 
         Vector3 nextPoint = new Vector3(
-            patrolRoute[0].x * minotaur.maze.tileSize,
+            patrolRoute[0].x * controller.maze.tileSize,
             0,
-            patrolRoute[0].y * minotaur.maze.tileSize
+            patrolRoute[0].y * controller.maze.tileSize
         );
 
         RotateTowards(nextPoint, rotationSpeed);
         MoveForward(moveSpeed);
 
-        if (Vector3.Distance(minotaur.rb.position, nextPoint) < 0.5f)
+        if (Vector3.Distance(controller.rb.position, nextPoint) < 0.5f)
         {
             Vector2Int temp = patrolRoute[0];
             patrolRoute.RemoveAt(0);
@@ -95,7 +95,7 @@ public class MinotaurMovement : MonoBehaviour
     {
         if (targetPos != prevTargetPos)
         {
-            var newPath = A_StarPathfinding.FindPath(minotaurPos2D, targetPos, minotaur.maze.open);
+            var newPath = A_StarPathfinding.FindPath(minotaurPos2D, targetPos, controller.maze.open);
 
             if (newPath != null && newPath.Count > 0)
             {
@@ -114,19 +114,19 @@ public class MinotaurMovement : MonoBehaviour
     private Vector3 GetNextPathPoint()
     {
         if (currPath == null || currPath.Count == 0)
-            return minotaur.rb.position;
+            return controller.rb.position;
 
         return new Vector3(
-            currPath[0].x * minotaur.maze.tileSize,
+            currPath[0].x * controller.maze.tileSize,
             0,
-            currPath[0].y * minotaur.maze.tileSize
+            currPath[0].y * controller.maze.tileSize
         );
     }
 
     private void AdvancePathNode()
     {
         if (currPath != null && currPath.Count > 0 &&
-            Vector3.Distance(minotaur.rb.position, GetNextPathPoint()) < 0.5f)
+            Vector3.Distance(controller.rb.position, GetNextPathPoint()) < 0.5f)
         {
             currPath.RemoveAt(0);
         }
@@ -137,22 +137,22 @@ public class MinotaurMovement : MonoBehaviour
     // --------------------------
     private void MoveForward(float moveSpeed)
     {
-        Vector3 forward = minotaur.rb.transform.forward;
+        Vector3 forward = controller.rb.transform.forward;
         forward.y = 0f;
         forward.Normalize();
 
         Vector3 move = forward * moveSpeed * Time.fixedDeltaTime;
-        minotaur.rb.MovePosition(minotaur.rb.position + move);
+        controller.rb.MovePosition(controller.rb.position + move);
     }
 
     private void RotateTowards(Vector3 targetPos, float rotationSpeed)
     {
-        Vector3 direction = (targetPos - minotaur.rb.position).normalized;
+        Vector3 direction = (targetPos - controller.rb.position).normalized;
         direction.y = 0f;
         if (direction == Vector3.zero) return;
 
         Quaternion targetRotation = Quaternion.LookRotation(direction);
-        minotaur.rb.MoveRotation(Quaternion.RotateTowards(minotaur.rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
+        controller.rb.MoveRotation(Quaternion.RotateTowards(controller.rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
     }
 
     // --------------------------
@@ -160,10 +160,10 @@ public class MinotaurMovement : MonoBehaviour
     // --------------------------
     private void OnDrawGizmos()
     {
-        if (currPath == null || minotaur == null || minotaur.maze == null) return;
+        if (currPath == null || controller == null || controller.maze == null) return;
 
         Gizmos.color = Color.green;
-        float s = minotaur.maze.tileSize;
+        float s = controller.maze.tileSize;
 
         for (int i = 0; i < currPath.Count - 1; i++)
         {
