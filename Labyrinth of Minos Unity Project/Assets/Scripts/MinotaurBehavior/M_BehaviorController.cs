@@ -17,7 +17,7 @@ public class MinotaurBehaviorController : MonoBehaviour
     // Initialize variables to store instances and outputs of helper classes
     public MinotaurMovement movement;
     public MinotaurSenses senses;
-    public MinotaurSenses.SenseReport currentKnowledge;
+    public MinotaurSenses.SenseReport currSenses;
 
     // Initialize variables to store instances of states
     MinotaurBaseState currentState;
@@ -40,11 +40,11 @@ public class MinotaurBehaviorController : MonoBehaviour
 
     void Update() // Update is called once per frame
     {
-        currentKnowledge = senses.SensoryUpdate();
-        currentState.UpdateState(currentKnowledge);
+        currSenses = senses.SensoryUpdate();
+        currentState.UpdateState(currSenses);
     }
 
-    private void FixedUpdate() // FixedUpdate is called once per frame after Update has completed, except on initialization where it goes first.
+    private void FixedUpdate() // FixedUpdate is called independently of frame rate before Update, ideal for physics calculations.
     {
         currentState.FixedUpdateState();
     }

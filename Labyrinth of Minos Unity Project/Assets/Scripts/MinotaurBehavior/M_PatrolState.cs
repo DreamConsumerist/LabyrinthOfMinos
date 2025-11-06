@@ -29,6 +29,21 @@ public class MinotaurPatrolState : MinotaurBaseState
         returningToPath = true;
     }
 
+    public override void FixedUpdateState()
+    {
+        if (controller.movement.isInitialized)
+        {
+            if (returningToPath)
+            {
+                controller.movement.MoveToTarget(0.75f, 75);
+            }
+            else
+            {
+                controller.movement.FollowPatrolRoute(patrolPath, 0.75f, 75);
+            }
+        }
+    }
+
     public override void UpdateState(MinotaurSenses.SenseReport currentKnowledge)
     {
         Vector2Int minotaurPos2D = new Vector2Int(
@@ -47,21 +62,6 @@ public class MinotaurPatrolState : MinotaurBaseState
                 returningToPath = false;
             }
             controller.movement.UpdateTarget(patrolPath[0]);
-        }
-    }
-
-    public override void FixedUpdateState()
-    {
-        if (controller.movement.isInitialized)
-        {
-            if (returningToPath)
-            {
-                controller.movement.MoveToTarget(0.75f, 75);
-            }
-            else
-            {
-                controller.movement.FollowPatrolRoute(patrolPath, 0.75f, 75);
-            }
         }
     }
 
