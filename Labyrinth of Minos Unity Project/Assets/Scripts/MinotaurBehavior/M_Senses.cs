@@ -3,19 +3,26 @@ using UnityEngine;
 
 public class MinotaurSenses : MonoBehaviour
 {
-    MinotaurBehaviorController minotaur;
+    MinotaurBehaviorController controller;
     [SerializeField] float visionDistance = 30f;
     [SerializeField] float visionCone = 60f;
     public struct SenseReport
     {
         public bool playerSpotted;
-        public Vector2Int playerLocation;
+        public Vector2Int lastSeenLocation;
+        public float timeSincePlayerSpotted;
     }
+
+    SenseReport currSenses;
+    SenseReport prevSenses;
+
     // Add OnCollisionEnter() to sense report.
     public SenseReport SensoryUpdate()
     {
-        SenseReport currSenses = new SenseReport();
+        currSenses = new SenseReport();
         currSenses = IsPlayerVisible(currSenses);
+        currSenses = TimeSincePlayerSeen(currSenses, prevSenses);
+        prevSenses = currSenses;
         return currSenses;
     }
 
@@ -41,9 +48,9 @@ public class MinotaurSenses : MonoBehaviour
                         // Player is visible
                         Debug.Log("I can see you!");
                         currSenses.playerSpotted = true;
-                        currSenses.playerLocation = new Vector2Int(
-                            Mathf.RoundToInt(obj.transform.position.x / minotaur.maze.tileSize),
-                            Mathf.RoundToInt(obj.transform.position.z / minotaur.maze.tileSize));
+                        currSenses.lastSeenLocation = new Vector2Int(
+                            Mathf.RoundToInt(obj.transform.position.x / controller.maze.tileSize),
+                            Mathf.RoundToInt(obj.transform.position.z / controller.maze.tileSize));
                         break;
                     }
                     else
@@ -56,8 +63,18 @@ public class MinotaurSenses : MonoBehaviour
         return currSenses;
     }
 
-    internal void Initialize(MinotaurBehaviorController controller)
+    private SenseReport TimeSincePlayerSeen(SenseReport currSenses, SenseReport prevSenses)
     {
-        minotaur = controller;
+        if (currSenses.playerSpotted) { return currSenses; }
+
+        currSenses.timeSincePlayerSpotted = prevSenses.timeSincePlayerSpotted + Time.deltaTime;
+
+        return currSenses;
+    }
+
+
+    internal void Initialize(MinotaurBehaviorController controllerRef)
+    {
+        controller = controllerRef;
     }
 }

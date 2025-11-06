@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using UnityEditor.ShaderGraph.Internal;
 
 public class MinotaurChaseState : MinotaurBaseState
 {
@@ -7,6 +8,9 @@ public class MinotaurChaseState : MinotaurBaseState
     Vector2Int prevPlayerPos;
     MinotaurBehaviorController controller;
     //Vector2Int lastKnownPlayerPos;
+
+    float maxChaseTime = 15f;
+
     public override void EnterState(MinotaurBehaviorController controllerRef)
     {
         if (controller == null)
@@ -17,6 +21,12 @@ public class MinotaurChaseState : MinotaurBaseState
         UpdateTarget2DPosition();
         controller.movement.UpdateTarget(playerPos);
     }
+
+    public override void FixedUpdateState()
+    {
+        controller.movement.MoveToTarget(1f, 80);
+    }
+
     public override void UpdateState(MinotaurSenses.SenseReport currentKnowledge)
     {
         UpdateTarget2DPosition();
@@ -24,15 +34,21 @@ public class MinotaurChaseState : MinotaurBaseState
         {
             controller.movement.UpdateTarget(playerPos);
         }
-    }
-    public override void FixedUpdateState()
-    {
-        controller.movement.MoveToTarget(1f, 80);
+        
+        if (controller.currSenses.timeSincePlayerSpotted > maxChaseTime)
+        {
+            Debug.Log("Can't find them...");
+            controller.ChangeState(controller.PatrolState);
+        }
+        else
+        {
+            Debug.Log("I have " + (maxChaseTime - controller.currSenses.timeSincePlayerSpotted) + " seconds to find them!");
+        }
     }
 
     public override void ExitState()
     {
-        throw new NotImplementedException();
+        
     }
 
     public override void DrawGizmos()

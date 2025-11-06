@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class MinotaurMovement : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class MinotaurMovement : MonoBehaviour
     private Vector2Int targetPos;
     private Vector2Int prevTargetPos = new Vector2Int(-1, -1);
     private Vector2Int minotaurPos2D;
+    private bool isStaticRotate;
+    [SerializeField] private float staticRotateAngle = 90f;
 
     private List<Vector2Int> currPath;
 
@@ -59,10 +62,13 @@ public class MinotaurMovement : MonoBehaviour
         Vector3 nextPoint = GetNextPathPoint();
 
         // Rotate first toward the next node
-        RotateTowards(nextPoint, rotationSpeed);
+        isStaticRotate = RotateTowards(nextPoint, rotationSpeed);
 
-        // Move forward only in the direction currently facing
-        MoveForward(moveSpeed);
+        if (!isStaticRotate)
+        {
+            // Move forward only in the direction currently facing, only if rotating less than the staticRotateAngle
+            MoveForward(moveSpeed);
+        }
 
         AdvancePathNode();
     }
@@ -77,8 +83,12 @@ public class MinotaurMovement : MonoBehaviour
             patrolRoute[0].y * controller.maze.tileSize
         );
 
-        RotateTowards(nextPoint, rotationSpeed);
-        MoveForward(moveSpeed);
+        isStaticRotate = RotateTowards(nextPoint, rotationSpeed);
+        
+        if (!isStaticRotate)
+        {
+            MoveForward(moveSpeed);
+        }
 
         if (Vector3.Distance(controller.rb.position, nextPoint) < 0.5f)
         {
@@ -145,14 +155,18 @@ public class MinotaurMovement : MonoBehaviour
         controller.rb.MovePosition(controller.rb.position + move);
     }
 
-    private void RotateTowards(Vector3 targetPos, float rotationSpeed)
+    private bool RotateTowards(Vector3 targetPos, float rotationSpeed)
     {
         Vector3 direction = (targetPos - controller.rb.position).normalized;
         direction.y = 0f;
-        if (direction == Vector3.zero) return;
+        if (direction == Vector3.zero) return false;
 
         Quaternion targetRotation = Quaternion.LookRotation(direction);
         controller.rb.MoveRotation(Quaternion.RotateTowards(controller.rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
+
+        float angle = Vector3.Angle(direction, controller.transform.forward);
+
+        return angle > staticRotateAngle;
     }
 
     // --------------------------
