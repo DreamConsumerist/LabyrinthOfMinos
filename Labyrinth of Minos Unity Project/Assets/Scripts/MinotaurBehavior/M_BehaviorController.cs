@@ -16,6 +16,7 @@ public class MinotaurBehaviorController : MonoBehaviour
 
     // Initialize variables to store instances and outputs of helper classes
     public MinotaurMovement movement;
+    public MinotaurParameters parameters;
     public MinotaurSenses senses;
     public MinotaurSenses.SenseReport currSenses;
 
@@ -29,6 +30,7 @@ public class MinotaurBehaviorController : MonoBehaviour
     {
         if (!movement) movement = GetComponent<MinotaurMovement>();
         if (!senses) senses = GetComponent<MinotaurSenses>();
+        if (!parameters) parameters = GetComponent<MinotaurParameters>();
         rb = GetComponent<Rigidbody>();
     }
     void Start() // Start is called when 
@@ -61,14 +63,6 @@ public class MinotaurBehaviorController : MonoBehaviour
         currentState.ExitState();
         currentState = state;
         currentState.EnterState(this);
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (currentState != null)
-        {
-            currentState.DrawGizmos(); // If problems occur, may be because controller isn't initialized.
-        }
     }
 }
 

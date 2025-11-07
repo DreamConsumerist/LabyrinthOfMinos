@@ -21,9 +21,4 @@ public class MinotaurKillsPlayerState : MinotaurBaseState
     {
 
     }
-
-    public override void DrawGizmos()
-    {
-        // Not necessary
-    }
 }

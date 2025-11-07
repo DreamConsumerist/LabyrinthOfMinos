@@ -35,11 +35,11 @@ public class MinotaurPatrolState : MinotaurBaseState
         {
             if (returningToPath)
             {
-                controller.movement.MoveToTarget(0.75f, 75);
+                controller.movement.MoveToTarget(controller.parameters.patrolWalkSpeed, controller.parameters.patrolRotateSpeed);
             }
             else
             {
-                controller.movement.FollowPatrolRoute(patrolPath, 0.75f, 75);
+                controller.movement.FollowPatrolRoute(patrolPath, controller.parameters.patrolWalkSpeed, controller.parameters.patrolRotateSpeed);
             }
         }
     }
@@ -122,22 +122,6 @@ public class MinotaurPatrolState : MinotaurBaseState
             var prefix = patrolPath.GetRange(0, closestIndex);
             patrolPath.RemoveRange(0, closestIndex);
             patrolPath.AddRange(prefix);
-        }
-    }
-    public override void DrawGizmos()
-    {
-        if (patrolPath == null || controller.maze == null)
-            return;
-
-        Gizmos.color = Color.yellow; // a different color
-        float s = controller.maze.tileSize;
-
-        var path = patrolPath;
-        for (int i = 0; i < path.Count - 1; i++)
-        {
-            Vector3 from = new Vector3(path[i].x * s, 0.5f, path[i].y * s);
-            Vector3 to = new Vector3(path[i + 1].x * s, 0.5f, path[i + 1].y * s);
-            Gizmos.DrawLine(from, to);
         }
     }
 }

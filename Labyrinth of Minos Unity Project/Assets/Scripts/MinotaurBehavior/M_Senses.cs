@@ -4,8 +4,6 @@ using UnityEngine;
 public class MinotaurSenses : MonoBehaviour
 {
     MinotaurBehaviorController controller;
-    [SerializeField] float visionDistance = 30f;
-    [SerializeField] float visionCone = 60f;
     public struct SenseReport
     {
         public bool playerSpotted;
@@ -28,7 +26,7 @@ public class MinotaurSenses : MonoBehaviour
 
     private SenseReport IsPlayerVisible(SenseReport currSenses)
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, visionDistance);
+        Collider[] hits = Physics.OverlapSphere(transform.position, controller.parameters.visionDistance);
         //int layerMask = LayerMask.GetMask("Player", "Obstacle");
         // Implement layer mask once the game gets more complex with more items and stuff to limit detection to just walls and players, not working atm though, so ignore.
         for (int i = 0; i < hits.Length; i++)
@@ -38,10 +36,10 @@ public class MinotaurSenses : MonoBehaviour
             {
                 Vector3 toTarget = obj.transform.position - transform.position;
                 float angleToTarget = Vector3.Angle(transform.forward, toTarget);
-                if (angleToTarget > visionCone / 2f) continue;
-                Debug.DrawRay(transform.position, toTarget.normalized * visionDistance, Color.red);
+                if (angleToTarget > controller.parameters.visionCone / 2f) continue;
+                Debug.DrawRay(transform.position, toTarget.normalized * controller.parameters.visionDistance, Color.red);
 
-                if (Physics.Raycast(transform.position, toTarget.normalized, out RaycastHit hit, visionDistance))
+                if (Physics.Raycast(transform.position, toTarget.normalized, out RaycastHit hit, controller.parameters.visionDistance))
                 {
                     if (hit.collider.gameObject == obj)
                     {

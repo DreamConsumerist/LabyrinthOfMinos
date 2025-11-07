@@ -234,6 +234,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AutonomousPatrol
   maxSpeed: 4
+  manualTarget: 0
+  destY: 1
+  destX: 1
 --- !u!54 &6882835607406624184
 Rigidbody:
   m_ObjectHideFlags: 0
