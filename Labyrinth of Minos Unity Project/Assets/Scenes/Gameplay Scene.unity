@@ -306,7 +306,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b8da5aa19ebe814598731e0a991b489, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackToMenu
-  menuSceneName: MainMenu
 --- !u!1 &1198909042
 GameObject:
   m_ObjectHideFlags: 0
@@ -425,7 +424,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c64d27df18beab4ea35de4f1e7bf139, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameplayAutoStartHost
-  playerPrefab: {fileID: 1677148472585727014, guid: 3bd5859b731924d468ed42d12b19dce7, type: 3}
+  serverAddress: 127.0.0.1
+  serverPort: 7777
   networkManagerTimeout: 10
 --- !u!1 &1211788999
 GameObject:
@@ -1257,6 +1257,12 @@ MonoBehaviour:
   minotaur: {fileID: 6132809874441367548, guid: ed48ba8c4ab64c74dad890a7a36c2db0, type: 3}
   player: {fileID: 7025342462492690379, guid: cf64278134dae4544939992553b4dbcd, type: 3}
   playerSpawnMargins: 4
+  key1Prefab: {fileID: 3006151742736200171, guid: 4cb1ee7d176f50d4ebba8fa22e5bcdfb, type: 3}
+  key2Prefab: {fileID: 9178916195449726792, guid: 05946a1faa7eccd4baf3b6ca5fe39a9f, type: 3}
+  key3Prefab: {fileID: 2699797414500397918, guid: e538e1fcb2ab8a340b8a0fd18f87b6df, type: 3}
+  exitPrefab: {fileID: 3699157263759348864, guid: 90b482bb8f87ca540b7d8ef3fe365541, type: 3}
+  preferSeparateQuadrantsForKeys: 1
+  minDistanceTilesFallback: 6
 --- !u!114 &1909405090
 MonoBehaviour:
   m_ObjectHideFlags: 0

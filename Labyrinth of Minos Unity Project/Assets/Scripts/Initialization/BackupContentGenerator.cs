@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 
-public class ContentGenerator : MonoBehaviour
+public class BackUpContentGenerator : MonoBehaviour
 {
     [Header("Prefabs")]
     public GameObject minotaur;
