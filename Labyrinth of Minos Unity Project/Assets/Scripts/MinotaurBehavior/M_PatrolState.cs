@@ -76,13 +76,13 @@ public class MinotaurPatrolState : MinotaurBaseState
     {
         // Create toggleable debug system.
         Vector2Int A = GetTilePosition.OpenInRange(controller.maze, 0, Mathf.RoundToInt(controller.maze.tilesW / 2), 0, Mathf.RoundToInt(controller.maze.tilesH / 2));
-        GetTilePosition.SpawnIndicator(A, Color.red, controller.indicator);
+        //GetTilePosition.SpawnIndicator(A, Color.red, controller.indicator);
         Vector2Int B = GetTilePosition.OpenInRange(controller.maze, 0, Mathf.RoundToInt(controller.maze.tilesW / 2), Mathf.RoundToInt(controller.maze.tilesH / 2), controller.maze.tilesH);
-        GetTilePosition.SpawnIndicator(B, Color.blue, controller.indicator);
+        //GetTilePosition.SpawnIndicator(B, Color.blue, controller.indicator);
         Vector2Int C = GetTilePosition.OpenInRange(controller.maze, Mathf.RoundToInt(controller.maze.tilesW / 2), controller.maze.tilesW, Mathf.RoundToInt(controller.maze.tilesH / 2), controller.maze.tilesH);
-        GetTilePosition.SpawnIndicator(C, Color.green, controller.indicator);
+        //GetTilePosition.SpawnIndicator(C, Color.green, controller.indicator);
         Vector2Int D = GetTilePosition.OpenInRange(controller.maze, Mathf.RoundToInt(controller.maze.tilesW / 2), controller.maze.tilesW, 0, Mathf.RoundToInt(controller.maze.tilesH / 2));
-        GetTilePosition.SpawnIndicator(D, Color.yellow, controller.indicator);
+        //GetTilePosition.SpawnIndicator(D, Color.yellow, controller.indicator);
 
         List<Vector2Int> totalPath = new List<Vector2Int>();
         List<Vector2Int> pathAB = A_StarPathfinding.FindPath(A, B, minotaur.maze.open);
