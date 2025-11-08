@@ -15,6 +15,13 @@ public class ContentGenerator : MonoBehaviour
     public GameObject key3Prefab;
     public GameObject exitPrefab;
 
+    [Header("Key/Exit Placement Preferences")]
+    [Tooltip("Require keys to try different quadrants first; will fallback if not possible.")]
+    public bool preferSeparateQuadrantsForKeys = true;
+
+    [Tooltip("Minimum tile distance used when falling back (keys should be this far from exit/other keys).")]
+    [Min(0f)] public float minDistanceTilesFallback = 6f;
+
     // Generates objects in the maze based on MazeData
     public void Generate(MazeGenerator.MazeData maze)
     {
@@ -27,7 +34,7 @@ public class ContentGenerator : MonoBehaviour
         Vector2Int minotaurPos2D = MinotaurGen(maze, s);
         Vector2Int playerPos2D = PlayerGen(maze, s);
 
-        // Spawn keys and exit on any other open nodes
+        // Spawn keys and exit with new weighted logic
         KeysAndExitGen(maze, s, minotaurPos2D, playerPos2D);
     }
 
@@ -67,43 +74,94 @@ public class ContentGenerator : MonoBehaviour
 
     private void KeysAndExitGen(MazeGenerator.MazeData maze, float s, Vector2Int minotaurTile, Vector2Int playerTile)
     {
-        // Collect all open tiles
-        var openTiles = CollectOpenTiles(maze.open);
+        int H = maze.tilesH, W = maze.tilesW;
+
+        // Collect candidates
+        var openTiles = CollectOpenTiles(maze.open);                 // all open tiles
+        var deg = ComputeDegrees(maze.open);
+        var deadEndsAll = CollectDeadEndCellsOddOdd(maze.open, deg);   // dead-end cells at odd/odd
 
         // Avoid using the same tile as player/minotaur
         var used = new HashSet<Vector2Int> { minotaurTile, playerTile };
 
-        // Pick 4 distinct open tiles for Key_1, Key_2, Key_3, Exit
-        var picks = PickDistinctTiles(openTiles, used, 4);
+        // ---- EXIT: nearest dead-end to center (fallback: nearest open to center) ----
+        Vector2 center = new Vector2((W - 1) * 0.5f, (H - 1) * 0.5f);
 
-        if (picks.Count == 0)
+        Vector2Int exitTile = NearestToCenter(deadEndsAll, center);
+        if (exitTile == default && deadEndsAll.Count == 0)
         {
-            Debug.LogWarning("No open tiles available for keys/exit.");
-            return;
+            // fallback to any open tile nearest to center
+            exitTile = NearestToCenter(openTiles, center);
         }
 
-        // Spawn Key_1
-        if (key1Prefab && picks.Count >= 1)
+        if (exitPrefab && exitTile != default)
         {
-            SpawnAtTile(key1Prefab, picks[0], maze, s, "Key_1");
-            used.Add(picks[0]);
+            SpawnAtTile(exitPrefab, exitTile, maze, s, "Exit");
+            used.Add(exitTile);
         }
-        // Spawn Key_2
-        if (key2Prefab && picks.Count >= 2)
+        else
         {
-            SpawnAtTile(key2Prefab, picks[1], maze, s, "Key_2");
-            used.Add(picks[1]);
+            Debug.LogWarning("Exit placement: no valid tile found.");
         }
-        // Spawn Key_3
-        if (key3Prefab && picks.Count >= 3)
+
+        // ---- KEYS: prefer dead-ends in separate quadrants; fallback keeps distance ----
+        var keyTargets = new List<(GameObject prefab, string name)>
         {
-            SpawnAtTile(key3Prefab, picks[2], maze, s, "Key_3");
-            used.Add(picks[2]);
+            (key1Prefab, "Key_1"),
+            (key2Prefab, "Key_2"),
+            (key3Prefab, "Key_3")
+        };
+
+        var chosenKeyTiles = new List<Vector2Int>(3);
+
+        // Primary attempt: pick from dead-ends in separate quadrants
+        if (preferSeparateQuadrantsForKeys && deadEndsAll.Count > 0)
+        {
+            // Partition by quadrants
+            var (q1, q2, q3, q4) = PartitionByQuadrants(deadEndsAll, H, W);
+
+            // Shuffle quadrant order for variety
+            var quads = new List<List<Vector2Int>> { q1, q2, q3, q4 };
+            Shuffle(quads);
+
+            foreach (var q in quads)
+            {
+                if (chosenKeyTiles.Count >= 3) break;
+                Vector2Int pick;
+                if (TryPickRandomFrom(q, used, out pick))
+                {
+                    chosenKeyTiles.Add(pick);
+                    used.Add(pick);
+                }
+            }
         }
-        // Spawn Exit
-        if (exitPrefab && picks.Count >= 4)
+
+        // Secondary attempt: take remaining from any dead-ends (respecting min distance to exit/keys)
+        float minDistSq = minDistanceTilesFallback * minDistanceTilesFallback;
+        if (chosenKeyTiles.Count < 3 && deadEndsAll.Count > 0)
         {
-            SpawnAtTile(exitPrefab, picks[3], maze, s, "Exit");
+            var remaining = new List<Vector2Int>();
+            foreach (var t in deadEndsAll) if (!used.Contains(t)) remaining.Add(t);
+            var fill = PickWithMinDistance(remaining, used, minDistSq, 3 - chosenKeyTiles.Count);
+            foreach (var t in fill) { chosenKeyTiles.Add(t); used.Add(t); }
+        }
+
+        // Final fallback: pick from open tiles with min distance
+        if (chosenKeyTiles.Count < 3)
+        {
+            var remainingOpen = new List<Vector2Int>();
+            foreach (var t in openTiles) if (!used.Contains(t)) remainingOpen.Add(t);
+            var fill = PickWithMinDistance(remainingOpen, used, minDistSq, 3 - chosenKeyTiles.Count);
+            foreach (var t in fill) { chosenKeyTiles.Add(t); used.Add(t); }
+        }
+
+        // Spawn keys (for however many we managed to choose)
+        int placeCount = Mathf.Min(3, chosenKeyTiles.Count);
+        for (int i = 0; i < placeCount; i++)
+        {
+            var (prefab, name) = keyTargets[i];
+            if (!prefab) continue;
+            SpawnAtTile(prefab, chosenKeyTiles[i], maze, s, name);
         }
     }
 
@@ -173,7 +231,6 @@ public class ContentGenerator : MonoBehaviour
         if (rb) { rb.isKinematic = true; rb.useGravity = false; }
     }
 
-
     private static List<Vector2Int> CollectOpenTiles(bool[,] open)
     {
         int H = open.GetLength(0), W = open.GetLength(1);
@@ -188,14 +245,154 @@ public class ContentGenerator : MonoBehaviour
         return list;
     }
 
+    private static int[,] ComputeDegrees(bool[,] open)
+    {
+        int H = open.GetLength(0), W = open.GetLength(1);
+        int[,] d = new int[H, W];
+        int[] dr = { -1, 1, 0, 0 };
+        int[] dc = { 0, 0, -1, 1 };
+        for (int r = 0; r < H; r++)
+        {
+            for (int c = 0; c < W; c++)
+            {
+                if (!open[r, c]) continue;
+                int deg = 0;
+                for (int k = 0; k < 4; k++)
+                {
+                    int nr = r + dr[k], nc = c + dc[k];
+                    if (nr >= 0 && nr < H && nc >= 0 && nc < W && open[nr, nc]) deg++;
+                }
+                d[r, c] = deg;
+            }
+        }
+        return d;
+    }
+
+    // Only collect dead-ends at odd/odd (cell centers); keeps picks inside cells.
+    private static List<Vector2Int> CollectDeadEndCellsOddOdd(bool[,] open, int[,] deg)
+    {
+        int H = open.GetLength(0), W = open.GetLength(1);
+        var list = new List<Vector2Int>();
+        for (int r = 1; r < H; r += 2)
+            for (int c = 1; c < W; c += 2)
+                if (open[r, c] && deg[r, c] == 1)
+                    list.Add(new Vector2Int(c, r)); // x=c, y=r
+        return list;
+    }
+
+    private static (List<Vector2Int> q1, List<Vector2Int> q2, List<Vector2Int> q3, List<Vector2Int> q4)
+        PartitionByQuadrants(List<Vector2Int> tiles, int H, int W)
+    {
+        int midR = H / 2; // Y midpoint
+        int midC = W / 2; // X midpoint
+        var q1 = new List<Vector2Int>(); // top-left (y < midR, x < midC)
+        var q2 = new List<Vector2Int>(); // top-right (y < midR, x >= midC)
+        var q3 = new List<Vector2Int>(); // bottom-left (y >= midR, x < midC)
+        var q4 = new List<Vector2Int>(); // bottom-right (y >= midR, x >= midC)
+
+        foreach (var t in tiles)
+        {
+            bool top = t.y < midR;
+            bool left = t.x < midC;
+            if (top && left) q1.Add(t);
+            else if (top && !left) q2.Add(t);
+            else if (!top && left) q3.Add(t);
+            else q4.Add(t);
+        }
+        return (q1, q2, q3, q4);
+    }
+
+    private static void Shuffle<T>(List<T> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
+    }
+
+    private static bool TryPickRandomFrom(List<Vector2Int> candidates, HashSet<Vector2Int> used, out Vector2Int result)
+    {
+        result = default;
+        if (candidates == null || candidates.Count == 0) return false;
+
+        // Build a pool excluding used
+        var pool = new List<Vector2Int>(candidates.Count);
+        foreach (var t in candidates) if (!used.Contains(t)) pool.Add(t);
+        if (pool.Count == 0) return false;
+
+        int idx = UnityEngine.Random.Range(0, pool.Count);
+        result = pool[idx];
+        return true;
+    }
+
+    private static List<Vector2Int> PickWithMinDistance(List<Vector2Int> pool, HashSet<Vector2Int> used, float minDistSq, int count)
+    {
+        var picks = new List<Vector2Int>(count);
+        if (pool == null || pool.Count == 0 || count <= 0) return picks;
+
+        // Shuffle pool for variety
+        var shuffled = new List<Vector2Int>(pool);
+        Shuffle(shuffled);
+
+        foreach (var t in shuffled)
+        {
+            if (picks.Count >= count) break;
+            if (used.Contains(t)) continue;
+
+            bool ok = true;
+            foreach (var u in used)
+            {
+                if (SqrDist(t, u) < minDistSq) { ok = false; break; }
+            }
+            if (!ok) continue;
+
+            // also keep distance from already-picked in this batch
+            foreach (var p in picks)
+            {
+                if (SqrDist(t, p) < minDistSq) { ok = false; break; }
+            }
+            if (!ok) continue;
+
+            picks.Add(t);
+        }
+
+        return picks;
+    }
+
+    private static float SqrDist(Vector2Int a, Vector2Int b)
+    {
+        int dx = a.x - b.x, dy = a.y - b.y;
+        return dx * dx + dy * dy;
+    }
+
+    private static Vector2Int NearestToCenter(List<Vector2Int> tiles, Vector2 center)
+    {
+        if (tiles == null || tiles.Count == 0) return default;
+        float best = float.MaxValue;
+        Vector2Int bestT = default;
+        for (int i = 0; i < tiles.Count; i++)
+        {
+            var t = tiles[i];
+            float dx = t.x - center.x;
+            float dy = t.y - center.y;
+            float d2 = dx * dx + dy * dy;
+            if (d2 < best)
+            {
+                best = d2;
+                bestT = t;
+            }
+        }
+        return bestT;
+    }
+
     private static List<Vector2Int> PickDistinctTiles(List<Vector2Int> pool, HashSet<Vector2Int> avoid, int count)
     {
-        // Make a filtered, randomly-ordered pool
+        // (Unused by the new logic, kept in case you still call it elsewhere.)
         var filtered = new List<Vector2Int>(pool.Count);
         foreach (var t in pool)
             if (!avoid.Contains(t)) filtered.Add(t);
 
-        // Fisher–Yates shuffle
         for (int i = filtered.Count - 1; i > 0; i--)
         {
             int j = UnityEngine.Random.Range(0, i + 1);
@@ -203,7 +400,6 @@ public class ContentGenerator : MonoBehaviour
         }
 
         if (filtered.Count <= count) return filtered;
-
         return filtered.GetRange(0, count);
     }
 }
