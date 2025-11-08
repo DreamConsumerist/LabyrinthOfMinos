@@ -57,7 +57,9 @@ public class MinotaurPatrolState : MinotaurBaseState
 
         if (returningToPath)
         {
-            if (minotaurPos2D == patrolPath[0])
+            Vector3 targetPos = new Vector3(patrolPath[0].x * controller.maze.tileSize, controller.transform.position.y, patrolPath[0].y * controller.maze.tileSize);
+            float distToTarget = Vector3.Distance(targetPos, controller.transform.position);
+            if (distToTarget <= controller.parameters.pointRadius)
             {
                 returningToPath = false;
             }

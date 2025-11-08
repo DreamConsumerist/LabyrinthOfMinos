@@ -160,9 +160,9 @@ MonoBehaviour:
   patrolWalkSpeed: 1
   patrolRotateSpeed: 90
   chaseRunSpeed: 3
-  chaseRotateSpeed: 120
+  chaseRotateSpeed: 270
   maxChaseTime: 15
-  pointRadius: 0.5
+  pointRadius: 0.6
 --- !u!114 &5342233077347790184
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -63,9 +63,14 @@ public class MinotaurSenses : MonoBehaviour
 
     private SenseReport TimeSincePlayerSeen(SenseReport currSenses, SenseReport prevSenses)
     {
-        if (currSenses.playerSpotted) { return currSenses; }
-
-        currSenses.timeSincePlayerSpotted = prevSenses.timeSincePlayerSpotted + Time.deltaTime;
+        if (currSenses.playerSpotted) 
+        {
+            currSenses.timeSincePlayerSpotted = 0f;
+        }
+        else
+        {
+            currSenses.timeSincePlayerSpotted = prevSenses.timeSincePlayerSpotted + Time.deltaTime;
+        }
 
         return currSenses;
     }
