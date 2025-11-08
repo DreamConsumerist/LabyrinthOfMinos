@@ -41,7 +41,8 @@ public class MinotaurSenses : MonoBehaviour
 
                 if (Physics.Raycast(transform.position, toTarget.normalized, out RaycastHit hit, controller.parameters.visionDistance))
                 {
-                    if (hit.collider.gameObject == obj)
+                   
+                    if (hit.collider.gameObject.CompareTag("Player"))
                     {
                         // Player is visible
                         Debug.Log("I can see you!");
