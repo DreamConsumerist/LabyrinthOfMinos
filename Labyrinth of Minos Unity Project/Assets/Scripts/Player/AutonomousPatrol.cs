@@ -14,6 +14,9 @@ public class AutonomousPatrol : MonoBehaviour
     Vector3 nextPoint;
     private bool isInitialized = false;
     [SerializeField] float maxSpeed = 4f;
+    [SerializeField] bool manualTarget = false;
+    [SerializeField] int destY = 1;
+    [SerializeField] int destX = 1;
 
     private void Awake()
     {
@@ -54,8 +57,16 @@ public class AutonomousPatrol : MonoBehaviour
         // If we don't have a path or it’s empty, pick a new destination and generate a path
         if (currPath == null || currPath.Count == 0)
         {
-            targetPos = destOptions[UnityEngine.Random.Range(0, destOptions.Count)];
-            currPath = A_StarPathfinding.FindPath(playerPos2D, targetPos, maze.open);
+            if (!manualTarget)
+            {
+                targetPos = destOptions[UnityEngine.Random.Range(0, destOptions.Count)];
+            }
+            else
+            {
+                targetPos.y = destY;
+                targetPos.x = destX;
+            }
+                currPath = A_StarPathfinding.FindPath(playerPos2D, targetPos, maze.open);
 
             // Still no path? Bail for this frame
             if (currPath == null || currPath.Count == 0)
@@ -115,36 +126,3 @@ public class AutonomousPatrol : MonoBehaviour
         }
     }
 }
-
-
-
-//private void MoveToTarget()
-//{
-//    if (currPath == null || currPath.Count == 0)
-//    {
-//        currPath = A_StarPathfinding.FindPath(playerPos2D, targetPos, maze.open);
-//    }
-//    nextPoint = new Vector3(currPath[0].x * maze.tileSize, this.GetComponent<Renderer>().bounds.size.y / 2, currPath[0].y * maze.tileSize);
-
-//    if (Vector3.Distance(rb.position, nextPoint) < 0.1f)
-//    {
-//        currPath.RemoveAt(0);
-//        if (currPath.Count > 0)
-//        {
-//            nextPoint = new Vector3(currPath[0].x * maze.tileSize, this.GetComponent<Renderer>().bounds.size.y / 2, currPath[0].y * maze.tileSize);
-//        }
-//        else
-//        {
-//            targetPos = destOptions[UnityEngine.Random.Range(0, destOptions.Count - 1)];
-//            currPath = A_StarPathfinding.FindPath(playerPos2D, targetPos, maze.open);
-//        }
-//    }
-
-//    if (currPath == null || currPath.Count == 0)
-//    {
-//    }
-//    //Debug.Log("Next point: " + nextPoint.x + ", " + nextPoint.y + ", " + nextPoint.x);
-//    Vector3 direction = (nextPoint - rb.position).normalized;
-//    Vector3 move = direction * maxSpeed * Time.fixedDeltaTime;
-//    rb.MovePosition(rb.position + move);
-//}

@@ -4,48 +4,64 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem.DualShock.LowLevel;
+using Unity.Netcode;
 
 [RequireComponent(typeof(MinotaurMovement))]
-public class MinotaurBehaviorController : MonoBehaviour
+public class MinotaurBehaviorController : NetworkBehaviour
 {
     // Initialize variables to store references to objects and data
     public Rigidbody rb;
     public MazeGenerator.MazeData maze;
     public PlayerData player;
-    [SerializeField] public GameObject indicator;
 
     // Initialize variables to store instances and outputs of helper classes
     public MinotaurMovement movement;
+    public MinotaurParameters parameters;
     public MinotaurSenses senses;
     public MinotaurSenses.SenseReport currSenses;
 
     // Initialize variables to store instances of states
     MinotaurBaseState currentState;
-    public MinotaurChaseState ChaseState = new MinotaurChaseState();
-    public MinotaurKillsPlayerState KillsPlayerState = new MinotaurKillsPlayerState();
-    public MinotaurPatrolState PatrolState = new MinotaurPatrolState();
+    public readonly MinotaurChaseState ChaseState = new MinotaurChaseState();
+    public readonly MinotaurKillsPlayerState KillsPlayerState = new MinotaurKillsPlayerState();
+    public readonly MinotaurPatrolState PatrolState = new MinotaurPatrolState();
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        rb = GetComponent<Rigidbody>();
+        movement = GetComponent<MinotaurMovement>();
+        senses = GetComponent<MinotaurSenses>();
+        parameters = GetComponent<MinotaurParameters>();
+
+        if (IsServer)
+        {
+            currentState = PatrolState;
+            currentState.EnterState(this);
+            movement.Initialize(this);
+            player = FindAnyObjectByType<PlayerData>();
+        }
+    }
 
     private void Awake() // Awake is called when 
     {
-        if (!movement) movement = GetComponent<MinotaurMovement>();
-        if (!senses) senses = GetComponent<MinotaurSenses>();
         rb = GetComponent<Rigidbody>();
-    }
-    void Start() // Start is called when 
-    {
-        currentState = PatrolState;
-        currentState.EnterState(this);
-        player = UnityEngine.Object.FindAnyObjectByType<PlayerData>();
+        movement = GetComponent<MinotaurMovement>();
+        senses = GetComponent<MinotaurSenses>();
+        parameters = GetComponent<MinotaurParameters>();
     }
 
     void Update() // Update is called once per frame
     {
+        if (!IsServer) return;
         currSenses = senses.SensoryUpdate();
         currentState.UpdateState(currSenses);
     }
 
     private void FixedUpdate() // FixedUpdate is called independently of frame rate before Update, ideal for physics calculations.
     {
+        if (!IsServer) return;
         currentState.FixedUpdateState();
     }
 
@@ -61,14 +77,6 @@ public class MinotaurBehaviorController : MonoBehaviour
         currentState.ExitState();
         currentState = state;
         currentState.EnterState(this);
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (currentState != null)
-        {
-            currentState.DrawGizmos(); // If problems occur, may be because controller isn't initialized.
-        }
     }
 }
 

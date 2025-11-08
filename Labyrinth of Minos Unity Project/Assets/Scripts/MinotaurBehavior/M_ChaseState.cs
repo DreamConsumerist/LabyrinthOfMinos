@@ -9,8 +9,6 @@ public class MinotaurChaseState : MinotaurBaseState
     MinotaurBehaviorController controller;
     //Vector2Int lastKnownPlayerPos;
 
-    float maxChaseTime = 15f;
-
     public override void EnterState(MinotaurBehaviorController controllerRef)
     {
         if (controller == null)
@@ -24,7 +22,7 @@ public class MinotaurChaseState : MinotaurBaseState
 
     public override void FixedUpdateState()
     {
-        controller.movement.MoveToTarget(1f, 80);
+        controller.movement.MoveToTarget(controller.parameters.chaseRunSpeed, controller.parameters.chaseRotateSpeed);
     }
 
     public override void UpdateState(MinotaurSenses.SenseReport currentKnowledge)
@@ -35,25 +33,20 @@ public class MinotaurChaseState : MinotaurBaseState
             controller.movement.UpdateTarget(playerPos);
         }
         
-        if (controller.currSenses.timeSincePlayerSpotted > maxChaseTime)
+        if (controller.currSenses.timeSincePlayerSpotted > controller.parameters.maxChaseTime)
         {
             Debug.Log("Can't find them...");
             controller.ChangeState(controller.PatrolState);
         }
         else
         {
-            Debug.Log("I have " + (maxChaseTime - controller.currSenses.timeSincePlayerSpotted) + " seconds to find them!");
+            Debug.Log("I have " + (controller.parameters.maxChaseTime - controller.currSenses.timeSincePlayerSpotted) + " seconds to find them!");
         }
     }
 
     public override void ExitState()
     {
         
-    }
-
-    public override void DrawGizmos()
-    {
-        // This currently draws in movement, probably want to move it from movement over here.
     }
 
     public void UpdateTarget2DPosition()

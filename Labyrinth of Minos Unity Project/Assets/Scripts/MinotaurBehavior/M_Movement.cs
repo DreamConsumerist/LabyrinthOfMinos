@@ -10,7 +10,6 @@ public class MinotaurMovement : MonoBehaviour
     private Vector2Int prevTargetPos = new Vector2Int(-1, -1);
     private Vector2Int minotaurPos2D;
     private bool isStaticRotate;
-    [SerializeField] private float staticRotateAngle = 90f;
 
     private List<Vector2Int> currPath;
 
@@ -62,7 +61,7 @@ public class MinotaurMovement : MonoBehaviour
         Vector3 nextPoint = GetNextPathPoint();
 
         // Rotate first toward the next node
-        isStaticRotate = RotateTowards(nextPoint, rotationSpeed);
+        RotateTowards(nextPoint, rotationSpeed);
 
         if (!isStaticRotate)
         {
@@ -83,14 +82,14 @@ public class MinotaurMovement : MonoBehaviour
             patrolRoute[0].y * controller.maze.tileSize
         );
 
-        isStaticRotate = RotateTowards(nextPoint, rotationSpeed);
+        RotateTowards(nextPoint, rotationSpeed);
         
         if (!isStaticRotate)
         {
             MoveForward(moveSpeed);
         }
 
-        if (Vector3.Distance(controller.rb.position, nextPoint) < 0.5f)
+        if (Vector3.Distance(controller.rb.position, nextPoint) < controller.parameters.pointRadius)
         {
             Vector2Int temp = patrolRoute[0];
             patrolRoute.RemoveAt(0);
@@ -136,7 +135,7 @@ public class MinotaurMovement : MonoBehaviour
     private void AdvancePathNode()
     {
         if (currPath != null && currPath.Count > 0 &&
-            Vector3.Distance(controller.rb.position, GetNextPathPoint()) < 0.5f)
+            Vector3.Distance(controller.rb.position, GetNextPathPoint()) < controller.parameters.pointRadius)
         {
             currPath.RemoveAt(0);
         }
@@ -155,18 +154,24 @@ public class MinotaurMovement : MonoBehaviour
         controller.rb.MovePosition(controller.rb.position + move);
     }
 
-    private bool RotateTowards(Vector3 targetPos, float rotationSpeed)
+    private void RotateTowards(Vector3 targetPos, float rotationSpeed)
     {
         Vector3 direction = (targetPos - controller.rb.position).normalized;
         direction.y = 0f;
-        if (direction == Vector3.zero) return false;
+        if (direction == Vector3.zero) { return; }
+
+        if (direction == controller.rb.transform.forward)
+        {
+            isStaticRotate = false;
+        }
+        float angle = Vector3.Angle(direction, controller.transform.forward);
+        if (angle > controller.parameters.staticRotateAngle)
+        {
+            isStaticRotate = true;
+        }
 
         Quaternion targetRotation = Quaternion.LookRotation(direction);
         controller.rb.MoveRotation(Quaternion.RotateTowards(controller.rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
-
-        float angle = Vector3.Angle(direction, controller.transform.forward);
-
-        return angle > staticRotateAngle;
     }
 
     // --------------------------
@@ -174,16 +179,32 @@ public class MinotaurMovement : MonoBehaviour
     // --------------------------
     private void OnDrawGizmos()
     {
-        if (currPath == null || controller == null || controller.maze == null) return;
-
-        Gizmos.color = Color.green;
-        float s = controller.maze.tileSize;
-
-        for (int i = 0; i < currPath.Count - 1; i++)
+        if (!(currPath == null || controller == null || controller.maze == null))
         {
-            Vector3 from = new Vector3(currPath[i].x * s, 0.5f, currPath[i].y * s);
-            Vector3 to = new Vector3(currPath[i + 1].x * s, 0.5f, currPath[i + 1].y * s);
-            Gizmos.DrawLine(from, to);
+            Gizmos.color = Color.green;
+            float s = controller.maze.tileSize;
+
+            for (int i = 0; i < currPath.Count - 1; i++)
+            {
+                Vector3 from = new Vector3(currPath[i].x * s, 0.5f, currPath[i].y * s);
+                Vector3 to = new Vector3(currPath[i + 1].x * s, 0.5f, currPath[i + 1].y * s);
+                Gizmos.DrawLine(from, to);
+            }
         }
+
+        if (!(controller.PatrolState.patrolPath == null || controller.maze == null))
+        {
+            Gizmos.color = Color.yellow; // a different color
+            float s = controller.maze.tileSize;
+
+            var path = controller.PatrolState.patrolPath;
+            for (int i = 0; i < path.Count - 1; i++)
+            {
+                Vector3 from = new Vector3(path[i].x * s, 0.5f, path[i].y * s);
+                Vector3 to = new Vector3(path[i + 1].x * s, 0.5f, path[i + 1].y * s);
+                Gizmos.DrawLine(from, to);
+            }
+        }
+
     }
 }
