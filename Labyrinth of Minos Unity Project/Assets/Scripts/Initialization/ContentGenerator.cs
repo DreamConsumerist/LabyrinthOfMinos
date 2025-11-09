@@ -205,7 +205,7 @@ public class ContentGenerator : MonoBehaviour
         // 1) Target tile center on XZ (floor at y=0 in your scene).
         Vector3 tileCenter = new Vector3(tile.x * s, 0f, tile.y * s);
 
-        // 2) Instantiate roughly there first.
+        // 2) Instantiate roughly there first (keep same parent for hierarchy).
         var go = Instantiate(prefab, tileCenter, Quaternion.identity, transform);
         if (!string.IsNullOrEmpty(nameOverride)) go.name = nameOverride;
 
@@ -229,6 +229,24 @@ public class ContentGenerator : MonoBehaviour
         // Optional: make sure physics won't kick it around on spawn
         var rb = go.GetComponentInChildren<Rigidbody>();
         if (rb) { rb.isKinematic = true; rb.useGravity = false; }
+
+        // 4) Network-spawn if we're the server and the prefab has a NetworkObject.
+        var netObj = go.GetComponent<Unity.Netcode.NetworkObject>();
+        if (netObj != null)
+        {
+            var nm = Unity.Netcode.NetworkManager.Singleton;
+            if (nm != null && nm.IsServer)
+            {
+                // Spawn after we've set the final transform so clients get the correct position on spawn.
+                netObj.Spawn(true); // true => destroy with scene if server despawns
+            }
+            else
+            {
+                // Not the server: this will be a local-only object (safe in singleplayer/editor),
+                // but won't be despawnable over the network.
+                // Debug.LogWarning($"SpawnAtTile: not server, '{go.name}' not network-spawned.");
+            }
+        }
     }
 
     private static List<Vector2Int> CollectOpenTiles(bool[,] open)

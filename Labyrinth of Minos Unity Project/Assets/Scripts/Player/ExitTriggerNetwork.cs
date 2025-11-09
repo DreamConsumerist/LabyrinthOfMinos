@@ -13,12 +13,28 @@ public class ExitTriggerNetwork : NetworkBehaviour
 
         var playerNetObj = other.GetComponentInParent<NetworkObject>();
         if (playerNetObj == null) return;
-        if (!other.CompareTag("Player")) return;
+        if (!playerNetObj.gameObject.CompareTag("Player")) return;
 
         // (Win condition check will go here later)
 
         PlayExitSfxClientRpc(transform.position);
-        NetworkObject.Despawn(true);
+
+        if (NetworkObject != null && NetworkObject.IsSpawned)
+        {
+            if (NetworkObject.IsSceneObject == true)
+            {
+                NetworkObject.Despawn(false);
+                gameObject.SetActive(false);
+            }
+            else
+            {
+                NetworkObject.Despawn(true);
+            }
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     [ClientRpc]
