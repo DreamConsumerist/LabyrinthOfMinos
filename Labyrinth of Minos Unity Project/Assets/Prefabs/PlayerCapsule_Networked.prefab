@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 6625890335421000463}
   - component: {fileID: 6869511138754578621}
   - component: {fileID: 8738447580128939175}
+  - component: {fileID: 4730271708350417855}
   m_Layer: 8
   m_Name: PlayerCapsule_Networked
   m_TagString: Player
@@ -636,6 +637,21 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &4730271708350417855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1677148472585727014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce958be440a7c134cad0a200440958fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerKeyProgress
+  ShowTopMostFoldoutHeaderGroup: 1
+  NextKeyIndex:
+    m_InternalValue: 1
 --- !u!1 &7620319688190338339
 GameObject:
   m_ObjectHideFlags: 0
