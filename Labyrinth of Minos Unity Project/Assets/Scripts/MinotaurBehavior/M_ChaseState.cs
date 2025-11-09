@@ -16,6 +16,8 @@ public class MinotaurChaseState : MinotaurBaseState
             controller = controllerRef;
         }
 
+        controller.animator.SetBool("isChasing", true);
+
         UpdateTarget2DPosition();
         controller.movement.UpdateTarget(playerPos);
     }
@@ -46,7 +48,7 @@ public class MinotaurChaseState : MinotaurBaseState
 
     public override void ExitState()
     {
-        
+        controller.animator.SetBool("isChasing", false);
     }
 
     public void UpdateTarget2DPosition()

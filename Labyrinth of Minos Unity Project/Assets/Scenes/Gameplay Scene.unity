@@ -1255,7 +1255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02c551141e2dc7f47af52bc696439a6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ContentGenerator
-  minotaur: {fileID: 6132809874441367548, guid: ed48ba8c4ab64c74dad890a7a36c2db0, type: 3}
+  minotaur: {fileID: 8734879976584547057, guid: f7479f6e8097db443bdab86bbc94af0d, type: 3}
   player: {fileID: 7025342462492690379, guid: cf64278134dae4544939992553b4dbcd, type: 3}
   playerSpawnMargins: 4
   key1Prefab: {fileID: 3006151742736200171, guid: 4cb1ee7d176f50d4ebba8fa22e5bcdfb, type: 3}

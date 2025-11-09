@@ -14,10 +14,13 @@ public class MinotaurPatrolState : MinotaurBaseState
     bool returningToPath = false;
     public override void EnterState(MinotaurBehaviorController controllerRef)
     {
+        
         if (controller == null)
         {
             controller = controllerRef;
         }
+
+        controller.animator.SetBool("isPatrolling", true);
 
         if (patrolPath == null || patrolPath.Count == 0)
         {
@@ -69,7 +72,7 @@ public class MinotaurPatrolState : MinotaurBaseState
 
     public override void ExitState()
     {
-
+        controller.animator.SetBool("isPatrolling", false);
     }
 
     private List<Vector2Int> PatrolPathGeneration(MinotaurBehaviorController minotaur)
