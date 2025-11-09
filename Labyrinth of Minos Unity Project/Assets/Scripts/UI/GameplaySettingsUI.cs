@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;  // <-- add this
+using TMPro;
+using StarterAssets; // -- add this so it can see FirstPersonController
 
 public class GameplaySettingsUI : MonoBehaviour
 {
@@ -8,7 +9,7 @@ public class GameplaySettingsUI : MonoBehaviour
     public Toggle invertY;
 
     [Header("Value label (optional)")]
-    public TMP_Text sensitivityValueText;  // <-- assign in Inspector
+    public TMP_Text sensitivityValueText;
 
     const string KEY_SENS = "gp_sens";
     const string KEY_INVY = "gp_invy";
@@ -18,7 +19,6 @@ public class GameplaySettingsUI : MonoBehaviour
 
     void Awake()
     {
-        // Ensure the label updates while you drag (no need to wire this in Inspector)
         if (mouseSensitivity)
             mouseSensitivity.onValueChanged.AddListener(OnSensitivityUIChanged);
     }
@@ -31,7 +31,6 @@ public class GameplaySettingsUI : MonoBehaviour
         if (mouseSensitivity) mouseSensitivity.SetValueWithoutNotify(savedSens);
         if (invertY) invertY.SetIsOnWithoutNotify(savedInvY);
 
-        // Because SetValueWithoutNotify suppresses events, update the label manually:
         OnSensitivityUIChanged(savedSens);
     }
 
@@ -40,7 +39,6 @@ public class GameplaySettingsUI : MonoBehaviour
         if (mouseSensitivity) mouseSensitivity.SetValueWithoutNotify(savedSens);
         if (invertY) invertY.SetIsOnWithoutNotify(savedInvY);
 
-        // Refresh label to the reverted value
         OnSensitivityUIChanged(savedSens);
     }
 
@@ -49,10 +47,15 @@ public class GameplaySettingsUI : MonoBehaviour
         float sens = mouseSensitivity ? mouseSensitivity.value : savedSens;
         bool inv = invertY ? invertY.isOn : savedInvY;
 
-        // (Optional) push to your player/controller here
-        // var pc = FindFirstObjectByType<PlayerLookController>();
-        // if (pc) { pc.SetMouseSensitivity(sens); pc.SetInvertY(inv); }
+        //  Push settings live to the player controller
+        var fpc = FindFirstObjectByType<FirstPersonController>();
+        if (fpc)
+        {
+            fpc.SetMouseSensitivity(sens);
+            fpc.SetInvertY(inv);
+        }
 
+        // Save the preferences for next launch
         PlayerPrefs.SetFloat(KEY_SENS, sens);
         PlayerPrefs.SetInt(KEY_INVY, inv ? 1 : 0);
         PlayerPrefs.Save();
@@ -66,12 +69,7 @@ public class GameplaySettingsUI : MonoBehaviour
     {
         if (!sensitivityValueText) return;
 
-        // Choose your preferred formatting:
-        // Option A: show as a plain number
+        // Display as plain number
         sensitivityValueText.text = v.ToString("0.00");
-
-        // Option B: map to a percent-like display (uncomment if you prefer)
-        // float pct = Mathf.InverseLerp(mouseSensitivity.minValue, mouseSensitivity.maxValue, v);
-        // sensitivityValueText.text = Mathf.RoundToInt(pct * 100f) + "%";
     }
 }

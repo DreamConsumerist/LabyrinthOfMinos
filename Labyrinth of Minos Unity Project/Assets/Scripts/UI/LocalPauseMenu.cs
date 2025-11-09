@@ -1,87 +1,125 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using StarterAssets; // FirstPersonController
 
 public class LocalPauseMenu : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] GameObject pauseUI;           // assign PausePanel (inactive by default)
+    [SerializeField] private GameObject pauseUI;
+    [SerializeField] private PlayerInput playerInput;
+    [SerializeField] private FirstPersonController fpc;
 
-    [Header("Action Map Names")]
-    [SerializeField] string gameplayMap = "Gameplay";
-    [SerializeField] string uiMap = "UI";          // optional; if missing, we’ll ignore
+    [Header("Action Map Names (optional)")]
+    [SerializeField] private string gameplayMap = "Gameplay";
+    [SerializeField] private string uiMap = "UI"; // no longer needed during Pause()
 
-    PlayerInput playerInput;
-    InputAction pauseAction;
-    bool paused;
+    private InputAction pauseAction;
+    private bool paused;
 
     void Awake()
     {
-        // Find the local PlayerInput (if not assigned in the scene)
-        playerInput = FindFirstObjectByType<PlayerInput>();
-        if (playerInput == null)
-            Debug.LogWarning("LocalPauseMenu: No PlayerInput found. Add one to your player or scene to receive Pause.");
+        EnsureRefs();
+        if (pauseUI) pauseUI.SetActive(false);
     }
 
-    void OnEnable()
+    void OnEnable() { HookPause(true); }
+    void OnDisable() { HookPause(false); }
+
+    void EnsureRefs()
     {
-        if (playerInput != null)
+        if (!playerInput)
+            playerInput = GetComponentInParent<PlayerInput>() ?? FindFirstObjectByType<PlayerInput>();
+        if (!fpc)
+            fpc = GetComponentInParent<FirstPersonController>() ?? FindFirstObjectByType<FirstPersonController>();
+    }
+
+    void HookPause(bool on)
+    {
+        if (!playerInput || playerInput.actions == null) return;
+
+        if (on)
         {
-            pauseAction = playerInput.actions["Pause"];
-            if (pauseAction != null)
-                pauseAction.performed += OnPause;
+            pauseAction = playerInput.actions.FindAction("Pause", false);
+            if (pauseAction != null) pauseAction.performed += OnPause;
         }
-    }
-
-    void OnDisable()
-    {
-        if (pauseAction != null)
-            pauseAction.performed -= OnPause;
+        else
+        {
+            if (pauseAction != null) pauseAction.performed -= OnPause;
+            pauseAction = null;
+        }
     }
 
     public void OnPause(InputAction.CallbackContext ctx)
     {
+        if (!ctx.performed) return;
         Toggle();
     }
 
+    // --- Compatibility bridge for older callers ---
     public void Toggle()
     {
-        paused = !paused;
-        if (pauseUI) pauseUI.SetActive(paused);
-
-        // Switch to UI map so gameplay input is ignored while paused
-        if (playerInput != null)
-        {
-            // Switch to UI only if it exists; otherwise stay on Gameplay
-            var uiExists = playerInput.actions.FindActionMap(uiMap, true) != null;
-            if (paused && uiExists) playerInput.SwitchCurrentActionMap(uiMap);
-            else playerInput.SwitchCurrentActionMap(gameplayMap);
-        }
-
-        // Local polish only (don’t freeze net sim)
-        AudioListener.pause = paused;
-        Cursor.visible = paused;
-        Cursor.lockState = paused ? CursorLockMode.None : CursorLockMode.Locked;
+        if (paused) Unpause();
+        else Pause();
     }
 
-    // Hook these from your buttons:
-    public void OnResume() => Toggle();
+    public void OnResume() => Unpause();
 
     public void OnQuitToMainMenu()
     {
-        // --- Unpause everything before switching scenes ---
-        Time.timeScale = 1f;               // Resume time if the game was paused
-        AudioListener.pause = false;       // Unpause all audio
-        Cursor.visible = true;             // Show the cursor again
-        Cursor.lockState = CursorLockMode.None;  // Unlock cursor for UI navigation
-
-        // --- Now safely load the main menu scene ---
+        Unpause(); // ensure clean state
         SceneManager.LoadScene("MainMenu");
     }
 
-    public void OnOpenSettings()
+    private void Pause()
     {
-        // Show a Settings panel, or load a Settings scene if you have one.
-        Debug.Log("Open Settings (wire up your settings panel here).");
+        EnsureRefs();
+        paused = true;
+
+        if (pauseUI) pauseUI.SetActive(true);
+
+        //  Do NOT switch maps while disabling — just disable PlayerInput
+        if (playerInput) playerInput.enabled = false;
+
+        if (fpc) fpc.SetInputLocked(true);
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        Debug.Log("LocalPauseMenu: PAUSED (playerInput disabled, input locked)");
+    }
+
+    private void Unpause()
+    {
+        EnsureRefs();
+        paused = false;
+
+        if (pauseUI) pauseUI.SetActive(false);
+
+        // Re-enable PlayerInput first, THEN switch to Gameplay map
+        if (playerInput)
+        {
+            playerInput.enabled = true;
+            SwitchMapSafe(gameplayMap); // now allowed
+            // Rehook Pause in case disabling invalidated it
+            HookPause(false);
+            HookPause(true);
+        }
+
+        if (fpc) fpc.SetInputLocked(false);
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
+        Debug.Log("LocalPauseMenu: RESUMED (playerInput enabled, input unlocked)");
+    }
+
+    private void SwitchMapSafe(string map)
+    {
+        if (!playerInput || !playerInput.enabled || playerInput.actions == null || string.IsNullOrEmpty(map))
+            return;
+
+        var exists = playerInput.actions.FindActionMap(map, false) != null;
+        if (exists) playerInput.SwitchCurrentActionMap(map);
     }
 }
