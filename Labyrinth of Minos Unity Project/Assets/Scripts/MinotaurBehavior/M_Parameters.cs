@@ -9,7 +9,7 @@ public class MinotaurParameters : MonoBehaviour
     // Movement parameters
     public float staticRotateAngle = 90f;
     public float patrolWalkSpeed = 1.0f;
-    public float patrolRotateSpeed = 75f;
+    public float patrolRotateSpeed = 90f;
     public float chaseRunSpeed = 3.0f;
     public float chaseRotateSpeed = 270f;
 
