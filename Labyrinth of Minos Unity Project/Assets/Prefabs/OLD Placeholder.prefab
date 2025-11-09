@@ -62,7 +62,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: e1302708d0066e641a0a5c7db1f3836a, type: 3}
       propertyPath: m_Name
-      value: PlaceholderModel
+      value: OLD Placeholder
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -74,6 +74,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e1302708d0066e641a0a5c7db1f3836a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3359466018529389774}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e1302708d0066e641a0a5c7db1f3836a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4396276857773808066}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e1302708d0066e641a0a5c7db1f3836a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 9211385392436915194}
@@ -92,9 +95,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e1302708d0066e641a0a5c7db1f3836a, type: 3}
       insertIndex: -1
       addedObject: {fileID: -1196838029705443366}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e1302708d0066e641a0a5c7db1f3836a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4396276857773808066}
   m_SourcePrefab: {fileID: 100100000, guid: e1302708d0066e641a0a5c7db1f3836a, type: 3}
 --- !u!1 &6132809874441367548 stripped
 GameObject:
@@ -172,6 +172,23 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &4396276857773808066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6132809874441367548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkRigidbody
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkRigidbodyBaseExpanded: 0
+  UseRigidBodyForMotion: 0
+  AutoUpdateKinematicState: 1
+  AutoSetKinematicOnDespawn: 1
 --- !u!136 &9211385392436915194
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -280,6 +297,8 @@ MonoBehaviour:
     tileSize: 0
     useXZPlane: 0
   player: {fileID: 0}
+  animator: {fileID: 0}
+  networkAnimator: {fileID: 0}
   movement: {fileID: 0}
   parameters: {fileID: 0}
   senses: {fileID: 0}
@@ -295,20 +314,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b836c3873634fb64bac9f63b4735c480, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinotaurSenses
---- !u!114 &4396276857773808066
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6132809874441367548}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkRigidbody
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkRigidbodyBaseExpanded: 0
-  UseRigidBodyForMotion: 0
-  AutoUpdateKinematicState: 1
-  AutoSetKinematicOnDespawn: 1

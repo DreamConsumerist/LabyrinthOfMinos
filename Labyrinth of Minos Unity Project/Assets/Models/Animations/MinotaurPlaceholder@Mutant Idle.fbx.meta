@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 7538d817676f57c48a4b8906f5f8ce3f
+guid: be07b91a93dfd054ca743fc640616f30
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -31,11 +31,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Mutant Walking
+      name: Mutant Idle
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 43
+      lastFrame: 427
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
