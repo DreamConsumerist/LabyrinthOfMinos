@@ -61,6 +61,8 @@ namespace StarterAssets
 		private float _verticalVelocity;
 		private float _terminalVelocity = 53.0f;
 
+		private StaminaSystem _stamina;
+
 		// timeout deltatime
 		private float _jumpTimeoutDelta;
 		private float _fallTimeoutDelta;
@@ -100,6 +102,7 @@ namespace StarterAssets
 		{
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<StarterAssetsInputs>();
+			_stamina = GetComponent<StaminaSystem>();
 #if ENABLE_INPUT_SYSTEM
 			_playerInput = GetComponent<PlayerInput>();
 #else
@@ -155,7 +158,9 @@ namespace StarterAssets
 		private void Move()
 		{
 			// set target speed based on move speed, sprint speed and if sprint is pressed
-			float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+			bool canSprint = _stamina != null && _stamina.CanSprint();
+			float targetSpeed = (_input.sprint && canSprint) ? SprintSpeed : MoveSpeed;
+
 
 			// a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
 
