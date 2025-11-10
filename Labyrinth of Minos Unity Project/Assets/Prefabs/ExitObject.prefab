@@ -236,4 +236,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExitTriggerNetwork
   ShowTopMostFoldoutHeaderGroup: 1
   exitTouchSfx: {fileID: 8300000, guid: 9d0113dd16699ce4ea3c58dd422fdc1f, type: 3}
+  notReadySfx: {fileID: 8300000, guid: 3eab95774fe317a489c29e1075d3d6a2, type: 3}
   sfxVolume: 0.7
