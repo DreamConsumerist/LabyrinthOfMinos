@@ -17,5 +17,9 @@ public class MinotaurParameters : MonoBehaviour
     public float maxChaseTime = 15f;
     public float killTime = 5f;
 
+    // Sound frequency variables
+    public float walkSoundTime = .75f;
+    public float runSoundTime = .25f;
+
     public float pointRadius = .6f;
 }

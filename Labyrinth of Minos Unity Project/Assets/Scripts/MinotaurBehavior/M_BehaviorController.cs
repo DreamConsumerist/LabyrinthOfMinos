@@ -23,6 +23,11 @@ public class MinotaurBehaviorController : NetworkBehaviour
     public MinotaurSenses senses;
     public MinotaurSenses.SenseReport currSenses;
 
+    public AudioSource walkSource;
+    public AudioSource roarSource;
+    public AudioClip[] walkSounds;
+    public AudioClip roarSound;
+
     // Initialize variables to store instances of states
     MinotaurBaseState currentState;
     public readonly MinotaurChaseState ChaseState = new MinotaurChaseState();
