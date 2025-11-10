@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 6869511138754578621}
   - component: {fileID: 8738447580128939175}
   - component: {fileID: 3596950512415505540}
+  - component: {fileID: 4154510155180691862}
   m_Layer: 8
   m_Name: PlayerCapsule_Networked
   m_TagString: Player
@@ -218,6 +219,8 @@ MonoBehaviour:
   CinemachineCameraTarget: {fileID: 7620319688190338339}
   TopClamp: 89
   BottomClamp: -89
+  userSensitivity: 1
+  invertY: 0
 --- !u!114 &3515833019696279161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,7 +367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2656102306
+  GlobalObjectIdHash: 3325708676
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -649,6 +652,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb3a067123ce14342a99d198fb6b7344, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseInputRelay
+  playerMap: Player
+  uiMap: UI
+--- !u!114 &4154510155180691862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1677148472585727014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce958be440a7c134cad0a200440958fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerKeyProgress
+  ShowTopMostFoldoutHeaderGroup: 1
+  NextKeyIndex:
+    m_InternalValue: 1
 --- !u!1 &7620319688190338339
 GameObject:
   m_ObjectHideFlags: 0
