@@ -2264,14 +2264,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d00eb841f55ebcd4a834dc51c4d5e222, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MazeGenerator
-  cellsW: 30
-  cellsH: 30
-  targetDeadEndLow: 0.03
-  targetDeadEndHigh: 0.05
+  cellsW: 12
+  cellsH: 12
+  targetDeadEndLow: 0.01
+  targetDeadEndHigh: 0.03
   avoid2x2Squares: 1
   avoid3x3Donuts: 1
   useFixedSeed: 1
-  fixedSeed: 12345
+  fixedSeed: 2
   tileSize: 1
   useXZPlane: 1
 --- !u!4 &1909405092

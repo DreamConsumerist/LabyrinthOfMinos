@@ -293,7 +293,7 @@ MonoBehaviour:
   patrolRotateSpeed: 75
   chaseRunSpeed: 3
   chaseRotateSpeed: 270
-  maxChaseTime: 15
+  maxChaseTime: 9
   killTime: 5
   pointRadius: 0.6
 --- !u!114 &-4109441483549431731
