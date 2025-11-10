@@ -138,6 +138,7 @@ GameObject:
   - component: {fileID: 3596950512415505540}
   - component: {fileID: 4154510155180691862}
   - component: {fileID: -5667468590999980084}
+  - component: {fileID: 6985629162106253078}
   m_Layer: 8
   m_Name: PlayerCapsule_Networked
   m_TagString: Player
@@ -690,6 +691,36 @@ MonoBehaviour:
   deathSfx: {fileID: 0}
   sfxVolume: 0.8
   serverCooldown: 0.5
+--- !u!114 &6985629162106253078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1677148472585727014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f016360112fd73043a067b6d400df4f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FootstepSpawner
+  footprintPrefab: {fileID: 8567943967538058213, guid: ad41a6b1ebf5f6640b86d42177da64b5, type: 3}
+  footprintsParent: {fileID: 0}
+  stepDistance: 0.8
+  lateralOffset: 0.15
+  yOffset: 0.01
+  raycastStartHeight: 1
+  raycastDownDistance: 3
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  baseScale: 0.1
+  randomYawJitter: 6
+  randomScaleJitter: 0.05
+  backOffset: 0.05
+  poolSize: 64
+  maxPersistent: 20
+  fadeDuration: 2
+  minSpeedToPrint: 0.1
 --- !u!1 &7620319688190338339
 GameObject:
   m_ObjectHideFlags: 0
