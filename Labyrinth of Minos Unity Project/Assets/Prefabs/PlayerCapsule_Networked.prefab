@@ -137,6 +137,7 @@ GameObject:
   - component: {fileID: 8738447580128939175}
   - component: {fileID: 3596950512415505540}
   - component: {fileID: 4154510155180691862}
+  - component: {fileID: -5667468590999980084}
   m_Layer: 8
   m_Name: PlayerCapsule_Networked
   m_TagString: Player
@@ -367,7 +368,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3325708676
+  GlobalObjectIdHash: 2656102306
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -669,6 +670,26 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   NextKeyIndex:
     m_InternalValue: 1
+--- !u!114 &-5667468590999980084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1677148472585727014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e50249e0df7f82f4ea31961cb58f046c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDeathDetector
+  ShowTopMostFoldoutHeaderGroup: 1
+  killerLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  minotaurTag: Minotaur
+  deathSfx: {fileID: 0}
+  sfxVolume: 0.8
+  serverCooldown: 0.5
 --- !u!1 &7620319688190338339
 GameObject:
   m_ObjectHideFlags: 0
