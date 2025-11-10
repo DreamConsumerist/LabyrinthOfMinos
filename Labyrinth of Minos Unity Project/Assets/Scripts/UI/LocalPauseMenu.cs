@@ -19,7 +19,7 @@ public class LocalPauseMenu : MonoBehaviour
         CloseImmediate();
     }
 
-    /// <summary>Toggle the pause menu. Called by PauseInputRelay and Resume button.</summary>
+    /// <summary>Toggle the pause menu. Called by PauseInputRelay or a UI button.</summary>
     public void Toggle()
     {
         if (IsOpen) Close(); else Open();
@@ -33,9 +33,7 @@ public class LocalPauseMenu : MonoBehaviour
         if (pauseUI) pauseUI.SetActive(true);
 
         // Local-only polish (keep the world/server sim running)
-        AudioListener.pause = true;
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        ApplyCursorAndAudio(isPaused: true);
 
         OnToggled?.Invoke(true);
     }
@@ -47,9 +45,7 @@ public class LocalPauseMenu : MonoBehaviour
 
         if (pauseUI) pauseUI.SetActive(false);
 
-        AudioListener.pause = false;
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        ApplyCursorAndAudio(isPaused: false);
 
         OnToggled?.Invoke(false);
     }
@@ -66,6 +62,30 @@ public class LocalPauseMenu : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
 
         SceneManager.LoadScene("MainMenu");
+    }
+
+    // --- Focus guards: re-assert the correct cursor state when the app regains focus ---
+    void OnApplicationFocus(bool hasFocus)
+    {
+        if (hasFocus) EnsureCursorForCurrentState();
+    }
+
+    void OnApplicationPause(bool appPaused)
+    {
+        if (!appPaused) EnsureCursorForCurrentState();
+    }
+
+    public void EnsureCursorForCurrentState()
+    {
+        if (IsOpen) ApplyCursorAndAudio(isPaused: true);
+        else ApplyCursorAndAudio(isPaused: false);
+    }
+
+    private void ApplyCursorAndAudio(bool isPaused)
+    {
+        AudioListener.pause = isPaused;
+        Cursor.visible = isPaused;
+        Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
     }
 
     private void CloseImmediate()

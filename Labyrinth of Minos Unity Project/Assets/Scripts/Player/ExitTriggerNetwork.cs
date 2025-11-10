@@ -29,11 +29,12 @@ public class ExitTriggerNetwork : NetworkBehaviour
 
         _consumed = true;
 
-        // Win sound for everyone
+        // Win sound for everyone (optional global sting)
         if (exitTouchSfx != null)
             PlayExitSfxClientRpc(transform.position);
 
-        // TODO: trigger win UI for that player (next step)
+        // Show win UI only for the player who touched the exit
+        ShowWinForClientClientRpc(SendTo(playerNetObj.OwnerClientId));
 
         // Safe despawn (scene vs prefab)
         if (NetworkObject != null && NetworkObject.IsSpawned)
@@ -67,6 +68,20 @@ public class ExitTriggerNetwork : NetworkBehaviour
     {
         if (notReadySfx != null)
             AudioSource.PlayClipAtPoint(notReadySfx, atPos, sfxVolume);
+    }
+
+    [ClientRpc]
+    private void ShowWinForClientClientRpc(ClientRpcParams rpcParams = default)
+    {
+        // Local-only UI on the targeted client
+        if (WinScreenManager.Instance != null)
+        {
+            WinScreenManager.Instance.ShowWin();
+        }
+        else
+        {
+            Debug.LogWarning("WinScreenManager not found in scene on client.");
+        }
     }
 
     private static ClientRpcParams SendTo(ulong clientId)
