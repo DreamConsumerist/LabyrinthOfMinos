@@ -9,6 +9,8 @@ using UnityEngine.InputSystem.XR;
 public class MinotaurPatrolState : MinotaurBaseState
 {
     MinotaurBehaviorController controller;
+    float timeElapsedSinceSound = 0f;
+    bool left = true;
 
     public List<Vector2Int> patrolPath = new List<Vector2Int>();
     bool returningToPath = false;
@@ -18,6 +20,8 @@ public class MinotaurPatrolState : MinotaurBaseState
         {
             controller = controllerRef;
         }
+
+        controller.animator.SetBool("isPatrolling", true);
 
         if (patrolPath == null || patrolPath.Count == 0)
         {
@@ -46,6 +50,23 @@ public class MinotaurPatrolState : MinotaurBaseState
 
     public override void UpdateState(MinotaurSenses.SenseReport currentKnowledge)
     {
+        if (timeElapsedSinceSound >= controller.parameters.walkSoundTime)
+        {
+            timeElapsedSinceSound = 0f;
+            if (left)
+            {
+                controller.walkSource.PlayOneShot(controller.walkSounds[0]);
+            }
+            else
+            {
+                controller.walkSource.PlayOneShot(controller.walkSounds[1]);
+            }
+        }
+        else
+        {
+            timeElapsedSinceSound = timeElapsedSinceSound + Time.deltaTime;
+        }
+
         Vector2Int minotaurPos2D = new Vector2Int(
             Mathf.RoundToInt(controller.transform.position.x / controller.maze.tileSize),
             Mathf.RoundToInt(controller.transform.position.z / controller.maze.tileSize));
@@ -69,7 +90,7 @@ public class MinotaurPatrolState : MinotaurBaseState
 
     public override void ExitState()
     {
-
+        controller.animator.SetBool("isPatrolling", false);
     }
 
     private List<Vector2Int> PatrolPathGeneration(MinotaurBehaviorController minotaur)

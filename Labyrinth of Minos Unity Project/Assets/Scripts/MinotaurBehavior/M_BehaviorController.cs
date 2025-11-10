@@ -5,8 +5,11 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem.DualShock.LowLevel;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 
 [RequireComponent(typeof(MinotaurMovement))]
+[RequireComponent(typeof(MinotaurSenses))]
+[RequireComponent(typeof(MinotaurParameters))]
 public class MinotaurBehaviorController : NetworkBehaviour
 {
     // Initialize variables to store references to objects and data
@@ -15,10 +18,17 @@ public class MinotaurBehaviorController : NetworkBehaviour
     public PlayerData player;
 
     // Initialize variables to store instances and outputs of helper classes
+    public Animator animator;
+    public NetworkAnimator networkAnimator;
     public MinotaurMovement movement;
     public MinotaurParameters parameters;
     public MinotaurSenses senses;
     public MinotaurSenses.SenseReport currSenses;
+
+    public AudioSource walkSource;
+    public AudioSource roarSource;
+    public AudioClip[] walkSounds;
+    public AudioClip roarSound;
 
     // Initialize variables to store instances of states
     MinotaurBaseState currentState;
@@ -31,6 +41,8 @@ public class MinotaurBehaviorController : NetworkBehaviour
         base.OnNetworkSpawn();
 
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
+        networkAnimator = GetComponent<NetworkAnimator>();
         movement = GetComponent<MinotaurMovement>();
         senses = GetComponent<MinotaurSenses>();
         parameters = GetComponent<MinotaurParameters>();

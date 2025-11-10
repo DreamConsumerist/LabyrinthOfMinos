@@ -6,11 +6,12 @@ using Unity.Netcode.Transports.UTP;
 public class GameplayAutoStartHost : MonoBehaviour
 {
     [Header("Client connect (for Join Game)")]
-    [SerializeField] private string serverAddress = "127.0.0.1"; // change to your host’s IP when needed
+    [SerializeField] private string serverAddress = "127.0.0.1";
     [SerializeField] private ushort serverPort = 7777;
 
     [Header("Timing")]
     [SerializeField] private float networkManagerTimeout = 10f; // seconds
+    [SerializeField] private int framesToDelayStart = 1;        // NEW: delay to let other scripts initialize
 
     private void OnEnable()
     {
@@ -19,7 +20,7 @@ public class GameplayAutoStartHost : MonoBehaviour
 
     private IEnumerator BootWhenReady()
     {
-        // Wait for NetworkManager.Singleton to exist (handles script order/race)
+        // Wait for NetworkManager.Singleton (handles script order/race)
         float t = 0f;
         while (NetworkManager.Singleton == null && t < networkManagerTimeout)
         {
@@ -30,21 +31,22 @@ public class GameplayAutoStartHost : MonoBehaviour
         var nm = NetworkManager.Singleton ?? FindFirstOfTypeSafe<NetworkManager>();
         if (!nm)
         {
-            Debug.LogError("[GameplayAutoStartHost] Timeout: NetworkManager not found in Gameplay scene.");
+            Debug.LogError("[AutoStart] Timeout: NetworkManager not found in Gameplay scene.");
             yield break;
         }
 
-        // determine intent from menu
+        // >>> NEW: wait a frame (or two) so other scene objects finish Awake/Start
+        for (int i = 0; i < Mathf.Max(0, framesToDelayStart); i++)
+            yield return null;
+
         bool host = MenuStartHost.HostRequested;
         bool client = MenuStartHost.ClientRequested;
-
-        // consume flags so a later reload doesn't auto-start unexpectedly
         MenuStartHost.HostRequested = false;
         MenuStartHost.ClientRequested = false;
 
         if (!host && !client)
         {
-            Debug.Log("[GameplayAutoStartHost] No start intent set. Doing nothing.");
+            Debug.Log("[AutoStart] No start intent. Doing nothing.");
             yield break;
         }
 
@@ -56,22 +58,20 @@ public class GameplayAutoStartHost : MonoBehaviour
 
         if (client)
         {
-            // set address/port before starting client
             if (nm.NetworkConfig.NetworkTransport is UnityTransport utp)
-            {
                 utp.SetConnectionData(serverAddress, serverPort);
-            }
+
             var ok = nm.StartClient();
             Debug.Log($"[AutoStart] StartClient returned: {ok}");
         }
-        else // host
+        else
         {
             var ok = nm.StartHost();
             Debug.Log($"[AutoStart] StartHost returned: {ok}");
         }
     }
 
-    // Unity 6-friendly helper (avoid deprecated FindObjectOfType)
+    // Avoid name clash warning
     private static T FindFirstOfTypeSafe<T>() where T : Object
     {
 #if UNITY_2023_1_OR_NEWER
