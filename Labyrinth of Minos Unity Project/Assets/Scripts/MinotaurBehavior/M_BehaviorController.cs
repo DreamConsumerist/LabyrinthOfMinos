@@ -8,6 +8,8 @@ using Unity.Netcode;
 using Unity.Netcode.Components;
 
 [RequireComponent(typeof(MinotaurMovement))]
+[RequireComponent(typeof(MinotaurSenses))]
+[RequireComponent(typeof(MinotaurParameters))]
 public class MinotaurBehaviorController : NetworkBehaviour
 {
     // Initialize variables to store references to objects and data
