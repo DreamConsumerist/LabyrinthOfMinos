@@ -33,16 +33,18 @@ public class MinotaurChaseState : MinotaurBaseState
 
     public override void UpdateState(MinotaurSenses.SenseReport currentKnowledge)
     {
-        if (timeElapsedSinceSound >= controller.parameters.runSoundTime)
+        if (timeElapsedSinceSound >= controller.parameters.walkSoundTime)
         {
             timeElapsedSinceSound = 0f;
             if (left)
             {
                 controller.walkSource.PlayOneShot(controller.walkSounds[0]);
+                left = false;
             }
             else
             {
                 controller.walkSource.PlayOneShot(controller.walkSounds[1]);
+                left = true;
             }
         }
         else
