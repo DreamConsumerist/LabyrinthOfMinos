@@ -1,87 +1,77 @@
+// LocalPauseMenu.cs
+using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class LocalPauseMenu : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] GameObject pauseUI;           // assign PausePanel (inactive by default)
+    [Tooltip("Assign your Pause Panel root object (set inactive by default).")]
+    [SerializeField] private GameObject pauseUI;
 
-    [Header("Action Map Names")]
-    [SerializeField] string gameplayMap = "Gameplay";
-    [SerializeField] string uiMap = "UI";          // optional; if missing, we’ll ignore
-
-    PlayerInput playerInput;
-    InputAction pauseAction;
-    bool paused;
+    public bool IsOpen { get; private set; }
+    public event Action<bool> OnToggled; // Fired after menu open/close
 
     void Awake()
     {
-        // Find the local PlayerInput (if not assigned in the scene)
-        playerInput = FindFirstObjectByType<PlayerInput>();
-        if (playerInput == null)
-            Debug.LogWarning("LocalPauseMenu: No PlayerInput found. Add one to your player or scene to receive Pause.");
+        if (!pauseUI)
+            Debug.LogWarning("LocalPauseMenu: No pauseUI assigned. Hook your panel in the inspector.");
+        CloseImmediate();
     }
 
-    void OnEnable()
-    {
-        if (playerInput != null)
-        {
-            pauseAction = playerInput.actions["Pause"];
-            if (pauseAction != null)
-                pauseAction.performed += OnPause;
-        }
-    }
-
-    void OnDisable()
-    {
-        if (pauseAction != null)
-            pauseAction.performed -= OnPause;
-    }
-
-    public void OnPause(InputAction.CallbackContext ctx)
-    {
-        Toggle();
-    }
-
+    /// <summary>Toggle the pause menu. Called by PauseInputRelay and Resume button.</summary>
     public void Toggle()
     {
-        paused = !paused;
-        if (pauseUI) pauseUI.SetActive(paused);
-
-        // Switch to UI map so gameplay input is ignored while paused
-        if (playerInput != null)
-        {
-            // Switch to UI only if it exists; otherwise stay on Gameplay
-            var uiExists = playerInput.actions.FindActionMap(uiMap, true) != null;
-            if (paused && uiExists) playerInput.SwitchCurrentActionMap(uiMap);
-            else playerInput.SwitchCurrentActionMap(gameplayMap);
-        }
-
-        // Local polish only (don’t freeze net sim)
-        AudioListener.pause = paused;
-        Cursor.visible = paused;
-        Cursor.lockState = paused ? CursorLockMode.None : CursorLockMode.Locked;
+        if (IsOpen) Close(); else Open();
     }
 
-    // Hook these from your buttons:
-    public void OnResume() => Toggle();
+    public void Open()
+    {
+        if (IsOpen) return;
+        IsOpen = true;
 
+        if (pauseUI) pauseUI.SetActive(true);
+
+        // Local-only polish (keep the world/server sim running)
+        AudioListener.pause = true;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        OnToggled?.Invoke(true);
+    }
+
+    public void Close()
+    {
+        if (!IsOpen) return;
+        IsOpen = false;
+
+        if (pauseUI) pauseUI.SetActive(false);
+
+        AudioListener.pause = false;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
+        OnToggled?.Invoke(false);
+    }
+
+    /// <summary>Hook up to your Resume button.</summary>
+    public void OnResume() => Close();
+
+    /// <summary>Hook up to your Quit-to-Main-Menu button.</summary>
     public void OnQuitToMainMenu()
     {
-        // --- Unpause everything before switching scenes ---
-        Time.timeScale = 1f;               // Resume time if the game was paused
-        AudioListener.pause = false;       // Unpause all audio
-        Cursor.visible = true;             // Show the cursor again
-        Cursor.lockState = CursorLockMode.None;  // Unlock cursor for UI navigation
+        // Clear local pause cosmetics before switching scenes
+        AudioListener.pause = false;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 
-        // --- Now safely load the main menu scene ---
         SceneManager.LoadScene("MainMenu");
     }
 
-    public void OnOpenSettings()
+    private void CloseImmediate()
     {
-        // Show a Settings panel, or load a Settings scene if you have one.
-        Debug.Log("Open Settings (wire up your settings panel here).");
+        IsOpen = false;
+        if (pauseUI) pauseUI.SetActive(false);
+        // Intentionally not touching cursor/audio here so first-launch state is up to you
     }
 }
