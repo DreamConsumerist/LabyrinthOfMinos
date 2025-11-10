@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3935634958218658729}
   - component: {fileID: 6813914633537627535}
   - component: {fileID: 6139752199530015724}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: FootPrint_Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}

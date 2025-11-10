@@ -38,10 +38,16 @@ public class Footstep : MonoBehaviour
 
     public void SetTransform(Vector3 pos, Quaternion rot, Vector3 scale, Transform parent)
     {
-        transform.SetParent(parent, worldPositionStays: false);
+        // Set world transform first
         transform.position = pos;
         transform.rotation = rot;
         transform.localScale = scale;
+
+        // Now parent but keep world transform unchanged
+        if (parent != null)
+            transform.SetParent(parent, worldPositionStays: true);
+        else
+            transform.SetParent(null, true);
     }
 
     public void FadeOut(float duration)

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4128147964129738609}
   - component: {fileID: 4743407526840960878}
   - component: {fileID: 9143119427432666615}
-  m_Layer: 8
+  m_Layer: 6
   m_Name: Capsule
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -139,7 +139,7 @@ GameObject:
   - component: {fileID: 4154510155180691862}
   - component: {fileID: -5667468590999980084}
   - component: {fileID: 6985629162106253078}
-  m_Layer: 8
+  m_Layer: 6
   m_Name: PlayerCapsule_Networked
   m_TagString: Player
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
@@ -709,18 +709,20 @@ MonoBehaviour:
   lateralOffset: 0.15
   yOffset: 0.01
   raycastStartHeight: 1
-  raycastDownDistance: 3
+  raycastDownDistance: 6
   groundMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 8
   baseScale: 0.1
-  randomYawJitter: 6
+  randomYawJitter: 0
   randomScaleJitter: 0.05
   backOffset: 0.05
   poolSize: 64
   maxPersistent: 20
   fadeDuration: 2
   minSpeedToPrint: 0.1
+  debugRays: 1
+  logSpawns: 1
 --- !u!1 &7620319688190338339
 GameObject:
   m_ObjectHideFlags: 0
@@ -730,7 +732,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1157201441333676976}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlayerCameraRoot
   m_TagString: CinemachineTarget
   m_Icon: {fileID: 0}
@@ -804,6 +806,10 @@ PrefabInstance:
     - target: {fileID: 9005220659476430823, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
       propertyPath: m_Name
       value: MainCamera
+      objectReference: {fileID: 0}
+    - target: {fileID: 9005220659476430823, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 9018249871969862650, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
