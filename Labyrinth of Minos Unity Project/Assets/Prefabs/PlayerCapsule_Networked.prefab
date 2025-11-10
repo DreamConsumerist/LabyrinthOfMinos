@@ -209,7 +209,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MoveSpeed: 1.97
-  SprintSpeed: 4.21
+  SprintSpeed: 4.01
   RotationSpeed: 1
   SpeedChangeRate: 10.11
   JumpHeight: 0
@@ -903,7 +903,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StaminaSystem
   ShowTopMostFoldoutHeaderGroup: 1
   maxStamina: 100
-  drainRate: 20
+  drainRate: 25
   regenRate: 10
 --- !u!114 &6985629162106253078
 MonoBehaviour:
@@ -940,7 +940,7 @@ MonoBehaviour:
   raycastDownDistance: 5
   groundMask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 51
   baseScale: 0.1
   randomYawJitter: 6
   randomScaleJitter: 0.05
