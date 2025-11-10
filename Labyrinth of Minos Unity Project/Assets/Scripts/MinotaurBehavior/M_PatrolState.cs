@@ -56,10 +56,12 @@ public class MinotaurPatrolState : MinotaurBaseState
             if (left)
             {
                 controller.walkSource.PlayOneShot(controller.walkSounds[0]);
+                left = false;
             }
             else
             {
                 controller.walkSource.PlayOneShot(controller.walkSounds[1]);
+                left = true;
             }
         }
         else
