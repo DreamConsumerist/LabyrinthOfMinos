@@ -1,29 +1,57 @@
-//using UnityEditor.MPE;
 using UnityEngine;
+using StarterAssets;   // to use StarterAssetsInputs
 
 public class Playeraudio : MonoBehaviour
 {
-    public AudioSource footstepSound, sprintsound;
+    [Header("Audio Sources")]
+    public AudioSource footstepSound;
+    public AudioSource sprintsound;
+
+    StarterAssetsInputs _input;
+    StaminaSystem _stamina;
+
+    void Start()
+    {
+        _input = GetComponent<StarterAssetsInputs>();
+        _stamina = GetComponent<StaminaSystem>();
+
+        // Make sure both are off at start
+        if (footstepSound != null) footstepSound.enabled = false;
+        if (sprintsound != null) sprintsound.enabled = false;
+    }
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D))
+        if (_input == null) return;
+
+        // "Moving" based on input, not raw keys
+        bool isMoving = _input.move.sqrMagnitude > 0.01f;
+
+        // What the player *wants* vs what they are *allowed* to do
+        bool wantsToSprint = _input.sprint;
+        bool canSprint = _stamina == null || _stamina.CanSprint(); // if no stamina component, fall back to old behavior
+        bool isSprinting = isMoving && wantsToSprint && canSprint;
+
+        if (isMoving)
         {
-            if (Input.GetKey(KeyCode.LeftShift))
+            if (isSprinting)
             {
-                footstepSound.enabled = false;
-                sprintsound.enabled = true;
+                // Sprint audio
+                if (footstepSound != null) footstepSound.enabled = false;
+                if (sprintsound != null) sprintsound.enabled = true;
             }
             else
             {
-                footstepSound.enabled = true;
-                sprintsound.enabled = false;
+                // Walk audio
+                if (footstepSound != null) footstepSound.enabled = true;
+                if (sprintsound != null) sprintsound.enabled = false;
             }
         }
         else
         {
-            footstepSound.enabled = false;
-            sprintsound.enabled = false;
+            // Not moving: no footsteps at all
+            if (footstepSound != null) footstepSound.enabled = false;
+            if (sprintsound != null) sprintsound.enabled = false;
         }
     }
 }

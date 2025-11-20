@@ -208,7 +208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55919ac34a26952479f3fc91f777b2fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveSpeed: 1.97
+  MoveSpeed: 2
   SprintSpeed: 4.01
   RotationSpeed: 1
   SpeedChangeRate: 10.11
@@ -259,7 +259,7 @@ MonoBehaviour:
   move: {x: 0, y: 0}
   look: {x: 0, y: 0}
   jump: 0
-  sprint: 0
+  sprint: 1
   analogMovement: 0
   cursorLocked: 1
   cursorInputForLook: 1
@@ -905,6 +905,8 @@ MonoBehaviour:
   maxStamina: 100
   drainRate: 25
   regenRate: 10
+  minSprintStamina: 25
+  currentStamina: 0
 --- !u!114 &6985629162106253078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -940,13 +942,13 @@ MonoBehaviour:
   raycastDownDistance: 5
   groundMask:
     serializedVersion: 2
-    m_Bits: 51
+    m_Bits: 8
   baseScale: 0.1
   randomYawJitter: 6
   randomScaleJitter: 0.05
   backOffset: 0.05
-  poolSize: 64
-  maxPersistent: 20
+  poolSize: 150
+  maxPersistent: 90
   fadeDuration: 1.2
   minSpeedToPrint: 0.1
   debugRays: 0
