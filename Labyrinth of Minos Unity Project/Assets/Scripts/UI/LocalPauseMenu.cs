@@ -16,7 +16,14 @@ public class LocalPauseMenu : MonoBehaviour
     {
         if (!pauseUI)
             Debug.LogWarning("LocalPauseMenu: No pauseUI assigned. Hook your panel in the inspector.");
-        CloseImmediate();
+
+        CloseImmediate();   // still called, now also enforces gameplay cursor state
+    }
+
+    // NEW: assert correct cursor state once everything is awake
+    void Start()
+    {
+        EnsureCursorForCurrentState();
     }
 
     /// <summary>Toggle the pause menu. Called by PauseInputRelay or a UI button.</summary>
@@ -92,6 +99,8 @@ public class LocalPauseMenu : MonoBehaviour
     {
         IsOpen = false;
         if (pauseUI) pauseUI.SetActive(false);
-        // Intentionally not touching cursor/audio here so first-launch state is up to you
+
+        // CHANGED: on first launch, enforce gameplay state
+        ApplyCursorAndAudio(isPaused: false);
     }
 }
