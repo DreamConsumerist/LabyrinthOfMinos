@@ -301,8 +301,8 @@ MonoBehaviour:
   staticRotateAngle: 90
   patrolWalkSpeed: 1
   patrolRotateSpeed: 75
-  chaseRunSpeed: 3
-  chaseRotateSpeed: 270
+  chaseRunSpeed: 2.3
+  chaseRotateSpeed: 207
   maxChaseTime: 9
   killTime: 5
   walkSoundTime: 0.75

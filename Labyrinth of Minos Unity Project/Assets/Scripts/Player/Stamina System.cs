@@ -96,4 +96,7 @@ public class StaminaSystem : NetworkBehaviour
     {
         return currentStamina / maxStamina;
     }
+
+    public float CurrentStaminaValue => currentStamina;
+    public float MinSprintStaminaValue => minSprintStamina;
 }
