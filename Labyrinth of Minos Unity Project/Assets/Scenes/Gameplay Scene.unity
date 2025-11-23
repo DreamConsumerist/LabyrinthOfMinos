@@ -2228,7 +2228,7 @@ MonoBehaviour:
   builder: {fileID: 1909405090}
   contentGenerator: {fileID: 1909405089}
   buildOnStart: 1
-  enableHotkey: 1
+  enableHotkey: 0
   hotkey: 114
 --- !u!114 &1909405089
 MonoBehaviour:

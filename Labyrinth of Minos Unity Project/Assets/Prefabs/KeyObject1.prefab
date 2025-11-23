@@ -229,7 +229,7 @@ CapsuleCollider:
   m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.4
+  m_Radius: 0.6
   m_Height: 0.4
   m_Direction: 1
   m_Center: {x: -1.22, y: 0.44, z: -0.18}
@@ -275,7 +275,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   pickupSfx: {fileID: 8300000, guid: 9d0113dd16699ce4ea3c58dd422fdc1f, type: 3}
   wrongOrderSfx: {fileID: 8300000, guid: 3eab95774fe317a489c29e1075d3d6a2, type: 3}
-  sfxVolume: 0.643
+  sfxVolume: 1
   keyIndex: 1
 --- !u!1 &3346835595302681577
 GameObject:
