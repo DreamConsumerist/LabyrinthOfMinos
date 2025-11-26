@@ -2,14 +2,6 @@ using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
-using System.Collections.Generic;
-
-// Anything that knows about the maze layout can implement this
-// and return random open tile world positions.
-public interface ISpawnTileProvider
-{
-    Vector3 GetRandomOpenTileWorldPosition();
-}
 
 public class PlayerSpawnControl : MonoBehaviour
 {
@@ -24,29 +16,15 @@ public class PlayerSpawnControl : MonoBehaviour
     [Tooltip("Optional override for player prefab. If null, uses NetworkConfig.PlayerPrefab.")]
     [SerializeField] private NetworkObject playerPrefabOverride;
 
-    [Tooltip("Optional explicit provider. If left null, we will search the scene for any ISpawnTileProvider.")]
-    [SerializeField] private MonoBehaviour spawnTileProviderBehaviour;
+    [Header("Maze Content")]
+    [Tooltip("Optional reference to the ContentGenerator in the Gameplay scene. If left null, we'll find one at runtime.")]
+    [SerializeField] private ContentGenerator contentGenerator;
 
-    private ISpawnTileProvider _spawnTileProvider;
     private bool _hookedApproval;
     private bool _hasSpawnedInThisScene;
 
-    private void Awake()
-    {
-        // If they dragged a provider in, cache it as interface
-        if (spawnTileProviderBehaviour != null)
-        {
-            _spawnTileProvider = spawnTileProviderBehaviour as ISpawnTileProvider;
-            if (_spawnTileProvider == null)
-            {
-                Debug.LogWarning("PlayerSpawnControl: Assigned spawnTileProviderBehaviour does NOT implement ISpawnTileProvider.");
-            }
-        }
-    }
-
     private void OnEnable()
     {
-        // Run a loop that (1) waits for NetworkManager, (2) hooks approval, (3) watches for Gameplay scene and spawns players once
         StartCoroutine(SetupAndSpawnLoop());
     }
 
@@ -65,7 +43,7 @@ public class PlayerSpawnControl : MonoBehaviour
 
     private IEnumerator SetupAndSpawnLoop()
     {
-        // Wait until NetworkManager exists
+        // Wait for NetworkManager
         while (NetworkManager.Singleton == null)
         {
             yield return null;
@@ -75,17 +53,16 @@ public class PlayerSpawnControl : MonoBehaviour
         if (nm == null)
             yield break;
 
-        //  Make sure connection approval is ON so our callback actually runs
+        // Ensure connection approval is enabled
         nm.NetworkConfig.ConnectionApproval = true;
 
-        // Install our approval callback (only one allowed)
+        // Hook approval callback
         nm.ConnectionApprovalCallback = OnConnectionApproval;
         _hookedApproval = true;
 
-        // Now loop forever, watching for the Gameplay scene to become active
+        // Main loop: watch for Gameplay scene, spawn once
         while (true)
         {
-            // Only the server/host should spawn player objects
             if (nm.IsServer)
             {
                 var activeScene = SceneManager.GetActiveScene();
@@ -94,74 +71,61 @@ public class PlayerSpawnControl : MonoBehaviour
                 {
                     if (!_hasSpawnedInThisScene)
                     {
-                        EnsureSpawnTileProvider();
-                        SpawnAllPlayers();
-                        _hasSpawnedInThisScene = true;
+                        var gen = GetContentGenerator();
+                        if (gen != null)
+                        {
+                            SpawnAllPlayers(gen);
+                            _hasSpawnedInThisScene = true;
+                        }
                     }
                 }
                 else
                 {
-                    // Left the Gameplay scene, reset flag so we can spawn again next time
                     _hasSpawnedInThisScene = false;
                 }
             }
 
-            // Check a few times per second; no need every frame
             yield return new WaitForSeconds(0.25f);
         }
     }
 
-    // --- 1. Approval: prevent NGO from auto-spawning players in Lobby/MainMenu ---
     private void OnConnectionApproval(
         NetworkManager.ConnectionApprovalRequest request,
         NetworkManager.ConnectionApprovalResponse response)
     {
-        // Approve everyone for now (you can add checks later)
         response.Approved = true;
 
         if (!autoCreatePlayerObjects)
         {
-            //  Key: NO automatic PlayerPrefab spawn in any scene
             response.CreatePlayerObject = false;
         }
         else
         {
-            // Optional "legacy" behaviour
             bool hasPrefab = NetworkManager.Singleton.NetworkConfig.PlayerPrefab != null;
             response.CreatePlayerObject = hasPrefab;
         }
     }
 
-    // Try to find a provider in the current scene if one wasn't assigned
-    private void EnsureSpawnTileProvider()
+    private ContentGenerator GetContentGenerator()
     {
-        if (_spawnTileProvider != null)
-            return;
+        if (contentGenerator != null)
+            return contentGenerator;
 
-        // If they assigned one in inspector but it didn't implement interface, we already warned; just fall back
-        if (spawnTileProviderBehaviour != null && _spawnTileProvider == null)
-            return;
-
-        // Search for any component that implements ISpawnTileProvider in the current scene
-        var allBehaviours = FindObjectsOfType<MonoBehaviour>();
-        foreach (var mb in allBehaviours)
+        // New API to avoid obsolete warning
+        contentGenerator = Object.FindFirstObjectByType<ContentGenerator>();
+        if (contentGenerator == null)
         {
-            if (mb is ISpawnTileProvider provider)
-            {
-                _spawnTileProvider = provider;
-                Debug.Log($"PlayerSpawnControl: Found ISpawnTileProvider on {mb.gameObject.name}.");
-                return;
-            }
+            Debug.LogWarning("PlayerSpawnControl: No ContentGenerator found in scene; players will spawn at (0,0,0).");
+        }
+        else
+        {
+            Debug.Log($"PlayerSpawnControl: Found ContentGenerator on '{contentGenerator.gameObject.name}'.");
         }
 
-        if (_spawnTileProvider == null)
-        {
-            Debug.LogWarning("PlayerSpawnControl: No ISpawnTileProvider found; will spawn at (0,0,0).");
-        }
+        return contentGenerator;
     }
 
-    // --- 2. Actual spawning logic in Gameplay scene ---
-    private void SpawnAllPlayers()
+    private void SpawnAllPlayers(ContentGenerator gen)
     {
         var nm = NetworkManager.Singleton;
         if (nm == null)
@@ -170,7 +134,7 @@ public class PlayerSpawnControl : MonoBehaviour
             return;
         }
 
-        // Decide which prefab to use:
+        // Decide which prefab to use
         NetworkObject prefabToUse = playerPrefabOverride;
         if (prefabToUse == null && nm.NetworkConfig.PlayerPrefab != null)
         {
@@ -185,19 +149,19 @@ public class PlayerSpawnControl : MonoBehaviour
 
         foreach (ulong clientId in nm.ConnectedClientsIds)
         {
-            // If a player object already exists for this client, skip
+            // Skip if already has a player object
             if (nm.ConnectedClients[clientId].PlayerObject != null)
                 continue;
 
             Vector3 spawnPos = Vector3.zero;
-            if (_spawnTileProvider != null)
+
+            if (gen != null && gen.TryGetRandomOpenTileWorldPosition(out spawnPos))
             {
-                spawnPos = _spawnTileProvider.GetRandomOpenTileWorldPosition();
+                // good, using maze-based spawn
             }
             else
             {
-                // Fallback
-                Debug.LogWarning("PlayerSpawnControl: Spawning player at (0,0,0) because no tile provider is set.");
+                Debug.LogWarning("PlayerSpawnControl: Falling back to (0,0,0) spawn for client " + clientId);
             }
 
             NetworkObject playerInstance = Instantiate(prefabToUse, spawnPos, Quaternion.identity);

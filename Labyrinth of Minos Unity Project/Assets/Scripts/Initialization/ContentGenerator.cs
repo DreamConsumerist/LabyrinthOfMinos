@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using StarterAssets;
+using Unity.Netcode;
 
 public class ContentGenerator : MonoBehaviour
 {
@@ -22,20 +24,34 @@ public class ContentGenerator : MonoBehaviour
     [Tooltip("Minimum tile distance used when falling back (keys should be this far from exit/other keys).")]
     [Min(0f)] public float minDistanceTilesFallback = 6f;
 
+    // Cached maze data so other systems (like player spawner) can query tiles
+    private MazeGenerator.MazeData _currentMaze;
+    private float _currentTileSize;
+
+    // Let other scripts know when maze data is ready
+    public bool HasMazeData => _currentMaze != null && _currentMaze.open != null;
+
     // Generates objects in the maze based on MazeData
     public void Generate(MazeGenerator.MazeData maze)
     {
         if (maze == null || maze.open == null) { Debug.LogError("Maze data missing"); return; }
 
+        // Cache for external consumers (like player spawner)
+        _currentMaze = maze;
+        _currentTileSize = maze.tileSize;
+
         int H = maze.tilesH, W = maze.tilesW;
         float s = maze.tileSize;
 
         // Spawn minotaur and player first (unchanged)
-        Vector2Int minotaurPos2D = MinotaurGen(maze, s);
-        Vector2Int playerPos2D = PlayerGen(maze, s);
+        Vector2Int minotaurPos2D = GetTilePosition.ClosestToCenter(maze, s);
+        //Vector2Int playerPos2D = PlayerGen(maze, s);
+        Vector2Int playerPos2D = default;
 
         // Spawn keys and exit with new weighted logic
         KeysAndExitGen(maze, s, minotaurPos2D, playerPos2D);
+
+        StartCoroutine(SpawnMinotaurWhenPlayerExists(maze, s, minotaurPos2D));
     }
 
     private Vector2Int PlayerGen(MazeGenerator.MazeData maze, float s)
@@ -55,7 +71,65 @@ public class ContentGenerator : MonoBehaviour
         return playerPos2D;
     }
 
-    private Vector2Int MinotaurGen(MazeGenerator.MazeData maze, float s)
+    private System.Collections.IEnumerator SpawnMinotaurWhenPlayerExists(
+    MazeGenerator.MazeData maze,
+    float s,
+    Vector2Int minotaurPos2D)
+    {
+        // Wait until the real networked player exists
+        while (FindAnyObjectByType<FirstPersonController>() == null)
+        {
+            yield return null;
+        }
+
+        if (maze == null || maze.open == null)
+        {
+            Debug.LogError("[ContentGenerator] Maze is null in SpawnMinotaurWhenPlayerExists, aborting minotaur spawn.");
+            yield break;
+        }
+
+        Vector3 minotaurPos = new Vector3(
+            minotaurPos2D.x * s,
+            0f,
+            minotaurPos2D.y * s
+        );
+
+        var minotaurObj = Instantiate(minotaur, minotaurPos, Quaternion.identity, transform);
+
+        var minoBehaviour = minotaurObj.GetComponent<MinotaurBehaviorController>();
+        if (minoBehaviour != null)
+        {
+            //  Initialize maze data & sub-systems BEFORE network spawn
+            minoBehaviour.Initialize(maze);
+        }
+        else
+        {
+            Debug.LogWarning("[ContentGenerator] Spawned Minotaur has no MinotaurBehaviorController.");
+        }
+
+        // Now network-spawn so OnNetworkSpawn sees a valid maze
+        var netObj = minotaurObj.GetComponent<NetworkObject>();
+        if (netObj != null)
+        {
+            var nm = NetworkManager.Singleton;
+            if (nm != null && nm.IsServer)
+            {
+                netObj.Spawn(true); // destroy with scene
+
+                Debug.Log($"[ContentGenerator] Minotaur spawned AFTER player at tile {minotaurPos2D}, world {minotaurPos}");
+            }
+            else
+            {
+                Debug.LogWarning("[ContentGenerator] Not server; minotaur NetworkObject not spawned.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[ContentGenerator] Minotaur prefab has no NetworkObject component.");
+        }
+    }
+
+    /*private Vector2Int MinotaurGen(MazeGenerator.MazeData maze, float s)
     {
         Vector2Int minotaurPos2D = GetTilePosition.ClosestToCenter(maze, s);
 
@@ -70,7 +144,7 @@ public class ContentGenerator : MonoBehaviour
         if (minotaurBehavior) minotaurBehavior.Initialize(maze);
 
         return minotaurPos2D;
-    }
+    }*/
 
     private void KeysAndExitGen(MazeGenerator.MazeData maze, float s, Vector2Int minotaurTile, Vector2Int playerTile)
     {
@@ -82,7 +156,9 @@ public class ContentGenerator : MonoBehaviour
         var deadEndsAll = CollectDeadEndCellsOddOdd(maze.open, deg);   // dead-end cells at odd/odd
 
         // Avoid using the same tile as player/minotaur
-        var used = new HashSet<Vector2Int> { minotaurTile, playerTile };
+        var used = new HashSet<Vector2Int> { minotaurTile };
+        if (playerTile != default)
+            used.Add(playerTile);
 
         // ---- EXIT: nearest dead-end to center (fallback: nearest open to center) ----
         Vector2 center = new Vector2((W - 1) * 0.5f, (H - 1) * 0.5f);
@@ -420,4 +496,52 @@ public class ContentGenerator : MonoBehaviour
         if (filtered.Count <= count) return filtered;
         return filtered.GetRange(0, count);
     }
+
+    /// <summary>
+    /// Returns a random open tile in WORLD space for spawning a player.
+    /// Uses the same tile coordinate system as keys/exit (x = col * s, z = row * s),
+    /// and accounts for this ContentGenerator's transform (Maze Root).
+    /// </summary>
+    public bool TryGetRandomOpenTileWorldPosition(out Vector3 worldPos)
+    {
+        worldPos = Vector3.zero;
+
+        if (_currentMaze == null || _currentMaze.open == null)
+        {
+            Debug.LogWarning("ContentGenerator: No cached maze data; cannot get random tile.");
+            return false;
+        }
+
+        var openTiles = CollectOpenTiles(_currentMaze.open);
+        if (openTiles == null || openTiles.Count == 0)
+        {
+            Debug.LogWarning("ContentGenerator: No open tiles found; cannot get random tile.");
+            return false;
+        }
+
+        // Pick a random open tile
+        int idx = UnityEngine.Random.Range(0, openTiles.Count);
+        Vector2Int tile = openTiles[idx];
+
+        float s = _currentTileSize > 0f ? _currentTileSize : _currentMaze.tileSize;
+
+        // Local tile center (same convention as SpawnAtTile)
+        Vector3 localPos = new Vector3(tile.x * s, 0f, tile.y * s);
+
+        // Convert to world space using the maze root's transform
+        Vector3 worldCenter = transform.TransformPoint(localPos);
+
+        // Lift up by half the player's height so we don't spawn inside the floor
+        float yLift = 0.5f;
+        if (player != null)
+        {
+            yLift = GetHalfHeight(player);
+        }
+
+        worldCenter.y += yLift;
+
+        worldPos = worldCenter;
+        return true;
+    }
+
 }

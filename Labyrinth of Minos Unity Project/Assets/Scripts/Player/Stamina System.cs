@@ -78,7 +78,7 @@ public class StaminaSystem : NetworkBehaviour
         }
 
         currentStamina = Mathf.Clamp(currentStamina, 0f, maxStamina);
-        Debug.Log($"[StaminaSystem] stamina={currentStamina}");
+        //Debug.Log($"[StaminaSystem] stamina={currentStamina}");
     }
 
     /// <summary>

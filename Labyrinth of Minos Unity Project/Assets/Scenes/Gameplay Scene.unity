@@ -2911,7 +2911,6 @@ GameObject:
   - component: {fileID: 1909405089}
   - component: {fileID: 1909405088}
   - component: {fileID: 1909405094}
-  - component: {fileID: 1909405093}
   m_Layer: 0
   m_Name: Maze Root
   m_TagString: Untagged
@@ -3009,21 +3008,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1909405093
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1909405087}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c6aadef9631ea5449cac2fc6e63baa0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameplayPlayerSpawner
-  ShowTopMostFoldoutHeaderGroup: 1
-  playerPrefab: {fileID: -36098843233929265, guid: 3bd5859b731924d468ed42d12b19dce7, type: 3}
-  defaultSpawnPoint: {fileID: 0}
 --- !u!114 &1909405094
 MonoBehaviour:
   m_ObjectHideFlags: 0
