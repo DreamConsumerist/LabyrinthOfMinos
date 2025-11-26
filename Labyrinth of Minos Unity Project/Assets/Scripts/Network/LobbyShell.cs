@@ -1,121 +1,191 @@
-// LobbyShell.cs
 using System.Threading.Tasks;
+using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Unity.Netcode;
-using TMPro;
 using UnityEngine.UI;
 
 public class LobbyShell : MonoBehaviour
 {
-    [Header("UI References")]
-    [SerializeField] private TMP_Text lobbyCodeText;
-    [SerializeField] private TMP_Text statusText;
-    [SerializeField] private TMP_Text[] playerSlots; // size 4 in inspector
+    [Header("Scene Names")]
+    [SerializeField] private string gameplaySceneName = "Gameplay Scene";
+    [SerializeField] private string mainMenuSceneName = "MainMenu";
 
+    [Header("UI")]
+    [SerializeField] private TMP_Text codeLabel;    // Shows lobby code
+    [SerializeField] private TMP_Text statusLabel;  // Shows status / errors
+    [SerializeField] private TMP_Text playersLabel; // Shows player count
     [SerializeField] private Button startGameButton;
     [SerializeField] private Button backButton;
-
-    [Header("Scene Names")]
-    [SerializeField] private string mainMenuSceneName = "MainMenu";
-    [SerializeField] private string gameplaySceneName = "Gameplay Scene";
-
-    private bool isHost;
 
     private void Awake()
     {
         if (startGameButton)
+        {
             startGameButton.onClick.AddListener(OnStartGameClicked);
+            // By default, only enable start when host & ready
+            startGameButton.interactable = false;
+        }
 
         if (backButton)
-            backButton.onClick.AddListener(OnBackClicked);
+        {
+            backButton.onClick.AddListener(OnBackToMenuClicked);
+        }
     }
 
     private async void Start()
     {
-        // Decide whether this instance is host or client using LobbyContext
-        isHost = LobbyContext.IsHost;
-
-        // Host flow: create Relay allocation + start host
-        if (isHost)
+        // Decide whether this instance is the host or a joining client
+        if (LobbyContext.IsHost)
         {
-            if (statusText) statusText.text = "Creating lobby via Relay...";
-
-            string joinCode = await RelayManager.Instance.CreateRelayHostAsync();
-
-            if (!string.IsNullOrEmpty(joinCode))
-            {
-                if (lobbyCodeText) lobbyCodeText.text = $"Lobby Code: {joinCode}";
-                if (statusText) statusText.text = "Lobby created. Share the code!";
-            }
-            else
-            {
-                if (statusText) statusText.text = "Failed to create lobby.";
-            }
-
-            if (startGameButton)
-                startGameButton.gameObject.SetActive(true);
+            await SetupAsHostAsync();
         }
         else
         {
-            string code = LobbyContext.JoinCode ?? "---";
-
-            if (statusText) statusText.text = $"Joining lobby {code}...";
-
-            bool ok = await RelayManager.Instance.JoinRelayAsync(code);
-
-            if (ok)
-            {
-                if (lobbyCodeText) lobbyCodeText.text = $"Lobby Code: {code}";
-                if (statusText) statusText.text = "Connected to lobby.";
-            }
-            else
-            {
-                if (statusText) statusText.text = "Failed to join lobby.";
-                // Optional: you could auto-return to main menu after a delay here
-            }
-
-            if (startGameButton)
-                startGameButton.gameObject.SetActive(false); // only host can start game
-        }
-
-        // Very simple placeholder player list
-        if (playerSlots != null && playerSlots.Length > 0)
-        {
-            playerSlots[0].text = isHost ? "You (Host)" : "You (Client)";
-            for (int i = 1; i < playerSlots.Length; i++)
-            {
-                playerSlots[i].text = "Waiting for player...";
-            }
+            await SetupAsClientAsync();
         }
     }
+
+    // ---------------- HOST PATH ----------------
+
+    private async Task SetupAsHostAsync()
+    {
+        if (statusLabel) statusLabel.text = "Starting host...";
+
+        var relay = RelayManager.Instance;
+        if (relay == null)
+        {
+            Debug.LogError("[LobbyShell] No RelayManager.Instance found.");
+            if (statusLabel) statusLabel.text = "Relay not set up.";
+            return;
+        }
+
+        string joinCode = await relay.CreateRelayHostAsync();
+        if (string.IsNullOrEmpty(joinCode))
+        {
+            Debug.LogError("[LobbyShell] Failed to create Relay host allocation.");
+            if (statusLabel) statusLabel.text = "Failed to start host.";
+            return;
+        }
+
+        // Store & show the code
+        LobbyContext.JoinCode = joinCode;
+        if (codeLabel) codeLabel.text = joinCode;
+        if (statusLabel) statusLabel.text = "Host started. Share this code with friends.";
+
+        // Host can start game once at least 1 client is connected (or immediately if you want)
+        if (startGameButton) startGameButton.interactable = true;
+
+        // Track players
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientListChanged;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientListChanged;
+            RefreshPlayersLabel();
+        }
+    }
+
+    // ---------------- CLIENT PATH ----------------
+
+    private async Task SetupAsClientAsync()
+    {
+        var relay = RelayManager.Instance;
+        if (relay == null)
+        {
+            Debug.LogError("[LobbyShell] No RelayManager.Instance found for client.");
+            if (statusLabel) statusLabel.text = "Relay not set up.";
+            return;
+        }
+
+        string joinCode = LobbyContext.JoinCode;
+        if (string.IsNullOrWhiteSpace(joinCode))
+        {
+            Debug.LogError("[LobbyShell] Client arrived in Lobby with no join code.");
+            if (statusLabel) statusLabel.text = "No lobby code. Returning to menu...";
+            await Task.Delay(1000);
+            SceneManager.LoadScene(mainMenuSceneName);
+            return;
+        }
+
+        if (codeLabel) codeLabel.text = joinCode;
+        if (statusLabel) statusLabel.text = "Connecting to host...";
+
+        bool ok = await relay.JoinRelayAsync(joinCode);
+        if (!ok)
+        {
+            Debug.LogError("[LobbyShell] JoinRelayAsync failed for code: " + joinCode);
+            if (statusLabel) statusLabel.text = "Failed to join lobby. Code invalid/expired?";
+            // Optional: auto-return to main menu after delay
+            // await Task.Delay(1500);
+            // SceneManager.LoadScene(mainMenuSceneName);
+            return;
+        }
+
+        if (statusLabel) statusLabel.text = "Connected! Waiting for host to start...";
+        if (startGameButton) startGameButton.interactable = false; // only host can start
+
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientListChanged;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientListChanged;
+            RefreshPlayersLabel();
+        }
+    }
+
+    // ---------------- PLAYER LIST / LABEL ----------------
+
+    private void OnClientListChanged(ulong _)
+    {
+        RefreshPlayersLabel();
+    }
+
+    private void RefreshPlayersLabel()
+    {
+        if (!playersLabel || NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening)
+            return;
+
+        int count = NetworkManager.Singleton.ConnectedClientsList.Count;
+        playersLabel.text = $"Players: {count}/4";
+    }
+
+    // ---------------- BUTTON HANDLERS ----------------
 
     private void OnStartGameClicked()
     {
-        // Only host should be allowed to start the game
-        if (!isHost) return;
-
-        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsHost)
+        // Only host should be able to trigger game start
+        if (!LobbyContext.IsHost)
+        {
+            Debug.Log("[LobbyShell] Non-host tried to start game; ignored.");
             return;
+        }
 
-        if (statusText) statusText.text = "Starting game...";
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
+        {
+            Debug.LogError("[LobbyShell] Cannot start game: NetworkManager not running as server/host.");
+            return;
+        }
 
-        // NGO SceneManager call: moves ALL connected clients to Gameplay scene
-        NetworkManager.Singleton.SceneManager.LoadScene(
-            gameplaySceneName,
-            LoadSceneMode.Single
-        );
+        // Use NGO scene manager so clients follow along
+        NetworkManager.Singleton.SceneManager.LoadScene(gameplaySceneName, LoadSceneMode.Single);
     }
 
-    private void OnBackClicked()
+    private void OnBackToMenuClicked()
     {
-        // If we are currently in a network session, shut it down
-        if (NetworkManager.Singleton != null &&
-            (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsClient))
+        // Shut down networking if we are connected
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
         {
             NetworkManager.Singleton.Shutdown();
         }
 
         SceneManager.LoadScene(mainMenuSceneName);
+    }
+
+    private void OnDestroy()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientListChanged;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientListChanged;
+        }
     }
 }

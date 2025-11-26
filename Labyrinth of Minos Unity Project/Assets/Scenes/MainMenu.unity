@@ -1334,7 +1334,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnClickCancel
+      value: Close
       objectReference: {fileID: 0}
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -2893,7 +2893,7 @@ PrefabInstance:
       objectReference: {fileID: 518761674}
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Show
+      value: Open
       objectReference: {fileID: 0}
     - target: {fileID: 1716158221886325651, guid: 46de5dd402f9a874cb3d0c195646dc62, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -4366,7 +4366,7 @@ MonoBehaviour:
   autoCreatePlayerObjects: 0
   gameplaySceneName: Gameplay Scene
   playerPrefabOverride: {fileID: 0}
-  spawnTileProviderBehaviour: {fileID: 0}
+  contentGenerator: {fileID: 0}
 --- !u!1 &1609604150
 GameObject:
   m_ObjectHideFlags: 0

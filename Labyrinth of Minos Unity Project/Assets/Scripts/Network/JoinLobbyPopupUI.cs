@@ -1,47 +1,35 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class JoinLobbyPopupUI : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private GameObject panelRoot;   // JoinLobbyPopup
+    [Header("UI")]
+    [SerializeField] private GameObject panelRoot;
     [SerializeField] private TMP_InputField codeInput;
     [SerializeField] private TMP_Text errorText;
 
     [Header("Scene")]
     [SerializeField] private string lobbySceneName = "Lobby";
 
-    void Awake()
+    private void Awake()
     {
-        // If panelRoot not explicitly set, assume this GameObject is the root
-        if (panelRoot == null)
-            panelRoot = gameObject;
-
-        // Start hidden
-        Hide();
+        if (panelRoot)
+            panelRoot.SetActive(false);
     }
 
-    // Called by the main menu "Join Game" button
-    public void Show()
+    public void Open()
     {
         if (panelRoot) panelRoot.SetActive(true);
-
         if (errorText) errorText.text = string.Empty;
-
-        if (codeInput)
-        {
-            codeInput.text = string.Empty;
-            codeInput.ActivateInputField();
-        }
+        if (codeInput) codeInput.text = string.Empty;
     }
 
-    public void Hide()
+    public void Close()
     {
         if (panelRoot) panelRoot.SetActive(false);
     }
 
-    // Hook this to the Join button on the popup
     public void OnClickConfirm()
     {
         if (codeInput == null)
@@ -55,22 +43,14 @@ public class JoinLobbyPopupUI : MonoBehaviour
             return;
         }
 
-        // Later: you could do some client-side format validation here too.
         if (errorText) errorText.text = string.Empty;
 
-        // Set context for the Lobby scene
+        // This marks this instance as a CLIENT and stores the code
         LobbyContext.IsHost = false;
         LobbyContext.JoinCode = code;
         LobbyContext.DebugPrint();
 
-        // For now, we just trust the code and go to the lobby.
-        // Your friend can later validate / reject code using Relay.
+        // Load Lobby scene; LobbyShell will actually call RelayManager.JoinRelayAsync
         SceneManager.LoadScene(lobbySceneName);
-    }
-
-    // Hook this to the Cancel button on the popup
-    public void OnClickCancel()
-    {
-        Hide();
     }
 }

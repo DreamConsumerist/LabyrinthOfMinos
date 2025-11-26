@@ -891,17 +891,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74d804cc6cbb9424d9228bff33065341, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LobbyShell
-  lobbyCodeText: {fileID: 1431845870}
-  statusText: {fileID: 450932244}
-  playerSlots:
-  - {fileID: 803529858}
-  - {fileID: 1742431989}
-  - {fileID: 2030214695}
-  - {fileID: 1301261284}
+  gameplaySceneName: Gameplay Scene
+  mainMenuSceneName: MainMenu
+  codeLabel: {fileID: 1431845870}
+  statusLabel: {fileID: 450932244}
+  playersLabel: {fileID: 803529858}
   startGameButton: {fileID: 1507227516}
   backButton: {fileID: 484455240}
-  mainMenuSceneName: MainMenu
-  gameplaySceneName: Gameplay Scene
 --- !u!1 &903833506
 GameObject:
   m_ObjectHideFlags: 0
