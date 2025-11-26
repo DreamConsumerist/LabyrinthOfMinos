@@ -1,51 +1,85 @@
 // LobbyShell.cs
+using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Unity.Netcode;
 using TMPro;
+using UnityEngine.UI;
 
 public class LobbyShell : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private TMP_Text lobbyCodeText;
     [SerializeField] private TMP_Text statusText;
-    [SerializeField] private TMP_Text[] playerSlots; // size 4
+    [SerializeField] private TMP_Text[] playerSlots; // size 4 in inspector
 
     [SerializeField] private Button startGameButton;
     [SerializeField] private Button backButton;
 
-    [Header("Scenes")]
+    [Header("Scene Names")]
     [SerializeField] private string mainMenuSceneName = "MainMenu";
-    [SerializeField] private string gameplaySceneName = "Gameplay"; // or whatever
+    [SerializeField] private string gameplaySceneName = "Gameplay Scene";
 
     private bool isHost;
 
-    void Awake()
+    private void Awake()
     {
-        if (startGameButton) startGameButton.onClick.AddListener(OnStartGameClicked);
-        if (backButton) backButton.onClick.AddListener(OnBackClicked);
+        if (startGameButton)
+            startGameButton.onClick.AddListener(OnStartGameClicked);
+
+        if (backButton)
+            backButton.onClick.AddListener(OnBackClicked);
     }
 
-    void Start()
+    private async void Start()
     {
+        // Decide whether this instance is host or client using LobbyContext
         isHost = LobbyContext.IsHost;
 
-        // For now: show the code we came in with (your friend can swap this with Relay's real code later)
-        string code = isHost
-            ? "(generating code...)"          // later: replaced by actual Relay join code
-            : (LobbyContext.JoinCode ?? "---");
+        // Host flow: create Relay allocation + start host
+        if (isHost)
+        {
+            if (statusText) statusText.text = "Creating lobby via Relay...";
 
-        if (lobbyCodeText)
-            lobbyCodeText.text = $"Lobby Code: {code}";
+            string joinCode = await RelayManager.Instance.CreateRelayHostAsync();
 
-        if (statusText)
-            statusText.text = isHost ? "Hosting lobby..." : "Joining lobby...";
+            if (!string.IsNullOrEmpty(joinCode))
+            {
+                if (lobbyCodeText) lobbyCodeText.text = $"Lobby Code: {joinCode}";
+                if (statusText) statusText.text = "Lobby created. Share the code!";
+            }
+            else
+            {
+                if (statusText) statusText.text = "Failed to create lobby.";
+            }
 
-        // Host can start game, clients cannot
-        if (startGameButton)
-            startGameButton.gameObject.SetActive(isHost);
+            if (startGameButton)
+                startGameButton.gameObject.SetActive(true);
+        }
+        else
+        {
+            string code = LobbyContext.JoinCode ?? "---";
 
-        // Simple placeholder names for now
+            if (statusText) statusText.text = $"Joining lobby {code}...";
+
+            bool ok = await RelayManager.Instance.JoinRelayAsync(code);
+
+            if (ok)
+            {
+                if (lobbyCodeText) lobbyCodeText.text = $"Lobby Code: {code}";
+                if (statusText) statusText.text = "Connected to lobby.";
+            }
+            else
+            {
+                if (statusText) statusText.text = "Failed to join lobby.";
+                // Optional: you could auto-return to main menu after a delay here
+            }
+
+            if (startGameButton)
+                startGameButton.gameObject.SetActive(false); // only host can start game
+        }
+
+        // Very simple placeholder player list
         if (playerSlots != null && playerSlots.Length > 0)
         {
             playerSlots[0].text = isHost ? "You (Host)" : "You (Client)";
@@ -56,19 +90,32 @@ public class LobbyShell : MonoBehaviour
         }
     }
 
-    void OnStartGameClicked()
+    private void OnStartGameClicked()
     {
-        // RIGHT NOW: just load gameplay scene directly.
-        // LATER: your friend will replace this with NetworkManager.SceneManager.LoadScene
-        if (statusText)
-            statusText.text = "Starting game...";
+        // Only host should be allowed to start the game
+        if (!isHost) return;
 
-        SceneManager.LoadScene(gameplaySceneName);
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsHost)
+            return;
+
+        if (statusText) statusText.text = "Starting game...";
+
+        // NGO SceneManager call: moves ALL connected clients to Gameplay scene
+        NetworkManager.Singleton.SceneManager.LoadScene(
+            gameplaySceneName,
+            LoadSceneMode.Single
+        );
     }
 
-    void OnBackClicked()
+    private void OnBackClicked()
     {
-        // LATER: also tell NetworkManager to ShutDown if needed.
+        // If we are currently in a network session, shut it down
+        if (NetworkManager.Singleton != null &&
+            (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsClient))
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+
         SceneManager.LoadScene(mainMenuSceneName);
     }
 }
