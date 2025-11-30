@@ -20,11 +20,15 @@ public class KeyPickupNetwork : NetworkBehaviour
         var playerNetObj = other.GetComponentInParent<NetworkObject>();
         if (playerNetObj == null || !playerNetObj.gameObject.CompareTag("Player")) return;
 
-        var progress = playerNetObj.GetComponent<PlayerKeyProgress>();
-        if (progress == null) return;
+        var global = GlobalKeyProgress.Instance;
+        if (global == null)
+        {
+            Debug.LogWarning("[KeyPickupNetwork] GlobalKeyProgress.Instance not found in scene.");
+            return;
+        }
 
-        // Enforce sequential order
-        if (progress.NextKeyIndex.Value != keyIndex)
+        // Enforce sequential order GLOBALLY now
+        if (global.NextKeyIndex.Value != keyIndex)
         {
             if (wrongOrderSfx != null)
                 PlayWrongOrderSfxClientRpc(transform.position, SendTo(playerNetObj.OwnerClientId));
@@ -33,8 +37,8 @@ public class KeyPickupNetwork : NetworkBehaviour
 
         _consumed = true;
 
-        // Advance progress
-        progress.NextKeyIndex.Value = progress.NextKeyIndex.Value + 1;
+        // Advance shared progress
+        global.NextKeyIndex.Value = global.NextKeyIndex.Value + 1;
 
         // Success ding for everyone
         if (pickupSfx != null)
