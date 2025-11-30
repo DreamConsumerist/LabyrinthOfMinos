@@ -4,6 +4,8 @@ using UnityEngine.SceneManagement;
 public class MainMenuUI : MonoBehaviour
 {
     [SerializeField] string gameSceneName = "Game";
+    [SerializeField] string LobbySceneName = "Lobby";
+    [SerializeField] string MainMenuSceneName = "MainMenu";
     public AudioClip clickSfx;                       // assign your click sound
 
     public void OnPlay()
@@ -13,6 +15,15 @@ public class MainMenuUI : MonoBehaviour
         TransitionManager.Instance?.Go(gameSceneName, clickSfx);
     }
 
+    public void OnHost()
+    {
+        TransitionManager.Instance?.Go(LobbySceneName, clickSfx);
+    }
+
+    public void OnBack()
+    {
+        TransitionManager.Instance?.Go(MainMenuSceneName, clickSfx);
+    }
     public void OnSettings()
     {
         // Option A: open a settings panel in this scene

@@ -50,6 +50,7 @@ public class VideoSettingsUI : MonoBehaviour
     {
         // Load saved
         savedFullscreen = PlayerPrefs.GetInt(KEY_FULLSCREEN, Screen.fullScreen ? 1 : 0) == 1;
+        // Default to a *smart* current/1080p/highest resolution index instead of 0
         savedResIndex = PlayerPrefs.GetInt(KEY_RES_INDEX, GetCurrentResLabelIndex());
         savedVSync = PlayerPrefs.GetInt(KEY_VSYNC, QualitySettings.vSyncCount) > 0;
         savedQuality = PlayerPrefs.GetInt(KEY_QUALITY, QualitySettings.GetQualityLevel());
@@ -60,18 +61,34 @@ public class VideoSettingsUI : MonoBehaviour
 
         // Push into UI (without firing events)
         if (fullscreenToggle) fullscreenToggle.SetIsOnWithoutNotify(savedFullscreen);
-        if (resolutionDropdown) { resolutionDropdown.SetValueWithoutNotify(savedResIndex); resolutionDropdown.RefreshShownValue(); }
+        if (resolutionDropdown)
+        {
+            resolutionDropdown.SetValueWithoutNotify(savedResIndex);
+            resolutionDropdown.RefreshShownValue();
+        }
         if (vsyncToggle) vsyncToggle.SetIsOnWithoutNotify(savedVSync);
-        if (qualityDropdown) { qualityDropdown.SetValueWithoutNotify(savedQuality); qualityDropdown.RefreshShownValue(); }
+        if (qualityDropdown)
+        {
+            qualityDropdown.SetValueWithoutNotify(savedQuality);
+            qualityDropdown.RefreshShownValue();
+        }
     }
 
     public void RevertUIToSaved()
     {
         // Just restore UI widgets to snapshot
         if (fullscreenToggle) fullscreenToggle.SetIsOnWithoutNotify(savedFullscreen);
-        if (resolutionDropdown) { resolutionDropdown.SetValueWithoutNotify(savedResIndex); resolutionDropdown.RefreshShownValue(); }
+        if (resolutionDropdown)
+        {
+            resolutionDropdown.SetValueWithoutNotify(savedResIndex);
+            resolutionDropdown.RefreshShownValue();
+        }
         if (vsyncToggle) vsyncToggle.SetIsOnWithoutNotify(savedVSync);
-        if (qualityDropdown) { qualityDropdown.SetValueWithoutNotify(savedQuality); qualityDropdown.RefreshShownValue(); }
+        if (qualityDropdown)
+        {
+            qualityDropdown.SetValueWithoutNotify(savedQuality);
+            qualityDropdown.RefreshShownValue();
+        }
     }
 
     public void ApplyAndSave()
@@ -107,6 +124,12 @@ public class VideoSettingsUI : MonoBehaviour
         PlayerPrefs.SetInt(KEY_RES_INDEX, resIdx);
         PlayerPrefs.SetInt(KEY_VSYNC, vs ? 1 : 0);
         PlayerPrefs.SetInt(KEY_QUALITY, q);
+
+        // Also save the actual resolution we applied
+        PlayerPrefs.SetInt(KEY_RES_W, r.width);
+        PlayerPrefs.SetInt(KEY_RES_H, r.height);
+        PlayerPrefs.SetInt(KEY_RES_HZ, Mathf.RoundToInt((float)r.refreshRateRatio.value));
+
         PlayerPrefs.Save();
 
         // Update snapshot
@@ -114,17 +137,83 @@ public class VideoSettingsUI : MonoBehaviour
         savedResIndex = resIdx;
         savedVSync = vs;
         savedQuality = q;
-
-        PlayerPrefs.SetInt(KEY_RES_W, r.width);
-        PlayerPrefs.SetInt(KEY_RES_H, r.height);
-        PlayerPrefs.SetInt(KEY_RES_HZ, Mathf.RoundToInt((float)r.refreshRateRatio.value));
-
     }
 
+    void OnEnable()
+    {
+        // Ensure the dropdown reflects saved settings whenever the menu is shown
+        LoadSavedIntoUI();
+    }
     int GetCurrentResLabelIndex()
     {
-        string cur = $"{Screen.currentResolution.width} x {Screen.currentResolution.height} @{Screen.currentResolution.refreshRateRatio.value:0}Hz";
-        return Mathf.Max(0, resLabels.IndexOf(cur));
+        if (resLabels.Count == 0)
+            return 0;
+
+        // 0) Prefer the resolution we actually saved in PlayerPrefs
+        if (PlayerPrefs.HasKey(KEY_RES_W) && PlayerPrefs.HasKey(KEY_RES_H))
+        {
+            int sw = PlayerPrefs.GetInt(KEY_RES_W);
+            int sh = PlayerPrefs.GetInt(KEY_RES_H);
+            int shz = PlayerPrefs.GetInt(
+                KEY_RES_HZ,
+                Mathf.RoundToInt((float)Screen.currentResolution.refreshRateRatio.value)
+            );
+
+            // Try exact match (including Hz)
+            string savedLabel = $"{sw} x {sh} @{shz:0}Hz";
+            int idx = resLabels.IndexOf(savedLabel);
+            if (idx >= 0)
+                return idx;
+
+            // If Hz doesn't match exactly, allow width/height only
+            for (int i = 0; i < resolutions.Length; i++)
+            {
+                var rr = resolutions[i];
+                if (rr.width == sw && rr.height == sh)
+                {
+                    string lbl = $"{rr.width} x {rr.height} @{rr.refreshRateRatio.value:0}Hz";
+                    int idx2 = resLabels.IndexOf(lbl);
+                    if (idx2 >= 0)
+                        return idx2;
+                }
+            }
+        }
+
+        // 1) Try the current resolution as a backup
+        string curLabel = $"{Screen.currentResolution.width} x {Screen.currentResolution.height} @{Screen.currentResolution.refreshRateRatio.value:0}Hz";
+        int curIdx = resLabels.IndexOf(curLabel);
+        if (curIdx >= 0)
+            return curIdx;
+
+        // 2) Try matching by width/height only
+        for (int i = 0; i < resolutions.Length; i++)
+        {
+            var rr = resolutions[i];
+            if (rr.width == Screen.currentResolution.width &&
+                rr.height == Screen.currentResolution.height)
+            {
+                string lbl = $"{rr.width} x {rr.height} @{rr.refreshRateRatio.value:0}Hz";
+                int idx = resLabels.IndexOf(lbl);
+                if (idx >= 0)
+                    return idx;
+            }
+        }
+
+        // 3) Prefer 1920x1080 as generic backup
+        for (int i = 0; i < resolutions.Length; i++)
+        {
+            var rr = resolutions[i];
+            if (rr.width == 1920 && rr.height == 1080)
+            {
+                string lbl = $"{rr.width} x {rr.height} @{rr.refreshRateRatio.value:0}Hz";
+                int idx = resLabels.IndexOf(lbl);
+                if (idx >= 0)
+                    return idx;
+            }
+        }
+
+        // 4) Final fallback: highest resolution (last in list), not lowest
+        return Mathf.Max(0, resLabels.Count - 1);
     }
 
     int FindResolutionIndexByLabel(string label)

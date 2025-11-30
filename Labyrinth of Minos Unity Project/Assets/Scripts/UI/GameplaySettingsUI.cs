@@ -1,53 +1,99 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using StarterAssets; // <-- add this so it can see FirstPersonController
+using StarterAssets; // FirstPersonController
 
 public class GameplaySettingsUI : MonoBehaviour
 {
+    [Header("Mouse Look")]
     public Slider mouseSensitivity;        // expected range e.g., 0.10 .. 5.00
     public Toggle invertY;
+
+    [Header("Field of View")]
+    public Slider fovSlider;               // e.g., 60 .. 110
+    public TMP_Text fovValueText;
 
     [Header("Value label (optional)")]
     public TMP_Text sensitivityValueText;
 
-    const string KEY_SENS = "gp_sens";
-    const string KEY_INVY = "gp_invy";
+    private const string KEY_SENS = "gp_sens";
+    private const string KEY_INVY = "gp_invy";
+    private const string KEY_FOV = "gp_fov";
 
     float savedSens;
     bool savedInvY;
+    float savedFov;
+
+    [SerializeField] private float defaultFov = 80f; // match PlayerCameraController.defaultFov
+    [SerializeField] private float minFov = 60f;
+    [SerializeField] private float maxFov = 110f;
 
     void Awake()
     {
+        // Hook live label updates
         if (mouseSensitivity)
+        {
             mouseSensitivity.onValueChanged.AddListener(OnSensitivityUIChanged);
+        }
+        else
+        {
+            Debug.LogWarning("GameplaySettingsUI: mouseSensitivity slider is not assigned.");
+        }
+
+        if (fovSlider)
+        {
+            fovSlider.onValueChanged.AddListener(OnFovUIChanged);
+        }
+        else
+        {
+            Debug.LogWarning("GameplaySettingsUI: fovSlider is not assigned.");
+        }
     }
 
     public void LoadSavedIntoUI()
     {
+        // Load saved values (or defaults)
         savedSens = PlayerPrefs.GetFloat(KEY_SENS, 1.0f);
         savedInvY = PlayerPrefs.GetInt(KEY_INVY, 0) == 1;
+        savedFov = PlayerPrefs.GetFloat(KEY_FOV, defaultFov);
+
+        // Clamp FOV and configure slider range
+        savedFov = Mathf.Clamp(savedFov, minFov, maxFov);
+
+        if (fovSlider)
+        {
+            fovSlider.minValue = minFov;
+            fovSlider.maxValue = maxFov;
+            fovSlider.SetValueWithoutNotify(savedFov);
+        }
 
         if (mouseSensitivity) mouseSensitivity.SetValueWithoutNotify(savedSens);
         if (invertY) invertY.SetIsOnWithoutNotify(savedInvY);
 
+        // Update labels
         OnSensitivityUIChanged(savedSens);
+        OnFovUIChanged(savedFov);
     }
 
     public void RevertUIToSaved()
     {
         if (mouseSensitivity) mouseSensitivity.SetValueWithoutNotify(savedSens);
         if (invertY) invertY.SetIsOnWithoutNotify(savedInvY);
+        if (fovSlider) fovSlider.SetValueWithoutNotify(savedFov);
 
         OnSensitivityUIChanged(savedSens);
+        OnFovUIChanged(savedFov);
     }
 
     public void ApplyAndSave()
     {
         float sens = mouseSensitivity ? mouseSensitivity.value : savedSens;
         bool inv = invertY ? invertY.isOn : savedInvY;
+        float fov = fovSlider ? fovSlider.value : savedFov;
 
-        //  Push settings live to the player controller
+        fov = Mathf.Clamp(fov, minFov, maxFov);
+
+        // Push settings live to the player controller
         var fpc = FindFirstObjectByType<FirstPersonController>();
         if (fpc)
         {
@@ -55,21 +101,36 @@ public class GameplaySettingsUI : MonoBehaviour
             fpc.SetInvertY(inv);
         }
 
-        // Save the preferences for next launch
+        // Apply FOV immediately to the main camera (for visual feedback)
+        Camera mainCam = Camera.main;
+        if (mainCam != null)
+        {
+            mainCam.fieldOfView = fov;
+        }
+
+        // Save all preferences
         PlayerPrefs.SetFloat(KEY_SENS, sens);
         PlayerPrefs.SetInt(KEY_INVY, inv ? 1 : 0);
+        PlayerPrefs.SetFloat(KEY_FOV, fov);
         PlayerPrefs.Save();
 
+        // Update snapshot
         savedSens = sens;
         savedInvY = inv;
+        savedFov = fov;
     }
 
-    // --- live label update ---
+    // --- live label updates ---
+
     public void OnSensitivityUIChanged(float v)
     {
         if (!sensitivityValueText) return;
-
-        // Display as plain number
         sensitivityValueText.text = v.ToString("0.00");
+    }
+
+    public void OnFovUIChanged(float v)
+    {
+        if (!fovValueText) return;
+        fovValueText.text = Mathf.RoundToInt(v).ToString();
     }
 }
