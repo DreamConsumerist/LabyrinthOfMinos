@@ -110,6 +110,9 @@ PrefabInstance:
       addedObject: {fileID: -4109441483549431731}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b20c793ead0e26f438fad66780ecd27f, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 5386453168291978637}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b20c793ead0e26f438fad66780ecd27f, type: 3}
+      insertIndex: -1
       addedObject: {fileID: -7217456564660523335}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b20c793ead0e26f438fad66780ecd27f, type: 3}
       insertIndex: -1
@@ -331,18 +334,31 @@ MonoBehaviour:
     end: {x: 0, y: 0}
     tileSize: 0
     useXZPlane: 0
-  player: {fileID: 0}
+  playerRef: []
   animator: {fileID: 0}
   networkAnimator: {fileID: 0}
   movement: {fileID: 0}
   parameters: {fileID: 0}
   senses: {fileID: 0}
+  aggro: {fileID: 0}
   walkSource: {fileID: 2287479682714191637}
   roarSource: {fileID: -3494795180200397745}
   walkSounds:
   - {fileID: 8300000, guid: 5b313a998caac1342b98767235e6d337, type: 3}
   - {fileID: 8300000, guid: 8a1636e50d1b7fd4596ef8146c6611d3, type: 3}
   roarSound: {fileID: 8300000, guid: 945983a11502ac847ad4c1c0fbc2714a, type: 3}
+--- !u!114 &5386453168291978637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8734879976584547057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a860a3148ea14346b42835312d9f931, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinotaurAggroHandler
 --- !u!114 &-7217456564660523335
 MonoBehaviour:
   m_ObjectHideFlags: 0

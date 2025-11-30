@@ -10,12 +10,13 @@ using Unity.Netcode.Components;
 [RequireComponent(typeof(MinotaurMovement))]
 [RequireComponent(typeof(MinotaurSenses))]
 [RequireComponent(typeof(MinotaurParameters))]
+[RequireComponent(typeof(MinotaurAggroHandler))]
 public class MinotaurBehaviorController : NetworkBehaviour
 {
     // Initialize variables to store references to objects and data
     public Rigidbody rb;
     public MazeGenerator.MazeData maze;
-    public PlayerData player;
+    public List<PlayerData> playerRef;
 
     // Initialize variables to store instances and outputs of helper classes
     public Animator animator;
@@ -24,6 +25,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
     public MinotaurParameters parameters;
     public MinotaurSenses senses;
     public MinotaurSenses.SenseReport currSenses;
+    public MinotaurAggroHandler aggro;
 
     public AudioSource walkSource;
     public AudioSource roarSource;
@@ -52,7 +54,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
             currentState = PatrolState;
             currentState.EnterState(this);
             movement.Initialize(this);
-            player = FindAnyObjectByType<PlayerData>();
+            playerRef.Add(FindAnyObjectByType<PlayerData>());
         }
     }
 
@@ -61,6 +63,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
         rb = GetComponent<Rigidbody>();
         movement = GetComponent<MinotaurMovement>();
         senses = GetComponent<MinotaurSenses>();
+        aggro = GetComponent<MinotaurAggroHandler>();
         parameters = GetComponent<MinotaurParameters>();
     }
 
@@ -82,6 +85,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
         maze = mazeObj;
         movement.Initialize(this);
         senses.Initialize(this);
+        aggro.Initialize(this);
     }
 
     public void ChangeState(MinotaurBaseState state) // ChangeState is a function called by the state classes to operate the state machine

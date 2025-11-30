@@ -79,8 +79,8 @@ public class MinotaurChaseState : MinotaurBaseState
         
         prevPlayerPos = playerPos;
         playerPos = new Vector2Int(
-            Mathf.RoundToInt(controller.player.transform.position.x / controller.maze.tileSize), 
-            Mathf.RoundToInt(controller.player.transform.position.z / controller.maze.tileSize)
+            Mathf.RoundToInt(controller.playerRef[0].transform.position.x / controller.maze.tileSize), 
+            Mathf.RoundToInt(controller.playerRef[0].transform.position.z / controller.maze.tileSize)
             );
     }
 }
