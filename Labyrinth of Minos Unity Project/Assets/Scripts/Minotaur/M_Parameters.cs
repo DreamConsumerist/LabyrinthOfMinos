@@ -25,5 +25,5 @@ public class MinotaurParameters : MonoBehaviour
 
     // Hearing parameters
     public float hearingMax = 50f;
-    public float hearingMin = 0f;
+    public float hearingMin = 1f;
 }

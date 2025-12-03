@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Components;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(MinotaurMovement))]
 [RequireComponent(typeof(MinotaurSenses))]
@@ -9,10 +10,12 @@ using Unity.Netcode.Components;
 [RequireComponent(typeof(MinotaurAggroHandler))]
 public class MinotaurBehaviorController : NetworkBehaviour
 {
+    public static MinotaurBehaviorController Instance;
+
     // Initialize variables to store references to objects and data
     public Rigidbody rb;
     public MazeGenerator.MazeData maze;
-    public Dictionary<PlayerData, float> aggroValues;
+    public Dictionary<PlayerData, float> aggroValues = new();
 
     // Initialize variables to store instances and outputs of helper classes
     public Animator animator;
@@ -53,7 +56,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
             var players = FindObjectsByType<PlayerData>(FindObjectsSortMode.None);
             foreach (var p in players)
             {
-                aggroValues.Add(p, 0);
+                if (p != null) { aggroValues.Add(p, 0); Debug.Log("Found player!"); }
             }
         }
     }
@@ -78,6 +81,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
         senses = GetComponent<MinotaurSenses>();
         aggro = GetComponent<MinotaurAggroHandler>();
         parameters = GetComponent<MinotaurParameters>();
+        Instance = this;
     }
 
     void Update() // Update is called once per frame
