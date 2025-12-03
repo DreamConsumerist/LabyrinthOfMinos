@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using StarterAssets;
 using Unity.Netcode;
 
+/// Needs full rework for clarity
 public class ContentGenerator : MonoBehaviour
 {
     [Header("Prefabs")]
@@ -53,24 +54,6 @@ public class ContentGenerator : MonoBehaviour
 
         StartCoroutine(SpawnMinotaurWhenPlayerExists(maze, s, minotaurPos2D));
     }
-
-    private Vector2Int PlayerGen(MazeGenerator.MazeData maze, float s)
-    {
-        Vector2Int playerPos2D = GetTilePosition.WithinEdgeMargin(maze, playerSpawnMargins);
-
-        Vector3 playerPos = new Vector3(
-            playerPos2D.x * s,
-            GetHalfHeight(player),
-            playerPos2D.y * s
-        );
-
-        var playerObj = Instantiate(player, playerPos, Quaternion.identity, transform);
-        var playerBehav = playerObj.GetComponent<AutonomousPatrol>();
-        if (playerBehav) playerBehav.Initialize(maze);
-
-        return playerPos2D;
-    }
-
     private System.Collections.IEnumerator SpawnMinotaurWhenPlayerExists(
     MazeGenerator.MazeData maze,
     float s,
@@ -129,29 +112,12 @@ public class ContentGenerator : MonoBehaviour
         }
     }
 
-    /*private Vector2Int MinotaurGen(MazeGenerator.MazeData maze, float s)
-    {
-        Vector2Int minotaurPos2D = GetTilePosition.ClosestToCenter(maze, s);
-
-        Vector3 minotaurPos = new Vector3(
-            minotaurPos2D.x * s,
-            0f,
-            minotaurPos2D.y * s
-        );
-
-        var minotaurObj = Instantiate(minotaur, minotaurPos, Quaternion.identity, transform);
-        var minotaurBehavior = minotaurObj.GetComponent<MinotaurBehaviorController>();
-        if (minotaurBehavior) minotaurBehavior.Initialize(maze);
-
-        return minotaurPos2D;
-    }*/
-
     private void KeysAndExitGen(MazeGenerator.MazeData maze, float s, Vector2Int minotaurTile, Vector2Int playerTile)
     {
         int H = maze.tilesH, W = maze.tilesW;
 
         // Collect candidates
-        var openTiles = CollectOpenTiles(maze.open);                 // all open tiles
+        var openTiles = GetTilePosition.GetOpenTiles(maze);                 // all open tiles
         var deg = ComputeDegrees(maze.open);
         var deadEndsAll = CollectDeadEndCellsOddOdd(maze.open, deg);   // dead-end cells at odd/odd
 
@@ -163,11 +129,11 @@ public class ContentGenerator : MonoBehaviour
         // ---- EXIT: nearest dead-end to center (fallback: nearest open to center) ----
         Vector2 center = new Vector2((W - 1) * 0.5f, (H - 1) * 0.5f);
 
-        Vector2Int exitTile = NearestToCenter(deadEndsAll, center);
+        Vector2Int exitTile = GetTilePosition.FromRangeClosestToCenter(deadEndsAll, center);
         if (exitTile == default && deadEndsAll.Count == 0)
         {
             // fallback to any open tile nearest to center
-            exitTile = NearestToCenter(openTiles, center);
+            exitTile = GetTilePosition.FromRangeClosestToCenter(openTiles, center);
         }
 
         if (exitPrefab && exitTile != default)
@@ -325,20 +291,6 @@ public class ContentGenerator : MonoBehaviour
         }
     }
 
-    private static List<Vector2Int> CollectOpenTiles(bool[,] open)
-    {
-        int H = open.GetLength(0), W = open.GetLength(1);
-        var list = new List<Vector2Int>(H * W / 2);
-        for (int r = 0; r < H; r++)
-        {
-            for (int c = 0; c < W; c++)
-            {
-                if (open[r, c]) list.Add(new Vector2Int(c, r)); // x=c, y=r
-            }
-        }
-        return list;
-    }
-
     private static int[,] ComputeDegrees(bool[,] open)
     {
         int H = open.GetLength(0), W = open.GetLength(1);
@@ -460,43 +412,6 @@ public class ContentGenerator : MonoBehaviour
         return dx * dx + dy * dy;
     }
 
-    private static Vector2Int NearestToCenter(List<Vector2Int> tiles, Vector2 center)
-    {
-        if (tiles == null || tiles.Count == 0) return default;
-        float best = float.MaxValue;
-        Vector2Int bestT = default;
-        for (int i = 0; i < tiles.Count; i++)
-        {
-            var t = tiles[i];
-            float dx = t.x - center.x;
-            float dy = t.y - center.y;
-            float d2 = dx * dx + dy * dy;
-            if (d2 < best)
-            {
-                best = d2;
-                bestT = t;
-            }
-        }
-        return bestT;
-    }
-
-    private static List<Vector2Int> PickDistinctTiles(List<Vector2Int> pool, HashSet<Vector2Int> avoid, int count)
-    {
-        // (Unused by the new logic, kept in case you still call it elsewhere.)
-        var filtered = new List<Vector2Int>(pool.Count);
-        foreach (var t in pool)
-            if (!avoid.Contains(t)) filtered.Add(t);
-
-        for (int i = filtered.Count - 1; i > 0; i--)
-        {
-            int j = UnityEngine.Random.Range(0, i + 1);
-            (filtered[i], filtered[j]) = (filtered[j], filtered[i]);
-        }
-
-        if (filtered.Count <= count) return filtered;
-        return filtered.GetRange(0, count);
-    }
-
     /// <summary>
     /// Returns a random open tile in WORLD space for spawning a player.
     /// Uses the same tile coordinate system as keys/exit (x = col * s, z = row * s),
@@ -512,7 +427,7 @@ public class ContentGenerator : MonoBehaviour
             return false;
         }
 
-        var openTiles = CollectOpenTiles(_currentMaze.open);
+        var openTiles = GetTilePosition.GetOpenTiles(_currentMaze);
         if (openTiles == null || openTiles.Count == 0)
         {
             Debug.LogWarning("ContentGenerator: No open tiles found; cannot get random tile.");

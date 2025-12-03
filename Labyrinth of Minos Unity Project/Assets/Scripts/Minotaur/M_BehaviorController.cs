@@ -1,9 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem.DualShock.LowLevel;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 
@@ -16,7 +12,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
     // Initialize variables to store references to objects and data
     public Rigidbody rb;
     public MazeGenerator.MazeData maze;
-    public List<PlayerData> playerRef;
+    public Dictionary<PlayerData, float> aggroValues;
 
     // Initialize variables to store instances and outputs of helper classes
     public Animator animator;
@@ -54,8 +50,25 @@ public class MinotaurBehaviorController : NetworkBehaviour
             currentState = PatrolState;
             currentState.EnterState(this);
             movement.Initialize(this);
-            playerRef.Add(FindAnyObjectByType<PlayerData>());
+            var players = FindObjectsByType<PlayerData>(FindObjectsSortMode.None);
+            foreach (var p in players)
+            {
+                aggroValues.Add(p, 0);
+            }
         }
+    }
+
+    private void OnEnable()
+    {
+        if (!IsServer) return;
+        PlayerEvents.OnPlayerSpawned += AddPlayerToList;
+        PlayerEvents.OnPlayerExit += RemovePlayerFromList;
+    }
+    private void OnDisable()
+    {
+        if (!IsServer) return;
+        PlayerEvents.OnPlayerSpawned -= AddPlayerToList;
+        PlayerEvents.OnPlayerExit -= RemovePlayerFromList;
     }
 
     private void Awake() // Awake is called when 
@@ -93,6 +106,15 @@ public class MinotaurBehaviorController : NetworkBehaviour
         currentState.ExitState();
         currentState = state;
         currentState.EnterState(this);
+    }
+
+    private void AddPlayerToList (PlayerData player)
+    {
+        aggroValues.Add(player, 0);
+    }
+    private void RemovePlayerFromList (PlayerData player)
+    {
+        aggroValues.Remove(player);
     }
 }
 

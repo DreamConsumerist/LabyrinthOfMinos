@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Linq;
 using System;
 //using UnityEditor.ShaderGraph.Internal;
 
@@ -79,8 +80,8 @@ public class MinotaurChaseState : MinotaurBaseState
         
         prevPlayerPos = playerPos;
         playerPos = new Vector2Int(
-            Mathf.RoundToInt(controller.playerRef[0].transform.position.x / controller.maze.tileSize), 
-            Mathf.RoundToInt(controller.playerRef[0].transform.position.z / controller.maze.tileSize)
+            Mathf.RoundToInt(controller.aggroValues.Keys.ElementAt(0).transform.position.x / controller.maze.tileSize), 
+            Mathf.RoundToInt(controller.aggroValues.Keys.ElementAt(0).transform.position.z / controller.maze.tileSize)
             );
     }
 }

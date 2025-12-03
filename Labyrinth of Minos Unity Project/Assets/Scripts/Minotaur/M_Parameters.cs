@@ -22,4 +22,8 @@ public class MinotaurParameters : MonoBehaviour
     public float runSoundTime = .25f;
 
     public float pointRadius = .6f;
+
+    // Hearing parameters
+    public float hearingMax = 50f;
+    public float hearingMin = 0f;
 }
