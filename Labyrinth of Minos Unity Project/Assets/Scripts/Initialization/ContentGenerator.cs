@@ -35,16 +35,30 @@ public class ContentGenerator : MonoBehaviour
     // Generates objects in the maze based on MazeData
     public void Generate(MazeGenerator.MazeData maze)
     {
-        if (maze == null || maze.open == null) { Debug.LogError("Maze data missing"); return; }
+        if (maze == null || maze.open == null)
+        {
+            Debug.LogError("Maze data missing");
+            return;
+        }
 
-        // Cache for external consumers (like player spawner)
+        // Cache for external consumers (like player spawner or other logic)
         _currentMaze = maze;
         _currentTileSize = maze.tileSize;
+
+        // --- New: only the server/host (or offline) should spawn minotaur/keys/exit ---
+        var nm = Unity.Netcode.NetworkManager.Singleton;
+        bool isServerOrOffline = (nm == null) || nm.IsServer;
+        if (!isServerOrOffline)
+        {
+            Debug.Log("[ContentGenerator] Generate() called on client – skipping dynamic content spawn.");
+            return;
+        }
+        // ------------------------------------------------------------------------------    
 
         int H = maze.tilesH, W = maze.tilesW;
         float s = maze.tileSize;
 
-        // Spawn minotaur and player first (unchanged)
+        // Spawn minotaur and player references (player actual spawn now handled elsewhere)
         Vector2Int minotaurPos2D = GetTilePosition.ClosestToCenter(maze, s);
         //Vector2Int playerPos2D = PlayerGen(maze, s);
         Vector2Int playerPos2D = default;
@@ -52,6 +66,7 @@ public class ContentGenerator : MonoBehaviour
         // Spawn keys and exit with new weighted logic
         KeysAndExitGen(maze, s, minotaurPos2D, playerPos2D);
 
+        // Spawn minotaur after a player exists in the scene
         StartCoroutine(SpawnMinotaurWhenPlayerExists(maze, s, minotaurPos2D));
     }
     private System.Collections.IEnumerator SpawnMinotaurWhenPlayerExists(

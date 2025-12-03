@@ -2911,6 +2911,7 @@ GameObject:
   - component: {fileID: 1909405089}
   - component: {fileID: 1909405088}
   - component: {fileID: 1909405094}
+  - component: {fileID: 1909405095}
   m_Layer: 0
   m_Name: Maze Root
   m_TagString: Untagged
@@ -3033,6 +3034,21 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &1909405095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1909405087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 539610ae2cb93db4680871ffd8f5f019, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GlobalKeyProgress
+  ShowTopMostFoldoutHeaderGroup: 1
+  NextKeyIndex:
+    m_InternalValue: 1
 --- !u!1 &1957943954
 GameObject:
   m_ObjectHideFlags: 0

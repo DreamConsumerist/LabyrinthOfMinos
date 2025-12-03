@@ -17,10 +17,14 @@ public class ExitTriggerNetwork : NetworkBehaviour
         var playerNetObj = other.GetComponentInParent<NetworkObject>();
         if (playerNetObj == null || !playerNetObj.gameObject.CompareTag("Player")) return;
 
-        var progress = playerNetObj.GetComponent<PlayerKeyProgress>();
-        if (progress == null) return;
+        var global = GlobalKeyProgress.Instance;
+        if (global == null)
+        {
+            Debug.LogWarning("[ExitTriggerNetwork] GlobalKeyProgress.Instance not found in scene.");
+            return;
+        }
 
-        if (!progress.HasAllKeys)
+        if (!global.HasAllKeys)
         {
             if (notReadySfx != null)
                 PlayNotReadySfxClientRpc(transform.position, SendTo(playerNetObj.OwnerClientId));
