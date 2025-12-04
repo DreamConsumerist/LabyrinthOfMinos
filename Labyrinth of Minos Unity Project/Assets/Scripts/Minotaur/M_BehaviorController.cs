@@ -60,13 +60,6 @@ public class MinotaurBehaviorController : NetworkBehaviour
             }
         }
     }
-
-    private void OnEnable()
-    {
-        if (!IsServer) return;
-        PlayerEvents.OnPlayerSpawned += AddPlayerToList;
-        PlayerEvents.OnPlayerExit += RemovePlayerFromList;
-    }
     private void OnDisable()
     {
         if (!IsServer) return;
@@ -81,6 +74,9 @@ public class MinotaurBehaviorController : NetworkBehaviour
         aggro = GetComponent<MinotaurAggroHandler>();
         parameters = GetComponent<MinotaurParameters>();
         Instance = this;
+        if (!IsServer) return;
+        PlayerEvents.OnPlayerSpawned += AddPlayerToList;
+        PlayerEvents.OnPlayerExit += RemovePlayerFromList;
     }
 
     void Update() // Update is called once per frame
@@ -118,10 +114,13 @@ public class MinotaurBehaviorController : NetworkBehaviour
         return minotaurPos2D;
     }
 
-    private void AddPlayerToList (GameObject player)
+    private void AddPlayerToList(GameObject player)
     {
-        Debug.Log("New player in scene, adding to list.");
-        aggroValues.Add(player, 0);
+        if (!aggroValues.ContainsKey(player))
+        {
+            aggroValues.Add(player, 0);
+            Debug.Log("New player in scene, adding to list: " + player.name);
+        }
     }
     private void RemovePlayerFromList (GameObject player)
     {

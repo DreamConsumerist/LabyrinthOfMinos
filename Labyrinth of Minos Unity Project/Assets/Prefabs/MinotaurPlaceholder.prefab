@@ -303,7 +303,7 @@ MonoBehaviour:
   visionCone: 60
   staticRotateAngle: 90
   patrolWalkSpeed: 1
-  patrolRotateSpeed: 75
+  patrolRotateSpeed: 90
   chaseRunSpeed: 2.3
   chaseRotateSpeed: 207
   maxChaseTime: 9
@@ -313,6 +313,13 @@ MonoBehaviour:
   pointRadius: 0.6
   hearingMax: 15
   hearingMin: 1
+  visionToAggroMod: 3
+  soundToAggroMod: 10
+  maxAggro: 100
+  aggroDecayAmount: 5
+  aggroDecayFreq: 1
+  investigateThreshold: 40
+  chaseThreshold: 80
 --- !u!114 &-4109441483549431731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -336,11 +343,12 @@ MonoBehaviour:
     end: {x: 0, y: 0}
     tileSize: 0
     useXZPlane: 0
+    seed: 0
+  currentTarget: {fileID: 0}
   animator: {fileID: 0}
   networkAnimator: {fileID: 0}
   movement: {fileID: 0}
   parameters: {fileID: 0}
-  senses: {fileID: 0}
   aggro: {fileID: 0}
   walkSource: {fileID: 2287479682714191637}
   roarSource: {fileID: -3494795180200397745}

@@ -16,6 +16,10 @@ public class MinotaurAggroHandler : MonoBehaviour
         VisionUpdate();
         AggroDecay();
         AggroClamp();
+        foreach (var p in controller.aggroValues)
+        {
+            Debug.Log(p.Key.name + " has " + p.Value + " aggro right now");
+        }
     }
     private void IncreaseAggro(GameObject player, float value, float modifier)
     {
@@ -35,6 +39,7 @@ public class MinotaurAggroHandler : MonoBehaviour
             {
                 controller.aggroValues[key] -= controller.parameters.aggroDecayAmount;
             }
+            decayTime = 0f;
         }
     }
     private void AggroClamp()
@@ -50,6 +55,7 @@ public class MinotaurAggroHandler : MonoBehaviour
         float relVolume = LogarithmicVolume(dist, volume);
         Debug.Log("I heard a sound " + relVolume*100 + "% well, volume: " + volume + ", distance: " + dist + ", from: " + origin.name);
         IncreaseAggro(origin, relVolume, controller.parameters.soundToAggroMod);
+        AggroClamp();
     }
 
     private float LogarithmicVolume(float dist, float vol)
