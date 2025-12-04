@@ -1,12 +1,14 @@
 // PauseInputRelay.cs  (switches between Player <-> UI; supports Escape via UI "Cancel")
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 
-public class PauseInputRelay : MonoBehaviour
+public class PauseInputRelay : NetworkBehaviour
 {
     [Header("Action Map Names")]
     [Tooltip("The player action map name (move, look, interact, etc.).")]
     [SerializeField] private string playerMap = "Player";
+
     [Tooltip("The UI action map name (navigate, submit, cancel, pause).")]
     [SerializeField] private string uiMap = "UI";
 
@@ -19,49 +21,94 @@ public class PauseInputRelay : MonoBehaviour
     // Also listen to UI's 'Cancel' (commonly bound to Escape) to close the menu reliably.
     private InputAction cancelInUI;
 
+    private bool _actionsHooked = false;
+
     void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
         if (!playerInput)
             Debug.LogError("PauseInputRelay: No PlayerInput on this GameObject.");
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        // Only the local owner should drive the pause menu on this machine.
+        if (!IsOwner)
+        {
+            enabled = false;
+            return;
+        }
 
         // Find even if inactive
         menu = FindFirstObjectByType<LocalPauseMenu>(FindObjectsInactive.Include);
         if (!menu)
-            Debug.LogError("PauseInputRelay: No LocalPauseMenu found in scene.");
-    }
-
-    void OnEnable()
-    {
-        if (playerInput && playerInput.actions != null)
         {
-            var pMap = playerInput.actions.FindActionMap(playerMap, throwIfNotFound: false);
-            var uMap = playerInput.actions.FindActionMap(uiMap, throwIfNotFound: false);
-
-            pauseInPlayer = pMap?.FindAction("Pause", throwIfNotFound: false);
-
-            // Allow either "Pause" or "Unpause" naming in the UI map
-            pauseInUI = uMap?.FindAction("Pause", throwIfNotFound: false)
-                    ?? uMap?.FindAction("Unpause", throwIfNotFound: false);
-
-            // UI Input Module usually exposes a "Cancel" action; bind Escape there too
-            cancelInUI = uMap?.FindAction("Cancel", throwIfNotFound: false);
-
-            if (pauseInPlayer != null) pauseInPlayer.performed += OnPausePerformed;
-            if (pauseInUI != null) pauseInUI.performed += OnPausePerformed;
-            if (cancelInUI != null) cancelInUI.performed += OnCancelPerformed;
+            Debug.LogError("PauseInputRelay: No LocalPauseMenu found in scene.");
+            enabled = false;
+            return;
         }
 
-        if (menu) menu.OnToggled += OnMenuToggled;
+        HookActions();
+        menu.OnToggled += OnMenuToggled;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        UnhookActions();
+
+        if (menu != null)
+        {
+            menu.OnToggled -= OnMenuToggled;
+        }
     }
 
     void OnDisable()
     {
+        // Extra safety if something disables this component while still spawned
+        UnhookActions();
+        if (menu != null)
+        {
+            menu.OnToggled -= OnMenuToggled;
+        }
+    }
+
+    private void HookActions()
+    {
+        if (_actionsHooked) return;
+        if (playerInput == null || playerInput.actions == null) return;
+
+        var pMap = playerInput.actions.FindActionMap(playerMap, throwIfNotFound: false);
+        var uMap = playerInput.actions.FindActionMap(uiMap, throwIfNotFound: false);
+
+        pauseInPlayer = pMap?.FindAction("Pause", throwIfNotFound: false);
+
+        // Allow either "Pause" or "Unpause" naming in the UI map
+        pauseInUI = uMap?.FindAction("Pause", throwIfNotFound: false)
+                    ?? uMap?.FindAction("Unpause", throwIfNotFound: false);
+
+        // UI Input Module usually exposes a "Cancel" action; bind Escape there too
+        cancelInUI = uMap?.FindAction("Cancel", throwIfNotFound: false);
+
+        if (pauseInPlayer != null) pauseInPlayer.performed += OnPausePerformed;
+        if (pauseInUI != null) pauseInUI.performed += OnPausePerformed;
+        if (cancelInUI != null) cancelInUI.performed += OnCancelPerformed;
+
+        _actionsHooked = true;
+    }
+
+    private void UnhookActions()
+    {
+        if (!_actionsHooked) return;
+
         if (pauseInPlayer != null) pauseInPlayer.performed -= OnPausePerformed;
         if (pauseInUI != null) pauseInUI.performed -= OnPausePerformed;
         if (cancelInUI != null) cancelInUI.performed -= OnCancelPerformed;
 
-        if (menu) menu.OnToggled -= OnMenuToggled;
+        pauseInPlayer = null;
+        pauseInUI = null;
+        cancelInUI = null;
+
+        _actionsHooked = false;
     }
 
     private void OnPausePerformed(InputAction.CallbackContext _)
@@ -86,6 +133,7 @@ public class PauseInputRelay : MonoBehaviour
         {
             if (uMap != null) playerInput.SwitchCurrentActionMap(uiMap);
             else pMap?.Disable(); // fallback if UI map missing
+
             // Just in case refocus happened while opening:
             menu?.EnsureCursorForCurrentState();
         }
@@ -93,6 +141,7 @@ public class PauseInputRelay : MonoBehaviour
         {
             if (pMap != null) playerInput.SwitchCurrentActionMap(playerMap);
             else uMap?.Disable(); // fallback if Player map missing
+
             menu?.EnsureCursorForCurrentState();
         }
     }
