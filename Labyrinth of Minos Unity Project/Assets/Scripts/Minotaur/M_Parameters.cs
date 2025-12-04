@@ -31,7 +31,7 @@ public class MinotaurParameters : MonoBehaviour
     public float visionToAggroMod = 3f;
     public float soundToAggroMod = 10f;
     public float maxAggro = 100f;
-    public float aggroDecayAmount = 5f;
+    public float aggroDecayAmount = 2f;
     public float aggroDecayFreq = 1f;
 
     // Transition aggro values

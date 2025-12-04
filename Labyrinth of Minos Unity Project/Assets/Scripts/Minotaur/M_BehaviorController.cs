@@ -56,7 +56,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
             var players = FindObjectsByType<PlayerData>(FindObjectsSortMode.None);
             foreach (var p in players)
             {
-                if (p != null) { aggroValues.Add(p.gameObject, 0); Debug.Log("Found player!"); }
+                if (p != null) { aggroValues.Add(p.gameObject, 0); Debug.Log("Found player " + p.name); }
             }
         }
     }
@@ -120,6 +120,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
 
     private void AddPlayerToList (GameObject player)
     {
+        Debug.Log("New player in scene, adding to list.");
         aggroValues.Add(player, 0);
     }
     private void RemovePlayerFromList (GameObject player)
