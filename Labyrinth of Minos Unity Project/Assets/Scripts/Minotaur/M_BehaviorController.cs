@@ -1,8 +1,9 @@
 using System.Collections.Generic;
-using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.InputSystem.XR;
 
 [RequireComponent(typeof(MinotaurMovement))]
 [RequireComponent(typeof(MinotaurSenses))]
@@ -15,7 +16,10 @@ public class MinotaurBehaviorController : NetworkBehaviour
     // Initialize variables to store references to objects and data
     public Rigidbody rb;
     public MazeGenerator.MazeData maze;
-    public Dictionary<PlayerData, float> aggroValues = new();
+
+    // Aggro targeting values
+    public Dictionary<GameObject, float> aggroValues = new();
+    public GameObject currentTarget = null;
 
     // Initialize variables to store instances and outputs of helper classes
     public Animator animator;
@@ -36,6 +40,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
     public readonly MinotaurChaseState ChaseState = new MinotaurChaseState();
     public readonly MinotaurKillsPlayerState KillsPlayerState = new MinotaurKillsPlayerState();
     public readonly MinotaurPatrolState PatrolState = new MinotaurPatrolState();
+    public readonly MinotaurInvestigateState InvestigateState = new MinotaurInvestigateState();
 
     public override void OnNetworkSpawn()
     {
@@ -56,7 +61,7 @@ public class MinotaurBehaviorController : NetworkBehaviour
             var players = FindObjectsByType<PlayerData>(FindObjectsSortMode.None);
             foreach (var p in players)
             {
-                if (p != null) { aggroValues.Add(p, 0); Debug.Log("Found player!"); }
+                if (p != null) { aggroValues.Add(p.gameObject, 0); Debug.Log("Found player!"); }
             }
         }
     }
@@ -87,8 +92,8 @@ public class MinotaurBehaviorController : NetworkBehaviour
     void Update() // Update is called once per frame
     {
         if (!IsServer) return;
-        currSenses = senses.SensoryUpdate();
-        currentState.UpdateState(currSenses);
+        aggro.AggroUpdate();
+        currentState.UpdateState();
     }
 
     private void FixedUpdate() // FixedUpdate is called independently of frame rate before Update, ideal for physics calculations.
@@ -112,18 +117,20 @@ public class MinotaurBehaviorController : NetworkBehaviour
         currentState.EnterState(this);
     }
 
-    private void AddPlayerToList (PlayerData player)
+    public Vector2Int GetMinotaurPos2D()
+    {
+        Vector2Int minotaurPos2D = new Vector2Int(
+            Mathf.RoundToInt(transform.position.x / maze.tileSize),
+            Mathf.RoundToInt(transform.position.z / maze.tileSize)); ;
+        return minotaurPos2D;
+    }
+
+    private void AddPlayerToList (GameObject player)
     {
         aggroValues.Add(player, 0);
     }
-    private void RemovePlayerFromList (PlayerData player)
+    private void RemovePlayerFromList (GameObject player)
     {
         aggroValues.Remove(player);
     }
 }
-
-
-// Initializing variables and data structures related to the aggro system (I think this will be its own storage class or stored in M_Senses to reduce bloat)
-//[SerializeField] float aggroDecayRate = 5f;
-//[SerializeField] float maxAggro = 100f;
-//private Dictionary<PlayerData, float> playerAggro = new Dictionary<PlayerData, float> { };

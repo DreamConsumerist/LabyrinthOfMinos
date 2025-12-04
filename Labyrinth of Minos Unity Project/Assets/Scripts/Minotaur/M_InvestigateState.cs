@@ -1,29 +1,23 @@
 using UnityEngine;
 
-public class MinotaurKillsPlayerState : MinotaurBaseState
+public class MinotaurInvestigateState : MinotaurBaseState
 {
     MinotaurBehaviorController controller;
-    float killTime;
     public override void EnterState(MinotaurBehaviorController controllerRef)
     {
         if (controller == null) { controller = controllerRef; }
-
-    }
-    public override void UpdateState()
-    {
-        killTime = killTime + Time.deltaTime;
-        if (killTime >= controller.parameters.killTime)
-        {
-            controller.ChangeState(controller.PatrolState);
-        }
     }
     public override void FixedUpdateState()
     {
 
     }
+    public override void UpdateState()
+    {
 
+    }
     public override void ExitState()
     {
 
     }
+
 }

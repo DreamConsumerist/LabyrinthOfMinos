@@ -166,7 +166,7 @@ public class PlayerSpawnControl : MonoBehaviour
 
             NetworkObject playerInstance = Instantiate(prefabToUse, spawnPos, Quaternion.identity);
             playerInstance.SpawnAsPlayerObject(clientId);
-            PlayerEvents.PlayerSpawned(playerInstance.GetComponent<PlayerData>());
+            PlayerEvents.PlayerSpawned(playerInstance.gameObject);
 
             Debug.Log($"PlayerSpawnControl: Spawned player for client {clientId} at {spawnPos} in scene '{SceneManager.GetActiveScene().name}'.");
         }

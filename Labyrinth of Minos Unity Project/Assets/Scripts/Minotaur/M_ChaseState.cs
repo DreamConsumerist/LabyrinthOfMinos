@@ -5,12 +5,12 @@ using System;
 
 public class MinotaurChaseState : MinotaurBaseState
 {
+    MinotaurBehaviorController controller;
+
     Vector2Int playerPos;
     Vector2Int prevPlayerPos;
     float timeElapsedSinceSound = 0f;
     bool left = true;
-    MinotaurBehaviorController controller;
-    //Vector2Int lastKnownPlayerPos;
 
     public override void EnterState(MinotaurBehaviorController controllerRef)
     {
@@ -32,7 +32,7 @@ public class MinotaurChaseState : MinotaurBaseState
         controller.movement.MoveToTarget(controller.parameters.chaseRunSpeed, controller.parameters.chaseRotateSpeed);
     }
 
-    public override void UpdateState(MinotaurSenses.SenseReport currentKnowledge)
+    public override void UpdateState()
     {
         if (timeElapsedSinceSound >= controller.parameters.runSoundTime)
         {
@@ -53,19 +53,42 @@ public class MinotaurChaseState : MinotaurBaseState
             timeElapsedSinceSound = timeElapsedSinceSound + Time.deltaTime;
         }
             UpdateTarget2DPosition();
+
+        AggroCheck();
+
         if (playerPos != prevPlayerPos)
         {
             controller.movement.UpdateTarget(playerPos);
         }
-        
-        if (controller.currSenses.timeSincePlayerSpotted > controller.parameters.maxChaseTime)
+    }
+
+    private void AggroCheck()
+    {
+        float highestAggro = 0f;
+        GameObject bestTarget = null;
+        bool stayChase = false;
+
+        foreach (var kvp in controller.aggroValues)
         {
-            Debug.Log("Can't find them...");
-            controller.ChangeState(controller.PatrolState);
+            float aggro = kvp.Value;
+
+            if (aggro > highestAggro)
+            {
+                highestAggro = aggro;
+                bestTarget = kvp.Key;
+            }
+
+            if (aggro > controller.parameters.chaseThreshold)
+            {
+                stayChase = true;
+            }
         }
-        else
+
+        controller.currentTarget = bestTarget;
+
+        if (!stayChase)
         {
-            Debug.Log("I have " + (controller.parameters.maxChaseTime - controller.currSenses.timeSincePlayerSpotted) + " seconds to find them!");
+            controller.ChangeState(controller.PatrolState);
         }
     }
 
