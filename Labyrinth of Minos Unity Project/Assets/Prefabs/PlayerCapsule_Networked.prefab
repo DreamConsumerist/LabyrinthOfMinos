@@ -144,6 +144,7 @@ GameObject:
   - component: {fileID: 6985629162106253078}
   - component: {fileID: -256369231541395155}
   - component: {fileID: 689984598124808853}
+  - component: {fileID: 112466105332338943}
   m_Layer: 8
   m_Name: PlayerCapsule_Networked
   m_TagString: Player
@@ -375,7 +376,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2656102306
+  GlobalObjectIdHash: 3325708676
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -548,7 +549,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TEST
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -973,7 +974,19 @@ MonoBehaviour:
   staminaCanvas: {fileID: 7748856299166927704, guid: 75004353583544c449aeacf45cf7afaa, type: 3}
   fillImage: {fileID: 2544016217009766755}
   normalColor: {r: 0, g: 1, b: 0, a: 1}
-  lowColor: {r: 0.78616345, g: 0.783942, b: 0.1254902, a: 1}
+  lowColor: {r: 0.78431374, g: 0.15076773, b: 0.12549017, a: 1}
+--- !u!114 &112466105332338943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1677148472585727014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0814db3c6e9b0d74b8542e05ce4a9d3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerNameData
 --- !u!1 &7620319688190338339
 GameObject:
   m_ObjectHideFlags: 0
