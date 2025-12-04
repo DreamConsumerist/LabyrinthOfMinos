@@ -16,10 +16,7 @@ public class MinotaurPatrolState : MinotaurBaseState
     bool returningToPath = false;
     public override void EnterState(MinotaurBehaviorController controllerRef)
     {
-        if (controller == null)
-        {
-            controller = controllerRef;
-        }
+        if (controller == null) { controller = controllerRef; }
 
         controller.animator.SetBool("isPatrolling", true);
 
@@ -48,7 +45,7 @@ public class MinotaurPatrolState : MinotaurBaseState
         }
     }
 
-    public override void UpdateState(MinotaurSenses.SenseReport currentKnowledge)
+    public override void UpdateState()
     {
         if (timeElapsedSinceSound >= controller.parameters.walkSoundTime)
         {
@@ -69,14 +66,9 @@ public class MinotaurPatrolState : MinotaurBaseState
             timeElapsedSinceSound = timeElapsedSinceSound + Time.deltaTime;
         }
 
-        Vector2Int minotaurPos2D = new Vector2Int(
-            Mathf.RoundToInt(controller.transform.position.x / controller.maze.tileSize),
-            Mathf.RoundToInt(controller.transform.position.z / controller.maze.tileSize));
+        Vector2Int minotaurPos2D = controller.GetMinotaurPos2D();
 
-        if (currentKnowledge.playerSpotted)
-        {
-            controller.ChangeState(controller.ChaseState);
-        }
+        AggroCheck();
 
         if (returningToPath)
         {
@@ -87,6 +79,30 @@ public class MinotaurPatrolState : MinotaurBaseState
                 returningToPath = false;
             }
             controller.movement.UpdateTarget(patrolPath[0]);
+        }
+    }
+
+    private void AggroCheck()
+    {
+        float highestAggro = 0f;
+        GameObject bestTarget = null;
+
+        foreach (var player in controller.aggroValues.Keys)
+        {
+            float aggro = controller.aggroValues[player];
+
+            if (aggro > controller.parameters.chaseThreshold &&
+                aggro > highestAggro)
+            {
+                highestAggro = aggro;
+                bestTarget = player;
+            }
+        }
+
+        if (bestTarget != null)
+        {
+            controller.currentTarget = bestTarget;
+            controller.ChangeState(controller.ChaseState);
         }
     }
 

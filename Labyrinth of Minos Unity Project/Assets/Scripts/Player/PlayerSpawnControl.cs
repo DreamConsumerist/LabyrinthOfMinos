@@ -163,6 +163,7 @@ public class PlayerSpawnControl : MonoBehaviour
 
         // The host client id (since host = server+client)
         ulong hostClientId = nm.LocalClientId;
+        int playerNumIter = 2;
 
         Vector3 hostSpawnPos = Vector3.zero;
         bool hostSpawnPosSet = false;
@@ -242,7 +243,18 @@ public class PlayerSpawnControl : MonoBehaviour
             }
 
             NetworkObject playerInstance = Instantiate(prefabToUse, spawnPos, Quaternion.identity);
-            playerInstance.SpawnAsPlayerObject(clientId);
+            if (clientId == hostClientId)
+            {
+                playerInstance.gameObject.name = "Player 1 (Host)";
+            }
+            else
+            {
+                playerInstance.gameObject.name = "Player " + playerNumIter;
+                playerNumIter++;
+            }
+                playerInstance.SpawnAsPlayerObject(clientId);
+            PlayerEvents.PlayerSpawned(playerInstance.gameObject);
+            Debug.Log($"Spawned player {playerInstance.gameObject.name} for client {clientId}, firing PlayerSpawned");
 
             usedSpawnPositions.Add(spawnPos);
 

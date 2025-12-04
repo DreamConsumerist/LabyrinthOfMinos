@@ -39,12 +39,14 @@ public class Playeraudio : MonoBehaviour
                 // Sprint audio
                 if (footstepSound != null) footstepSound.enabled = false;
                 if (sprintsound != null) sprintsound.enabled = true;
+                WorldAudio.SprintSoundBroadcast(this.gameObject, sprintsound.volume);
             }
             else
             {
                 // Walk audio
                 if (footstepSound != null) footstepSound.enabled = true;
                 if (sprintsound != null) sprintsound.enabled = false;
+                WorldAudio.WalkSoundBroadcast(this.gameObject, footstepSound.volume);
             }
         }
         else

@@ -22,4 +22,19 @@ public class MinotaurParameters : MonoBehaviour
     public float runSoundTime = .25f;
 
     public float pointRadius = .6f;
+
+    // Hearing parameters
+    public float hearingMax = 50f;
+    public float hearingMin = 1f;
+
+    // Aggro modifiers
+    public float visionToAggroMod = 10f;
+    public float soundToAggroMod = 1f;
+    public float maxAggro = 100f;
+    public float aggroDecayAmount = 2f;
+    public float aggroDecayFreq = 1f;
+
+    // Transition aggro values
+    public float investigateThreshold = 40f;
+    public float chaseThreshold = 80f;
 }

@@ -32,6 +32,26 @@ public static class GetTilePosition
         return closest;
     }
 
+    public static Vector2Int FromRangeClosestToCenter(List<Vector2Int> tiles, Vector2 center)
+    {
+        if (tiles == null || tiles.Count == 0) return default;
+        float best = float.MaxValue;
+        Vector2Int bestT = default;
+        for (int i = 0; i < tiles.Count; i++)
+        {
+            var t = tiles[i];
+            float dx = t.x - center.x;
+            float dy = t.y - center.y;
+            float d2 = dx * dx + dy * dy;
+            if (d2 < best)
+            {
+                best = d2;
+                bestT = t;
+            }
+        }
+        return bestT;
+    }
+
     // Returns a random open tile near the edges
     public static Vector2Int WithinEdgeMargin(MazeGenerator.MazeData maze, int margin)
     {
@@ -101,5 +121,21 @@ public static class GetTilePosition
         Vector3 worldPos = new Vector3(tile.x * tileSize, 0, tile.y * tileSize);
         GameObject indicator = Object.Instantiate(prefab, worldPos, Quaternion.identity);
         indicator.GetComponent<Renderer>().material.color = color;
+    }
+    public static List<Vector2Int> PickDistinctTiles(List<Vector2Int> pool, HashSet<Vector2Int> avoid, int count)
+    {
+        // (Unused by the new logic, kept in case you still call it elsewhere.)
+        var filtered = new List<Vector2Int>(pool.Count);
+        foreach (var t in pool)
+            if (!avoid.Contains(t)) filtered.Add(t);
+
+        for (int i = filtered.Count - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            (filtered[i], filtered[j]) = (filtered[j], filtered[i]);
+        }
+
+        if (filtered.Count <= count) return filtered;
+        return filtered.GetRange(0, count);
     }
 }
