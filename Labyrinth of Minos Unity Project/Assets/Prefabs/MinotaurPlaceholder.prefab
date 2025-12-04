@@ -300,7 +300,7 @@ MonoBehaviour:
   visionCone: 60
   staticRotateAngle: 90
   patrolWalkSpeed: 1
-  patrolRotateSpeed: 75
+  patrolRotateSpeed: 90
   chaseRunSpeed: 2.3
   chaseRotateSpeed: 207
   maxChaseTime: 9
@@ -331,6 +331,7 @@ MonoBehaviour:
     end: {x: 0, y: 0}
     tileSize: 0
     useXZPlane: 0
+    seed: 0
   player: {fileID: 2233371197290203010, guid: 3bd5859b731924d468ed42d12b19dce7, type: 3}
   animator: {fileID: 0}
   networkAnimator: {fileID: 0}
