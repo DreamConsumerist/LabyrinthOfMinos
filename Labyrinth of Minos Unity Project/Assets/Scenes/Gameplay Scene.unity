@@ -2997,8 +2997,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MazeGenerator
   cellsW: 12
   cellsH: 12
-  targetDeadEndLow: 0.01
-  targetDeadEndHigh: 0.03
+  targetDeadEndLow: 0.05
+  targetDeadEndHigh: 0.07
   avoid2x2Squares: 1
   avoid3x3Donuts: 1
   useFixedSeed: 0

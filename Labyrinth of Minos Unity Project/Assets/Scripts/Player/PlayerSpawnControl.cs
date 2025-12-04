@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
@@ -19,6 +20,13 @@ public class PlayerSpawnControl : MonoBehaviour
     [Header("Maze Content")]
     [Tooltip("Optional reference to the ContentGenerator in the Gameplay scene. If left null, we'll find one at runtime.")]
     [SerializeField] private ContentGenerator contentGenerator;
+
+    [Header("Spawn Tuning")]
+    [Tooltip("Radius in tiles for additional players to spawn around the host’s tile.")]
+    [SerializeField] private int nearbyRadiusTiles = 3;
+
+    [Tooltip("Minimum XZ distance between player spawn positions to avoid overlap.")]
+    [SerializeField] private float minSpawnSeparation = 0.5f;
 
     private bool _hookedApproval;
     private bool _hasSpawnedInThisScene;
@@ -111,7 +119,6 @@ public class PlayerSpawnControl : MonoBehaviour
         if (contentGenerator != null)
             return contentGenerator;
 
-        // New API to avoid obsolete warning
         contentGenerator = Object.FindFirstObjectByType<ContentGenerator>();
         if (contentGenerator == null)
         {
@@ -147,27 +154,121 @@ public class PlayerSpawnControl : MonoBehaviour
             return;
         }
 
-        foreach (ulong clientId in nm.ConnectedClientsIds)
+        var clientIds = nm.ConnectedClientsIds;
+        if (clientIds == null || clientIds.Count == 0)
+        {
+            Debug.LogWarning("PlayerSpawnControl: No connected clients to spawn.");
+            return;
+        }
+
+        // The host client id (since host = server+client)
+        ulong hostClientId = nm.LocalClientId;
+
+        Vector3 hostSpawnPos = Vector3.zero;
+        bool hostSpawnPosSet = false;
+
+        // Track used spawn positions so players don’t spawn on top of each other
+        List<Vector3> usedSpawnPositions = new List<Vector3>();
+
+        foreach (ulong clientId in clientIds)
         {
             // Skip if already has a player object
             if (nm.ConnectedClients[clientId].PlayerObject != null)
                 continue;
 
             Vector3 spawnPos = Vector3.zero;
+            bool gotPos = false;
 
-            if (gen != null && gen.TryGetRandomOpenTileWorldPosition(out spawnPos))
+            // First, determine a candidate spawn position
+            if (gen != null)
             {
-                // good, using maze-based spawn
+                if (clientId == hostClientId)
+                {
+                    // Host: completely random open tile
+                    if (gen.TryGetRandomOpenTileWorldPosition(out spawnPos))
+                    {
+                        hostSpawnPos = spawnPos;
+                        hostSpawnPosSet = true;
+                        gotPos = true;
+                    }
+                }
+                else
+                {
+                    // Clients: try to spawn near the host, but avoid overlapping used tiles
+                    // If we don’t yet know host’s position (edge cases), fallback to random open tile.
+                    const int maxAttempts = 8;
+                    for (int attempt = 0; attempt < maxAttempts; attempt++)
+                    {
+                        Vector3 candidate;
+
+                        if (hostSpawnPosSet &&
+                            gen.TryGetRandomNearbyOpenTileWorldPosition(hostSpawnPos, nearbyRadiusTiles, out candidate))
+                        {
+                            // Check if this candidate is too close to an existing spawn
+                            if (!IsTooCloseXZ(candidate, usedSpawnPositions, minSpawnSeparation))
+                            {
+                                spawnPos = candidate;
+                                gotPos = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            // Fallback: any random open tile
+                            if (gen.TryGetRandomOpenTileWorldPosition(out candidate))
+                            {
+                                if (!IsTooCloseXZ(candidate, usedSpawnPositions, minSpawnSeparation))
+                                {
+                                    spawnPos = candidate;
+                                    gotPos = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // If all attempts failed, just grab any open tile (may still overlap, but very unlikely)
+                    if (!gotPos && gen.TryGetRandomOpenTileWorldPosition(out spawnPos))
+                    {
+                        gotPos = true;
+                    }
+                }
             }
-            else
+
+            if (!gotPos)
             {
                 Debug.LogWarning("PlayerSpawnControl: Falling back to (0,0,0) spawn for client " + clientId);
+                spawnPos = Vector3.zero;
             }
 
             NetworkObject playerInstance = Instantiate(prefabToUse, spawnPos, Quaternion.identity);
             playerInstance.SpawnAsPlayerObject(clientId);
 
+            usedSpawnPositions.Add(spawnPos);
+
             Debug.Log($"PlayerSpawnControl: Spawned player for client {clientId} at {spawnPos} in scene '{SceneManager.GetActiveScene().name}'.");
         }
+    }
+
+    /// <summary>
+    /// Checks if candidate is within minDistance in XZ plane of any position in used.
+    /// </summary>
+    private bool IsTooCloseXZ(Vector3 candidate, List<Vector3> used, float minDistance)
+    {
+        if (used == null || used.Count == 0)
+            return false;
+
+        float minSq = minDistance * minDistance;
+        Vector2 candXZ = new Vector2(candidate.x, candidate.z);
+
+        for (int i = 0; i < used.Count; i++)
+        {
+            Vector3 u = used[i];
+            Vector2 uXZ = new Vector2(u.x, u.z);
+            if ((candXZ - uXZ).sqrMagnitude < minSq)
+                return true;
+        }
+
+        return false;
     }
 }
