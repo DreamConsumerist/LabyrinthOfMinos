@@ -98,7 +98,7 @@ public class MinotaurChaseState : MinotaurBaseState
 
     public void UpdateTarget2DPosition()
     {
-        if (controller == null || controller.rb == null || controller.maze == null) return;
+        if (controller == null || controller.rb == null || controller.maze == null || controller.currentTarget == null) return;
         
         prevPlayerPos = playerPos;
         playerPos = new Vector2Int(
