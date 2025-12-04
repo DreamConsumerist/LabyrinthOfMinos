@@ -474,4 +474,82 @@ public class ContentGenerator : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Returns a random open tile in WORLD space that is within a given radius (in tiles)
+    /// of a reference world position (e.g., the host player's spawn tile).
+    /// Falls back to TryGetRandomOpenTileWorldPosition if none are found nearby.
+    /// </summary>
+    public bool TryGetRandomNearbyOpenTileWorldPosition(
+        Vector3 referenceWorldPos,
+        int radiusTiles,
+        out Vector3 worldPos)
+    {
+        worldPos = Vector3.zero;
+
+        if (_currentMaze == null || _currentMaze.open == null)
+        {
+            Debug.LogWarning("ContentGenerator: No cached maze data; cannot get nearby tile.");
+            return false;
+        }
+
+        if (radiusTiles < 0) radiusTiles = 0;
+
+        float s = _currentTileSize > 0f ? _currentTileSize : _currentMaze.tileSize;
+
+        // Convert reference world position into maze-local coordinates
+        Vector3 local = transform.InverseTransformPoint(referenceWorldPos);
+
+        // Approximate tile indices
+        int cx = Mathf.RoundToInt(local.x / s);
+        int cy = Mathf.RoundToInt(local.z / s);
+
+        int H = _currentMaze.tilesH;
+        int W = _currentMaze.tilesW;
+        bool[,] open = _currentMaze.open;
+
+        var candidates = new System.Collections.Generic.List<Vector2Int>();
+
+        int rMin = Mathf.Max(0, cy - radiusTiles);
+        int rMax = Mathf.Min(H - 1, cy + radiusTiles);
+        int cMin = Mathf.Max(0, cx - radiusTiles);
+        int cMax = Mathf.Min(W - 1, cx + radiusTiles);
+
+        for (int r = rMin; r <= rMax; r++)
+        {
+            for (int c = cMin; c <= cMax; c++)
+            {
+                if (open[r, c])
+                {
+                    candidates.Add(new Vector2Int(c, r)); // x=c, y=r
+                }
+            }
+        }
+
+        if (candidates.Count == 0)
+        {
+            // Fallback: any open tile
+            Debug.LogWarning("ContentGenerator: No open tiles found near reference; falling back to any open tile.");
+            return TryGetRandomOpenTileWorldPosition(out worldPos);
+        }
+
+        int idx = UnityEngine.Random.Range(0, candidates.Count);
+        Vector2Int tile = candidates[idx];
+
+        // Tile center in local space
+        Vector3 localPos = new Vector3(tile.x * s, 0f, tile.y * s);
+        Vector3 worldCenter = transform.TransformPoint(localPos);
+
+        float yLift = 0.5f;
+        if (player != null)
+        {
+            yLift = GetHalfHeight(player);
+        }
+
+        worldCenter.y += yLift;
+        worldPos = worldCenter;
+        return true;
+    }
+
+
+
 }

@@ -2972,6 +2972,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MazeBuilder
   floorPrefab: {fileID: 4491347736232889408, guid: e464dc671d13c2845a62abc74392f093, type: 3}
   wallPrefab: {fileID: 5984844935699154716, guid: e76074c870941e940b011a8203adc684, type: 3}
+  wallSections:
+  - sectionName: Sandstone
+    wallPrefabs:
+    - {fileID: 5984844935699154716, guid: e76074c870941e940b011a8203adc684, type: 3}
+    - {fileID: 5984844935699154716, guid: 644e9eb6e722f1040a7b1ce024752842, type: 3}
+  - sectionName: Concrete
+    wallPrefabs:
+    - {fileID: 5984844935699154716, guid: af7c204720cd00c458b93af1d0c0ead6, type: 3}
+    - {fileID: 5984844935699154716, guid: e481abdc2104dc845a7f7e822fd4b3c4, type: 3}
+  sectionCount: 2
+  sectionBlendWidth: 3
 --- !u!114 &1909405091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2986,12 +2997,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MazeGenerator
   cellsW: 12
   cellsH: 12
-  targetDeadEndLow: 0.01
-  targetDeadEndHigh: 0.03
+  targetDeadEndLow: 0.025
+  targetDeadEndHigh: 0.05
   avoid2x2Squares: 1
   avoid3x3Donuts: 1
-  useFixedSeed: 1
-  fixedSeed: 2
+  useFixedSeed: 0
+  fixedSeed: 0
   tileSize: 1
   useXZPlane: 1
 --- !u!4 &1909405092
