@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Netcode.Components;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 
 [RequireComponent(typeof(MinotaurMovement))]
 [RequireComponent(typeof(MinotaurSenses))]
@@ -26,8 +24,6 @@ public class MinotaurBehaviorController : NetworkBehaviour
     public NetworkAnimator networkAnimator;
     public MinotaurMovement movement;
     public MinotaurParameters parameters;
-    public MinotaurSenses senses;
-    public MinotaurSenses.SenseReport currSenses;
     public MinotaurAggroHandler aggro;
 
     public AudioSource walkSource;
@@ -50,7 +46,6 @@ public class MinotaurBehaviorController : NetworkBehaviour
         animator = GetComponent<Animator>();
         networkAnimator = GetComponent<NetworkAnimator>();
         movement = GetComponent<MinotaurMovement>();
-        senses = GetComponent<MinotaurSenses>();
         parameters = GetComponent<MinotaurParameters>();
 
         if (IsServer)
@@ -83,7 +78,6 @@ public class MinotaurBehaviorController : NetworkBehaviour
     {
         rb = GetComponent<Rigidbody>();
         movement = GetComponent<MinotaurMovement>();
-        senses = GetComponent<MinotaurSenses>();
         aggro = GetComponent<MinotaurAggroHandler>();
         parameters = GetComponent<MinotaurParameters>();
         Instance = this;
@@ -106,7 +100,6 @@ public class MinotaurBehaviorController : NetworkBehaviour
     {
         maze = mazeObj;
         movement.Initialize(this);
-        senses.Initialize(this);
         aggro.Initialize(this);
     }
 
