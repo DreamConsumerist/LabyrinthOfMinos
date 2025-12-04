@@ -26,17 +26,22 @@ public class PlayerNameData : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        base.OnNetworkSpawn();
+    base.OnNetworkSpawn();
 
-        if (IsOwner)
-        {
-            string defaultName = IsServer ? "Player 1" : $"Player {OwnerClientId + 1}";
-            playerName.Value = defaultName;
-        }
-
-        playerName.OnValueChanged += OnPlayerNameChanged;
-        playerNameText.text = playerName.Value.ToString();
+    // Only set default name on the owner
+    if (IsOwner)
+    {
+        string defaultName = IsServer ? "Player 1" : $"Player {OwnerClientId + 1}";
+        playerName.Value = defaultName;
     }
+
+    // Subscribe everyone to updates
+    playerName.OnValueChanged += OnPlayerNameChanged;
+
+    // Immediately apply current value
+    playerNameText.text = playerName.Value.ToString();
+    }
+
 
     private void OnPlayerNameChanged(NetworkString previousValue, NetworkString newValue)
     {
