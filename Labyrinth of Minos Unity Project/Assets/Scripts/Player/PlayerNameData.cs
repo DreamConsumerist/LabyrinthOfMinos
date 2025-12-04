@@ -1,16 +1,45 @@
+using Unity.Netcode;
 using UnityEngine;
+using TMPro;
+using Unity.Collections;
 
-public class PlayerNameData : MonoBehaviour
+public class PlayerNameData : NetworkBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private TextMeshPro playerNameText;
+
+    public struct NetworkString : INetworkSerializeByMemcpy
     {
-        
+        private FixedString32Bytes _info;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref _info);
+        }
+
+        public override string ToString() => _info.Value;
+
+        public static implicit operator string(NetworkString s) => s.ToString();
+        public static implicit operator NetworkString(string s) => new NetworkString { _info = new FixedString32Bytes(s) };
     }
 
-    // Update is called once per frame
-    void Update()
+    public NetworkVariable<NetworkString> playerName = new NetworkVariable<NetworkString>(default, NetworkVariableReadPermission.Everyone);
+
+    public override void OnNetworkSpawn()
     {
-        
+        base.OnNetworkSpawn();
+
+        if (IsOwner)
+        {
+            string defaultName = IsServer ? "Player 1" : $"Player {OwnerClientId + 1}";
+            playerName.Value = defaultName;
+        }
+
+        playerName.OnValueChanged += OnPlayerNameChanged;
+        playerNameText.text = playerName.Value.ToString();
+    }
+
+    private void OnPlayerNameChanged(NetworkString previousValue, NetworkString newValue)
+    {
+        playerNameText.text = newValue;
     }
 }
