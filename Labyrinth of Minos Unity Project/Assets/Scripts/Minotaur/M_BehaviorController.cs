@@ -106,6 +106,11 @@ public class MinotaurBehaviorController : NetworkBehaviour
         currentState.EnterState(this);
     }
 
+    public MinotaurBaseState GetCurrState()
+    {
+        return currentState;
+    }
+
     public Vector2Int GetMinotaurPos2D()
     {
         Vector2Int minotaurPos2D = new Vector2Int(
@@ -122,8 +127,35 @@ public class MinotaurBehaviorController : NetworkBehaviour
             Debug.Log("New player in scene, adding to list: " + player.name);
         }
     }
+
+    // This is not currently working although this is supposed to be the proper place for this code
     private void RemovePlayerFromList (GameObject player)
     {
+        Debug.Log("Setting " + player.name + " aggro to 0");
+        aggroValues[player] = 0;
+        if (currentTarget == player)
+        {
+            currentTarget = null;
+        }
         aggroValues.Remove(player);
+        Debug.Log("Removing " + player.name + " from list");
+    }
+
+    // Slapdash fix here
+    private void OnTriggerEnter(Collider obj)
+    {
+        if (!IsServer) { return; }
+        Debug.Log("Ran into " + obj.gameObject.name);
+        if (obj.gameObject.CompareTag("Player"))
+        {
+            Debug.Log("Setting " + obj.gameObject.name + " aggro to 0");
+            aggroValues[obj.gameObject] = 0;
+            if (currentTarget == obj.gameObject)
+            {
+                currentTarget = null;
+            }
+            aggroValues.Remove(obj.gameObject);
+            Debug.Log("Removing " + obj.gameObject.name + " from list");
+        }
     }
 }
