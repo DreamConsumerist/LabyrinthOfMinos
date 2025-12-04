@@ -46,7 +46,7 @@ public class MinotaurAggroHandler : MonoBehaviour
     {
         foreach (var key in controller.aggroValues.Keys.ToList())
         {
-            controller.aggroValues[key] = Mathf.Clamp(controller.aggroValues[key], 0, 100);
+            controller.aggroValues[key] = Mathf.Clamp(controller.aggroValues[key], controller.parameters.minAggro, controller.parameters.maxAggro);
         }
     }
 
@@ -58,12 +58,22 @@ public class MinotaurAggroHandler : MonoBehaviour
         AggroClamp();
     }
 
-    private float LogarithmicVolume(float dist, float vol)
+    private float LogarithmicVolume(float dist, float vol, float exponent = .2f)
     {
-        if (dist <= controller.parameters.hearingMin) return 1f;
-        if (dist >= controller.parameters.hearingMax) return 0f;
-        float normalized = Mathf.Log10(controller.parameters.hearingMax / dist) / Mathf.Log10(controller.parameters.hearingMax / controller.parameters.hearingMin);
-        return vol * Mathf.Clamp01(normalized);
+        float min = controller.parameters.hearingMin;
+        float max = controller.parameters.hearingMax;
+
+        if (dist <= min) return vol;
+        if (dist >= max) return 0f;
+
+        // Normalized logarithmic falloff: 0 at max distance, 1 at min distance
+        float normalized = Mathf.Log10(max / dist) / Mathf.Log10(max / min);
+
+        // Apply skew/exponent to control sensitivity curve
+        float skewed = Mathf.Pow(Mathf.Clamp01(normalized), exponent);
+
+        // Scale by actual volume
+        return vol * skewed;
     }
 
     public void VisionUpdate()

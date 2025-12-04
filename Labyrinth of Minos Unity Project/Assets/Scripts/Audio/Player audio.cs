@@ -10,6 +10,12 @@ public class Playeraudio : MonoBehaviour
     StarterAssetsInputs _input;
     StaminaSystem _stamina;
 
+    //TEMPORARY FIX, DO PROPER IMPLEMENTATION
+    float runTimer = .3f;
+    float walkTimer = .6f;
+    float runClock = 0f;
+    float walkClock = 0f;
+
     void Start()
     {
         _input = GetComponent<StarterAssetsInputs>();
@@ -39,14 +45,24 @@ public class Playeraudio : MonoBehaviour
                 // Sprint audio
                 if (footstepSound != null) footstepSound.enabled = false;
                 if (sprintsound != null) sprintsound.enabled = true;
-                WorldAudio.SprintSoundBroadcast(this.gameObject, sprintsound.volume);
+                runClock += Time.deltaTime;
+                if (runClock > runTimer)
+                {
+                    runClock = 0f;
+                    WorldAudio.SprintSoundBroadcast(this.gameObject, sprintsound.volume);
+                }
             }
             else
             {
                 // Walk audio
                 if (footstepSound != null) footstepSound.enabled = true;
                 if (sprintsound != null) sprintsound.enabled = false;
-                WorldAudio.WalkSoundBroadcast(this.gameObject, footstepSound.volume);
+                walkClock += Time.deltaTime;
+                if (walkClock > walkTimer)
+                {
+                    walkClock = 0f;
+                    WorldAudio.WalkSoundBroadcast(this.gameObject, footstepSound.volume);
+                }
             }
         }
         else

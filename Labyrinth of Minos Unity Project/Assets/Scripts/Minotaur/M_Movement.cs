@@ -23,23 +23,13 @@ public class MinotaurMovement : MonoBehaviour
         controller = controllerRef;
         isInitialized = true;
 
-        UpdateMinotaur2DPosition();
-    }
-
-    public void UpdateMinotaur2DPosition()
-    {
-        if (controller == null || controller.rb == null || controller.maze == null) return;
-
-        minotaurPos2D = new Vector2Int(
-            Mathf.RoundToInt(controller.rb.position.x / controller.maze.tileSize),
-            Mathf.RoundToInt(controller.rb.position.z / controller.maze.tileSize)
-        );
+        minotaurPos2D = controller.GetMinotaurPos2D();
     }
 
     private void Update()
     {
         if (!isInitialized) return;
-        UpdateMinotaur2DPosition();
+        minotaurPos2D = controller.GetMinotaurPos2D();
     }
 
     // --------------------------
@@ -53,6 +43,19 @@ public class MinotaurMovement : MonoBehaviour
     public void MoveToTarget(float moveSpeed, float rotationSpeed)
     {
         if (!isInitialized || controller.maze == null) return;
+        Vector3 chasePos = Vector3.negativeInfinity;
+        
+        if (controller.GetCurrState() == controller.ChaseState)
+        {
+            chasePos = controller.currentTarget.transform.position;
+
+            // if close enough, ignore A* and chase directly
+            if ((controller.currentTarget != null) && (Vector3.Distance(controller.rb.position, chasePos) <= controller.parameters.pointRadius + .5))
+            {
+                DirectChase(chasePos, moveSpeed, rotationSpeed);
+                return;
+            }
+        }
 
         RecalculatePath();
 
@@ -70,6 +73,25 @@ public class MinotaurMovement : MonoBehaviour
         }
 
         AdvancePathNode();
+    }
+
+    private void DirectChase(Vector3 targetWorldPos, float moveSpeed, float rotationSpeed)
+    {
+        Vector3 direction = (targetWorldPos - controller.rb.position);
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.01f)
+            return;
+
+        direction.Normalize();
+
+        Quaternion targetRot = Quaternion.LookRotation(direction);
+        controller.rb.MoveRotation(
+            Quaternion.RotateTowards(controller.rb.rotation, targetRot, rotationSpeed * Time.fixedDeltaTime)
+        );
+
+        Vector3 move = direction * moveSpeed * Time.fixedDeltaTime;
+        controller.rb.MovePosition(controller.rb.position + move);
     }
 
     public void FollowPatrolRoute(List<Vector2Int> patrolRoute, float moveSpeed, float rotationSpeed)
