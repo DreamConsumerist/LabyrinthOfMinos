@@ -9,7 +9,7 @@ public class MinotaurKillsPlayerState : MinotaurBaseState
         if (controller == null) { controller = controllerRef; }
 
     }
-    public override void UpdateState(MinotaurSenses.SenseReport currentKnowledge)
+    public override void UpdateState()
     {
         killTime = killTime + Time.deltaTime;
         if (killTime >= controller.parameters.killTime)

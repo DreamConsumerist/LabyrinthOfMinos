@@ -1756,6 +1756,7 @@ GameObject:
   - component: {fileID: 518761671}
   - component: {fileID: 518761673}
   - component: {fileID: 518761674}
+  - component: {fileID: 518761675}
   m_Layer: 0
   m_Name: MainMenuController
   m_TagString: Untagged
@@ -1823,6 +1824,18 @@ MonoBehaviour:
   codeInput: {fileID: 1728516822}
   errorText: {fileID: 1609604152}
   lobbySceneName: Lobby
+--- !u!114 &518761675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 518761670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dbe199b4e0191e48aeb395f12e8caa8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MainMenuStateFix
 --- !u!1 &582253722
 GameObject:
   m_ObjectHideFlags: 0
@@ -4263,6 +4276,7 @@ GameObject:
   - component: {fileID: 1451387318}
   - component: {fileID: 1451387321}
   - component: {fileID: 1451387322}
+  - component: {fileID: 1451387323}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -4386,6 +4400,21 @@ MonoBehaviour:
   gameplaySceneName: Gameplay Scene
   playerPrefabOverride: {fileID: 0}
   contentGenerator: {fileID: 0}
+  nearbyRadiusTiles: 4
+  minSpawnSeparation: 0.5
+--- !u!114 &1451387323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1451387316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f90d1ae0f55fa3841b2150ab7eb81018, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkSessionLifecycle
+  mainMenuSceneName: MainMenu
 --- !u!1 &1609604150
 GameObject:
   m_ObjectHideFlags: 0

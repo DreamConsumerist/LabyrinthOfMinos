@@ -73,6 +73,10 @@ public class LobbyShell : MonoBehaviour
         if (codeLabel) codeLabel.text = joinCode;
         if (statusLabel) statusLabel.text = "Host started. Share this code with friends.";
 
+        // Optional: log what seed this session will use
+        int seed = MazeGenerator.SeedFromJoinCode(joinCode);
+        Debug.Log($"[LobbyShell] Lobby join code '{joinCode}' => maze seed {seed}");
+
         // Host can start game once at least 1 client is connected (or immediately if you want)
         if (startGameButton) startGameButton.interactable = true;
 
@@ -110,14 +114,15 @@ public class LobbyShell : MonoBehaviour
         if (codeLabel) codeLabel.text = joinCode;
         if (statusLabel) statusLabel.text = "Connecting to host...";
 
+        // Optional: log seed derivation on the client for sanity check
+        int seed = MazeGenerator.SeedFromJoinCode(joinCode);
+        Debug.Log($"[LobbyShell] (Client) Lobby join code '{joinCode}' => maze seed {seed}");
+
         bool ok = await relay.JoinRelayAsync(joinCode);
         if (!ok)
         {
             Debug.LogError("[LobbyShell] JoinRelayAsync failed for code: " + joinCode);
             if (statusLabel) statusLabel.text = "Failed to join lobby. Code invalid/expired?";
-            // Optional: auto-return to main menu after delay
-            // await Task.Delay(1500);
-            // SceneManager.LoadScene(mainMenuSceneName);
             return;
         }
 

@@ -27,6 +27,7 @@ public class MinotaurSenses : MonoBehaviour
     private SenseReport IsPlayerVisible(SenseReport currSenses)
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, controller.parameters.visionDistance);
+        // I think this section could be a huge performance hit down the line, iterating over a ton of objects every frame isn't ideal.
         //int layerMask = LayerMask.GetMask("Player", "Obstacle");
         // Implement layer mask once the game gets more complex with more items and stuff to limit detection to just walls and players, not working atm though, so ignore.
         for (int i = 0; i < hits.Length; i++)

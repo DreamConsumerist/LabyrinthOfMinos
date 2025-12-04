@@ -17,7 +17,10 @@ public class MazeGenerator : MonoBehaviour
     public bool avoid3x3Donuts = true;    // avoid ring donuts
 
     [Header("Seeding")]
+    [Tooltip("If there is no lobby join code, this decides whether to use a fixed seed or a random one.")]
     public bool useFixedSeed = true;
+
+    [Tooltip("Fixed seed used when there is no lobby join code and useFixedSeed is true.")]
     public int fixedSeed = 12345;
 
     [Header("Build Parameters (for consumers)")]
@@ -35,7 +38,7 @@ public class MazeGenerator : MonoBehaviour
         public float tileSize;
         public bool useXZPlane;
 
-        // NEW: seed used to generate this maze, so visuals can be deterministic too
+        // seed used to generate this maze (for debugging / deterministic visuals)
         public int seed;
     }
 
@@ -45,7 +48,7 @@ public class MazeGenerator : MonoBehaviour
     public void GenerateNow()
     {
         LastMaze = Generate();
-        Debug.Log($"Maze generated: {LastMaze.tilesW}x{LastMaze.tilesH}");
+        Debug.Log($"Maze generated: {LastMaze.tilesW}x{LastMaze.tilesH} with seed {LastMaze.seed}");
     }
 
     public MazeData Generate()
@@ -54,8 +57,11 @@ public class MazeGenerator : MonoBehaviour
         int W = 2 * cellsW + 1;
         var open = new bool[H, W]; // all walls false by default
 
-        int seed = useFixedSeed ? fixedSeed : UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+        // --- NEW: compute a seed that is shared between host & clients via LobbyContext.JoinCode ---
+        int seed = ComputeSeedFromContext();
         var rnd = new System.Random(seed);
+
+        Debug.Log($"[MazeGenerator] Using seed {seed} (JoinCode='{LobbyContext.JoinCode}')");
 
         // --- Randomized Prim's (frontier) on odd,odd cells ---
         int sr = 2 * rnd.Next(cellsH) + 1;
@@ -119,11 +125,61 @@ public class MazeGenerator : MonoBehaviour
             end = end,
             tileSize = tileSize,
             useXZPlane = useXZPlane,
-            seed = seed            // NEW
+            seed = seed
         };
     }
 
-    // --- Helpers ---
+    // --- NEW: centralised seed logic ---
+
+    /// <summary>
+    /// Chooses a deterministic seed. If a lobby join code exists, we
+    /// derive the seed from that so host + clients agree on the layout.
+    /// Otherwise we fall back to fixedSeed / random.
+    /// </summary>
+    private int ComputeSeedFromContext()
+    {
+        // If we're in a networked lobby, everyone shares the same join code.
+        if (!string.IsNullOrEmpty(LobbyContext.JoinCode))
+        {
+            int seedFromCode = SeedFromJoinCode(LobbyContext.JoinCode);
+
+            // Optionally mirror to fixedSeed for inspector/debug visibility
+            fixedSeed = seedFromCode;
+
+            return seedFromCode;
+        }
+
+        // No join code (single-player / debug). Use old behavior.
+        if (useFixedSeed)
+        {
+            return fixedSeed;
+        }
+
+        // Fully random seed for offline runs.
+        return UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+    }
+
+    /// <summary>
+    /// Deterministically converts a short alphanumeric join code (e.g. "MGT87K")
+    /// into a signed 32-bit int seed. Same code  same seed on all machines.
+    /// </summary>
+    public static int SeedFromJoinCode(string code)
+    {
+        if (string.IsNullOrEmpty(code))
+            return 0;
+
+        unchecked
+        {
+            int hash = 17;
+            for (int i = 0; i < code.Length; i++)
+            {
+                hash = hash * 31 + code[i];
+            }
+            return hash;
+        }
+    }
+
+    //  Helpers (unchanged) ---
     IEnumerable<(int r2, int c2, int wr, int wc)> NeighCells(int r, int c, int H, int W)
     {
         int[] dr = { -2, 2, 0, 0 };

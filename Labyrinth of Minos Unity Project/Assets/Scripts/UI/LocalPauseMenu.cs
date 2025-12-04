@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity.Netcode;
 
 public class LocalPauseMenu : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class LocalPauseMenu : MonoBehaviour
         CloseImmediate();   // still called, now also enforces gameplay cursor state
     }
 
-    // NEW: assert correct cursor state once everything is awake
+    // assert correct cursor state once everything is awake
     void Start()
     {
         EnsureCursorForCurrentState();
@@ -68,6 +69,12 @@ public class LocalPauseMenu : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
+        // NEW: cleanly leave any NGO session (host or client)
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -100,7 +107,7 @@ public class LocalPauseMenu : MonoBehaviour
         IsOpen = false;
         if (pauseUI) pauseUI.SetActive(false);
 
-        // CHANGED: on first launch, enforce gameplay state
+        // on first launch, enforce gameplay state
         ApplyCursorAndAudio(isPaused: false);
     }
 }
