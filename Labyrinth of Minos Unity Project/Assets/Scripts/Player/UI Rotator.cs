@@ -1,4 +1,4 @@
-using UnityEngine;
+/*using UnityEngine;
 
 public class UIRotator : MonoBehaviour
 {
@@ -16,3 +16,4 @@ public class UIRotator : MonoBehaviour
         transform.Rotate(offset);
     }
 }
+*/
