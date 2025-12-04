@@ -34,6 +34,9 @@ public class MazeGenerator : MonoBehaviour
         public Vector2Int end;            // tile coords (odd,odd)
         public float tileSize;
         public bool useXZPlane;
+
+        // NEW: seed used to generate this maze, so visuals can be deterministic too
+        public int seed;
     }
 
     public MazeData LastMaze { get; private set; }
@@ -115,7 +118,8 @@ public class MazeGenerator : MonoBehaviour
             start = start,
             end = end,
             tileSize = tileSize,
-            useXZPlane = useXZPlane
+            useXZPlane = useXZPlane,
+            seed = seed            // NEW
         };
     }
 

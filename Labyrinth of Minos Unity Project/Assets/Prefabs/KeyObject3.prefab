@@ -414,8 +414,8 @@ GameObject:
   - component: {fileID: 3794660347350294801}
   - component: {fileID: 3925581690893893194}
   - component: {fileID: 6864451151088503364}
-  - component: {fileID: 761346523933483265}
   - component: {fileID: 1570454345100805804}
+  - component: {fileID: 8826670442286592782}
   m_Layer: 0
   m_Name: KeyObject3
   m_TagString: Untagged
@@ -474,7 +474,7 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -487,7 +487,24 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: -9.2, y: 0.46, z: -18.22}
---- !u!54 &761346523933483265
+--- !u!114 &1570454345100805804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2699797414500397918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 434d213985d0dfe4db0b2ba5d18c0573, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KeyPickupNetwork
+  ShowTopMostFoldoutHeaderGroup: 1
+  pickupSfx: {fileID: 8300000, guid: 9d0113dd16699ce4ea3c58dd422fdc1f, type: 3}
+  wrongOrderSfx: {fileID: 8300000, guid: 3eab95774fe317a489c29e1075d3d6a2, type: 3}
+  sfxVolume: 1
+  keyIndex: 3
+--- !u!54 &8826670442286592782
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -514,23 +531,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &1570454345100805804
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2699797414500397918}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 434d213985d0dfe4db0b2ba5d18c0573, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::KeyPickupNetwork
-  ShowTopMostFoldoutHeaderGroup: 1
-  pickupSfx: {fileID: 8300000, guid: 9d0113dd16699ce4ea3c58dd422fdc1f, type: 3}
-  wrongOrderSfx: {fileID: 8300000, guid: 3eab95774fe317a489c29e1075d3d6a2, type: 3}
-  sfxVolume: 1
-  keyIndex: 3
 --- !u!1 &5280418054253861927
 GameObject:
   m_ObjectHideFlags: 0
