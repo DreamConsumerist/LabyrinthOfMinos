@@ -40,23 +40,7 @@ public class ExitTriggerNetwork : NetworkBehaviour
         // Show win UI only for the player who touched the exit
         ShowWinForClientClientRpc(SendTo(playerNetObj.OwnerClientId));
 
-        // Safe despawn (scene vs prefab)
-        if (NetworkObject != null && NetworkObject.IsSpawned)
-        {
-            if (NetworkObject.IsSceneObject == true)
-            {
-                NetworkObject.Despawn(false);
-                gameObject.SetActive(false);
-            }
-            else
-            {
-                NetworkObject.Despawn(true);
-            }
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        
     }
 
     // ---- RPCs ----
