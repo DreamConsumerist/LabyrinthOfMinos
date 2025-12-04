@@ -4400,7 +4400,7 @@ MonoBehaviour:
   gameplaySceneName: Gameplay Scene
   playerPrefabOverride: {fileID: 0}
   contentGenerator: {fileID: 0}
-  nearbyRadiusTiles: 2
+  nearbyRadiusTiles: 4
   minSpawnSeparation: 0.5
 --- !u!114 &1451387323
 MonoBehaviour:
