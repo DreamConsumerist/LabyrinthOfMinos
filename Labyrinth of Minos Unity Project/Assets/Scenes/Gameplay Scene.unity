@@ -3002,7 +3002,7 @@ MonoBehaviour:
   avoid2x2Squares: 1
   avoid3x3Donuts: 1
   useFixedSeed: 0
-  fixedSeed: 2
+  fixedSeed: 0
   tileSize: 1
   useXZPlane: 1
 --- !u!4 &1909405092
