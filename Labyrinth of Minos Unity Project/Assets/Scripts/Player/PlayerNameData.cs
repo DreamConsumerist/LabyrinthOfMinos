@@ -7,6 +7,7 @@ public class PlayerNameData : NetworkBehaviour
 {
     [SerializeField] private TextMeshPro playerNameText; // Reference to the UI text showing the player's name
 
+
     // Custom struct to allow NetworkVariable of string with fixed size
     public struct NetworkString : INetworkSerializeByMemcpy
     {
