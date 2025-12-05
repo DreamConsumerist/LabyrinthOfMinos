@@ -1,19 +1,19 @@
-/*using UnityEngine;
+using UnityEngine;
 
 public class UIRotator : MonoBehaviour
 {
-    private Transform transf;
-    private Vector3 offset = new Vector3(0, 180, 0);
+    private Transform cam;
 
     void Start()
     {
-        transf = gameObject.Find("MainCamera").GetComponent<Transform>();
+        cam = Camera.main.transform;
+        //camera look at
     }
 
     void Update()
     {
-        transform.LookAt(transf);
-        transform.Rotate(offset);
+        transform.LookAt(cam);
+        transform.Rotate(0,180,0);
     }
 }
-*/
+
