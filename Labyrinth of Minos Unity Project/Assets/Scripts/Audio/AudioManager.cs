@@ -12,24 +12,24 @@ public class AudioManager : MonoBehaviour
     public AudioMixerGroup musicGroup;                       // Mixer group: Music
     public AudioMixerGroup uiGroup;                          // Mixer group: UI
     public AudioMixerGroup gameSfxGroup;                     // Mixer group: SFX/GameSFX (3D)
-    public AudioMixerGroup ambienceGroup;                    // Mixer group: Ambience (3D, optional)
+    public AudioMixerGroup ambienceGroup;                  
 
     [Header("Built-in Sources (2D)")]
     public AudioSource uiSfxSource;                          // 2D, ignoreListenerPause = true, Output = uiGroup
     public AudioSource musicA;                               // 2D, loop, Output = musicGroup
     public AudioSource musicB;                               // 2D, loop, Output = musicGroup
-    public AudioSource globalSfx2D;                          // 2D, Output = gameSfxGroup (optional)
+    public AudioSource globalSfx2D;                         
 
     [Header("3D Defaults (applied to spawned/attached sources)")]
-    [Range(0f, 1f)] public float spatialBlend3D = 1f;         // 1 = fully 3D
-    [Range(0f, 5f)] public float dopplerLevel = 0f;           // 0 = off (usually best for UI-ish/arcade SFX)
-    public float minDistance = 1.5f;                         // where it starts to attenuate
-    public float maxDistance = 30f;                          // inaudible beyond
+    [Range(0f, 1f)] public float spatialBlend3D = 1f;         
+    [Range(0f, 5f)] public float dopplerLevel = 0f;           
+    public float minDistance = 1.5f;                        
+    public float maxDistance = 30f;                         
     public AudioRolloffMode rolloffMode = AudioRolloffMode.Logarithmic;
-    [Range(0, 360)] public int spread = 0;                    // stereo narrowing at distance (0=mono point source)
+    [Range(0, 360)] public int spread = 0;                   
     [Range(0f, 1.1f)] public float reverbZoneMix = 1f;
 
-    // Internals
+   
     private AudioSource activeMusic, idleMusic;
 
     // Track attached loopers for clean stop/destroy
@@ -83,8 +83,7 @@ public class AudioManager : MonoBehaviour
     public void Play2D(AudioClip clip, float vol = 1f)
     { if (clip && globalSfx2D) globalSfx2D.PlayOneShot(clip, vol); }
 
-    // ---------------- 3D HELPERS ----------------
-    /// <summary>Configure an existing AudioSource on a 3D object to the global 3D defaults and route to the mixer.</summary>
+   
     public void Setup3DSource(AudioSource src, bool routeAsAmbience = false)
     {
         if (!src) return;
@@ -102,7 +101,7 @@ public class AudioManager : MonoBehaviour
         src.outputAudioMixerGroup = routeAsAmbience && ambienceGroup ? ambienceGroup : gameSfxGroup;
     }
 
-    /// <summary>Play a one-shot 3D clip at a world position (auto-destroys).</summary>
+    //Play a one-shot 3D clip at a world position (auto-destroys)
     public void PlayAt(AudioClip clip, Vector3 pos, float vol = 1f, bool routeAsAmbience = false)
     {
         if (!clip) return;
@@ -116,7 +115,7 @@ public class AudioManager : MonoBehaviour
         Destroy(go, clip.length + 0.05f);
     }
 
-    /// <summary>Attach (or reuse) a looping 3D SFX to a Transform (e.g., torch, minotaur breath).</summary>
+    // Attach (or reuse) a looping 3D SFX to a Transform (e.g., torch, minotaur breath).
     public AudioSource PlayAttached(Transform target, AudioClip loopClip, float vol = 1f, bool routeAsAmbience = false)
     {
         if (!target || !loopClip) return null;
@@ -140,7 +139,7 @@ public class AudioManager : MonoBehaviour
         return src;
     }
 
-    /// <summary>Stop and remove a previously attached looping SFX.</summary>
+   
     public void StopAttached(Transform target)
     {
         if (!target) return;
@@ -152,7 +151,7 @@ public class AudioManager : MonoBehaviour
         attachedLoopers.Remove(target);
     }
 
-    // ---------------- MUSIC (crossfade) ----------------
+    // MUSIC (crossfade)
     public void PlayMusic(AudioClip clip, float fade = 0.8f, float targetVol = 1f)
     {
         if (!clip) return;
@@ -189,8 +188,8 @@ public class AudioManager : MonoBehaviour
         if (idleMusic) { idleMusic.Stop(); idleMusic.clip = null; }
     }
 
-    // ---------------- VOLUMES / SNAPSHOTS ----------------
-    /// <summary>value01: 0..1 linear slider mapped to dB (exposed param must exist in mixer).</summary>
+    //  VOLUMES / SNAPSHOTS 
+    
     public void SetVolume(string exposedParam, float value01)
     {
         value01 = Mathf.Clamp01(value01);

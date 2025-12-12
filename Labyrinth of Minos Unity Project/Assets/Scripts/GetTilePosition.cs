@@ -124,7 +124,7 @@ public static class GetTilePosition
     }
     public static List<Vector2Int> PickDistinctTiles(List<Vector2Int> pool, HashSet<Vector2Int> avoid, int count)
     {
-        // (Unused by the new logic, kept in case you still call it elsewhere.)
+        
         var filtered = new List<Vector2Int>(pool.Count);
         foreach (var t in pool)
             if (!avoid.Contains(t)) filtered.Add(t);

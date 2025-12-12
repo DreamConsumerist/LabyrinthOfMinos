@@ -6,7 +6,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] string gameSceneName = "Game";
     [SerializeField] string LobbySceneName = "Lobby";
     [SerializeField] string MainMenuSceneName = "MainMenu";
-    public AudioClip clickSfx;                       // assign your click sound
+    public AudioClip clickSfx;                      
 
     public void OnPlay()
     {
@@ -23,14 +23,6 @@ public class MainMenuUI : MonoBehaviour
     public void OnBack()
     {
         TransitionManager.Instance?.Go(MainMenuSceneName, clickSfx);
-    }
-    public void OnSettings()
-    {
-        // Option A: open a settings panel in this scene
-        // settingsPanel.SetActive(true);
-
-        // Option B: go to a separate Settings scene:
-        // SceneManager.LoadScene("Settings");
     }
 
     public void OnQuit()

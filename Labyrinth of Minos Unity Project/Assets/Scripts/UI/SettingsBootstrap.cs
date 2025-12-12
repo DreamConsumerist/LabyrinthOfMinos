@@ -14,15 +14,15 @@ public class SettingsBootstrap : MonoBehaviour
 
     void Start()
     {
-        // --- AUDIO ---
+        //AUDIO
         AudioManager.Instance?.ApplySavedVolumesOnBoot();
 
-        // --- VIDEO SETTINGS LOADING ---
+        //VIDEO SETTINGS LOADING
         bool fs = PlayerPrefs.GetInt(KEY_FULLSCREEN, Screen.fullScreen ? 1 : 0) == 1;
         int vs = PlayerPrefs.GetInt(KEY_VSYNC, 1);
         int q = PlayerPrefs.GetInt(KEY_QUALITY, QualitySettings.GetQualityLevel());
 
-        // Load whatever is saved (or fall back to current res)
+        
         int w = PlayerPrefs.GetInt(KEY_RES_W, Screen.currentResolution.width);
         int h = PlayerPrefs.GetInt(KEY_RES_H, Screen.currentResolution.height);
         int hz = PlayerPrefs.GetInt(
@@ -30,12 +30,12 @@ public class SettingsBootstrap : MonoBehaviour
             Mathf.RoundToInt((float)Screen.currentResolution.refreshRateRatio.value)
         );
 
-        // --- SANITIZE / UPGRADE RESOLUTION IF NEEDED ---
+        
         Resolution[] allRes = Screen.resolutions ?? new Resolution[0];
 
         if (allRes.Length > 0)
         {
-            // Build labels the same way VideoSettingsUI does
+            // Build labels 
             List<string> resLabels = new List<string>();
             for (int i = 0; i < allRes.Length; i++)
             {
@@ -64,16 +64,16 @@ public class SettingsBootstrap : MonoBehaviour
 
             if (savedIdx < 0)
             {
-                // Saved resolution doesn't exist in the list anymore -> bad
+                
                 looksBad = true;
             }
             else
             {
-                // Condition 1: it's literally the lowest index and there are better options
+                
                 if (savedIdx == 0 && allRes.Length > 1)
                     looksBad = true;
 
-                // Condition 2: resolution is tiny while there are significantly bigger ones
+                
                 bool biggerExists = false;
                 for (int i = 0; i < allRes.Length; i++)
                 {
@@ -91,7 +91,7 @@ public class SettingsBootstrap : MonoBehaviour
 
             if (looksBad)
             {
-                // --- Choose a better resolution ---
+                
 
                 // Default: highest available
                 Resolution chosen = allRes[allRes.Length - 1];
@@ -128,7 +128,7 @@ public class SettingsBootstrap : MonoBehaviour
             }
         }
 
-        // --- APPLY QUALITY, VSYNC, RESOLUTION ---
+        //APPLY QUALITY, VSYNC, RESOLUTION
         QualitySettings.vSyncCount = vs > 0 ? 1 : 0;
         QualitySettings.SetQualityLevel(
             Mathf.Clamp(q, 0, QualitySettings.names.Length - 1),

@@ -27,7 +27,7 @@ public class KeyPickupNetwork : NetworkBehaviour
             return;
         }
 
-        // Enforce sequential order GLOBALLY now
+        // Enforce sequential order GLOBALLY
         if (global.NextKeyIndex.Value != keyIndex)
         {
             if (wrongOrderSfx != null)

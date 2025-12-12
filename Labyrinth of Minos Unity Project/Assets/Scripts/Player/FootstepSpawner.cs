@@ -14,7 +14,7 @@ public class FootstepSpawner : MonoBehaviour
     [SerializeField] float yOffset = 0.01f;
     [SerializeField] float raycastStartHeight = 2.0f;
     [SerializeField] float raycastDownDistance = 5.0f;
-    [SerializeField] LayerMask groundMask = 0; // set this in Inspector to ONLY Ground
+    [SerializeField] LayerMask groundMask = 0; 
 
     [Header("Look & Feel")]
     [SerializeField] float baseScale = 0.20f;
@@ -46,7 +46,7 @@ public class FootstepSpawner : MonoBehaviour
 
     void OnValidate()
     {
-        // If user forgot to set Ground Mask, make a sane default so spawns don't silently fail.
+        // forgot to set Ground Mask, default so spawns don't silently fail.
         if (groundMask.value == 0)
             groundMask = Physics.DefaultRaycastLayers;
     }
@@ -187,7 +187,7 @@ public class FootstepSpawner : MonoBehaviour
         return rot;
     }
 
-    // Robust ground query: skip any of our own colliders (player) and only use the filtered mask.
+    
     bool TryGetGroundHit(Vector3 origin, float maxDistance, out RaycastHit bestHit)
     {
         var ray = new Ray(origin, Vector3.down);

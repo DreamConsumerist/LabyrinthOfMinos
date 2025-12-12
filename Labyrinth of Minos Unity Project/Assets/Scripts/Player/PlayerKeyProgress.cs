@@ -8,13 +8,13 @@ public class PlayerKeyProgress : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
-    // Optional: simple helper to reset per life/round
+    
     [ServerRpc(RequireOwnership = false)]
     public void ResetProgressServerRpc()
     {
         NextKeyIndex.Value = 1;
     }
 
-    // Convenience check
+    
     public bool HasAllKeys => NextKeyIndex.Value > 3;
 }

@@ -6,11 +6,11 @@ using StarterAssets; // FirstPersonController
 public class GameplaySettingsUI : MonoBehaviour
 {
     [Header("Mouse Look")]
-    public Slider mouseSensitivity;        // expected range e.g., 0.10 .. 5.00
+    public Slider mouseSensitivity;        
     public Toggle invertY;
 
     [Header("Field of View")]
-    public Slider fovSlider;               // e.g., 60 .. 110
+    public Slider fovSlider;               
     public TMP_Text fovValueText;
 
     [Header("Value label (optional)")]

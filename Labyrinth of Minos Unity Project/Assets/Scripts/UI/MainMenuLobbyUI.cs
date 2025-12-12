@@ -1,4 +1,3 @@
-// MainMenuLobbyUI.cs
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -7,7 +6,6 @@ public class MainMenuLobbyUI : MonoBehaviour
 {
     [SerializeField] private string lobbySceneName = "Lobby";
 
-    // Hook this to your Host Game button
     public void OnHostGameClicked()
     {
         LobbyContext.IsHost = true;
@@ -16,8 +14,7 @@ public class MainMenuLobbyUI : MonoBehaviour
         SceneManager.LoadScene(lobbySceneName);
     }
 
-    // This is called when the user presses "Join" in your popup WITH a code
-    // (wire this to the popup's confirm button and pass the TMP_InputField.text)
+    // This is called when the user presses "Join"  with a code
     public void OnJoinWithCode(string code)
     {
         LobbyContext.IsHost = false;

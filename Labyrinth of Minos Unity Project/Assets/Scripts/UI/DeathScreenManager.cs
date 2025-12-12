@@ -12,8 +12,8 @@ public class DeathScreenManager : MonoBehaviour
     public static DeathScreenManager Instance { get; private set; }
 
     [Header("UI")]
-    [SerializeField] private CanvasGroup deathGroup;        // assign your DeathScreenPanel's CanvasGroup
-    [SerializeField] private Button returnToMenuButton;     // assign your "Return to Main Menu" button
+    [SerializeField] private CanvasGroup deathGroup;        
+    [SerializeField] private Button returnToMenuButton;     
     [Tooltip("Optional: element to select when the death panel opens; defaults to Return button.")]
     [SerializeField] private Selectable defaultSelected;
 

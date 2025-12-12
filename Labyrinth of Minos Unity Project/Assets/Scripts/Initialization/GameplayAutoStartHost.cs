@@ -11,7 +11,7 @@ public class GameplayAutoStartHost : MonoBehaviour
 
     [Header("Timing")]
     [SerializeField] private float networkManagerTimeout = 10f; // seconds
-    [SerializeField] private int framesToDelayStart = 1;        // NEW: delay to let other scripts initialize
+    [SerializeField] private int framesToDelayStart = 1;        // delay to let other scripts initialize
 
     private void OnEnable()
     {
@@ -35,7 +35,7 @@ public class GameplayAutoStartHost : MonoBehaviour
             yield break;
         }
 
-        // >>> NEW: wait a frame (or two) so other scene objects finish Awake/Start
+        // wait a frame (or two) so other scene objects finish Awake/Start
         for (int i = 0; i < Mathf.Max(0, framesToDelayStart); i++)
             yield return null;
 
@@ -50,7 +50,7 @@ public class GameplayAutoStartHost : MonoBehaviour
             yield break;
         }
 
-        // helpful logs
+        //  logs
         nm.OnServerStarted += () => Debug.Log("[AutoStart] Server started");
         nm.OnClientStarted += () => Debug.Log("[AutoStart] Client started");
         nm.OnClientConnectedCallback += id =>

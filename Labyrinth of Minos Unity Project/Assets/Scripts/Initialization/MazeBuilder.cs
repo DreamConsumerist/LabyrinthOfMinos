@@ -87,7 +87,7 @@ public class MazeBuilder : MonoBehaviour
 
                 if (!isFloor)
                 {
-                    // Uniform scale in XZ; you can tweak if some walls need custom scale
+                    // Uniform scale in XZ; tweak if some walls need custom scale
                     go.transform.localScale = new Vector3(s, s, s);
                 }
                 else
@@ -101,10 +101,7 @@ public class MazeBuilder : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Decide which wall prefab to use for a given tile (r,c), based on
-    /// section slicing and blend zones. Falls back to wallPrefab if needed.
-    /// </summary>
+    
     private GameObject GetWallPrefabFor(int r, int c, MazeGenerator.MazeData maze, System.Random rnd)
     {
         // No section data? Use single wall prefab.
@@ -162,11 +159,11 @@ public class MazeBuilder : MonoBehaviour
             return wallPrefab;
         }
 
-        // Pick a random variant within that section (e.g. brick_1 vs brick_2)
+        // Pick a random variant within that section (brick_1 vs brick_2)
         int idx = rnd.Next(set.wallPrefabs.Length);
         var prefab = set.wallPrefabs[idx];
 
-        // If something is missing, fall back to generic wall prefab
+        // fall back to generic wall prefab
         if (!prefab) return wallPrefab;
 
         return prefab;

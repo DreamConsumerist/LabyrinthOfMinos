@@ -18,7 +18,7 @@ public class LocalPauseMenu : MonoBehaviour
         if (!pauseUI)
             Debug.LogWarning("LocalPauseMenu: No pauseUI assigned. Hook your panel in the inspector.");
 
-        CloseImmediate();   // still called, now also enforces gameplay cursor state
+        CloseImmediate();   
     }
 
     // assert correct cursor state once everything is awake
@@ -40,7 +40,7 @@ public class LocalPauseMenu : MonoBehaviour
 
         if (pauseUI) pauseUI.SetActive(true);
 
-        // Local-only polish (keep the world/server sim running)
+        
         ApplyCursorAndAudio(isPaused: true);
 
         OnToggled?.Invoke(true);
@@ -69,7 +69,7 @@ public class LocalPauseMenu : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-        // NEW: cleanly leave any NGO session (host or client)
+        //  cleanly leave any NGO session (host or client)
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
         {
             NetworkManager.Singleton.Shutdown();
@@ -78,7 +78,7 @@ public class LocalPauseMenu : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    // --- Focus guards: re-assert the correct cursor state when the app regains focus ---
+    //re-assert the correct cursor state when the app regains focus
     void OnApplicationFocus(bool hasFocus)
     {
         if (hasFocus) EnsureCursorForCurrentState();

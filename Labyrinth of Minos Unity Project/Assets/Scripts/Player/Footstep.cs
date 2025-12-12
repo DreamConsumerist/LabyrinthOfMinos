@@ -5,7 +5,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class Footstep : MonoBehaviour
 {
-    // We control alpha via a MaterialPropertyBlock so we don't instantiate materials per instance.
+    
     static readonly int ColorProp = Shader.PropertyToID("_BaseColor"); // URP Lit
     static readonly int LegacyColorProp = Shader.PropertyToID("_Color"); // Standard/Legacy
 
@@ -43,7 +43,7 @@ public class Footstep : MonoBehaviour
         transform.rotation = rot;
         transform.localScale = scale;
 
-        // Now parent but keep world transform unchanged
+        
         if (parent != null)
             transform.SetParent(parent, worldPositionStays: true);
         else

@@ -1,6 +1,6 @@
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem; // new Input System
+using UnityEngine.InputSystem; 
 #endif
 
 [RequireComponent(typeof(MazeGenerator))]
@@ -36,7 +36,7 @@ public class MazeBootstrap : MonoBehaviour
         if (!builder) builder = GetComponent<MazeBuilder>();
         if (!contentGenerator) contentGenerator = GetComponent<ContentGenerator>();
 #if ENABLE_INPUT_SYSTEM
-        // Bind to "R" on the new Input System
+        // Bind to "R" 
         rerollAction = new InputAction(type: InputActionType.Button, binding: "<Keyboard>/r");
         rerollAction.performed += _ => { if (enableHotkey) Rebuild(); };
         rerollAction.Enable();
@@ -64,7 +64,6 @@ public class MazeBootstrap : MonoBehaviour
         builder.ClearChildren();
         builder.Build(data);
         contentGenerator.Generate(data);
-        // If you use NavMeshSurface:
-        // GetComponent<Unity.AI.Navigation.NavMeshSurface>()?.BuildNavMesh();
+        
     }
 }

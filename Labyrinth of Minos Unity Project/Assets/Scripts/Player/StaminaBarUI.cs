@@ -6,8 +6,8 @@ public class StaminaBarUI : NetworkBehaviour
 {
     [Header("References")]
     [SerializeField] StaminaSystem stamina;   // Player's stamina
-    [SerializeField] Canvas staminaCanvas;    // The HUD canvas (from the prefab)
-    [SerializeField] Image fillImage;         // The fill image (StaminaBarFill)
+    [SerializeField] Canvas staminaCanvas;    // The HUD canvas 
+    [SerializeField] Image fillImage;         // The fill image 
 
     [Header("Colors")]
     [SerializeField] Color normalColor = Color.green;
@@ -15,7 +15,7 @@ public class StaminaBarUI : NetworkBehaviour
 
     void Awake()
     {
-        // If not assigned in Inspector, try to auto-grab from the same GameObject
+        // auto-grab from the same GameObject
         if (stamina == null)
             stamina = GetComponent<StaminaSystem>();
     }
@@ -26,11 +26,11 @@ public class StaminaBarUI : NetworkBehaviour
         if (!IsOwner)
         {
             if (staminaCanvas != null) staminaCanvas.enabled = false;
-            enabled = false;   // no need to keep updating
+            enabled = false;   
             return;
         }
 
-        // Make sure our canvas is enabled for the owner
+        // Make sure canvas is enabled for the owner
         if (staminaCanvas != null)
             staminaCanvas.enabled = true;
     }

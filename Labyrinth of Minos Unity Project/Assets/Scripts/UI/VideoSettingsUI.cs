@@ -26,7 +26,7 @@ public class VideoSettingsUI : MonoBehaviour
     const string KEY_QUALITY = "opt_quality";
     const string KEY_RES_W = "opt_res_w";
     const string KEY_RES_H = "opt_res_h";
-    const string KEY_RES_HZ = "opt_res_hz"; // integer Hz is fine
+    const string KEY_RES_HZ = "opt_res_hz"; 
 
     void Awake()
     {
@@ -227,7 +227,7 @@ public class VideoSettingsUI : MonoBehaviour
         return -1;
     }
 
-    // Hook these if you want to cache pending values in PlayerPrefs BEFORE Apply (not necessary).
+    
     public void OnFullscreen(bool on) { /* no-op until Apply */ }
     public void OnResolution(int idx) { /* no-op until Apply */ }
     public void OnVsync(bool on) { /* no-op until Apply */ }

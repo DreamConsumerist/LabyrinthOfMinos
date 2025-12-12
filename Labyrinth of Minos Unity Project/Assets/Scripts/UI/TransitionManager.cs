@@ -7,7 +7,7 @@ public class TransitionManager : MonoBehaviour
     public static TransitionManager Instance { get; private set; }
 
     [Header("References")]
-    [SerializeField] private CanvasGroup fadeGroup;   // assign your TransitionCanvas CanvasGroup
+    [SerializeField] private CanvasGroup fadeGroup;   
     [SerializeField] private float defaultClickDelay = 0.12f;
     [SerializeField] private float defaultFadeOut = 0.25f;
     [SerializeField] private float defaultFadeIn = 0.25f;
@@ -20,7 +20,7 @@ public class TransitionManager : MonoBehaviour
 
         if (fadeGroup != null)
         {
-            // Start covered in black; we'll fade in on first frame
+            
             fadeGroup.alpha = Mathf.Clamp01(fadeGroup.alpha);
             fadeGroup.blocksRaycasts = true;
             fadeGroup.interactable = false;
@@ -69,7 +69,7 @@ public class TransitionManager : MonoBehaviour
 
         // async load next scene
         var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
-        op.allowSceneActivation = true;      // we already faded to black; just activate when ready
+        op.allowSceneActivation = true;      
         while (!op.isDone) yield return null;
 
         // allow one frame for the new scene to render

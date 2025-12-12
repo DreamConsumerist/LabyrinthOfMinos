@@ -3,11 +3,9 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Keeps an eye on the Netcode session.  
-/// If this client is disconnected from the host (host quits / crashes / relay timeout),
-/// it cleanly shuts down NGO and returns to the main menu.
-/// </summary>
+// Keeps an eye on the Netcode session.  
+// If this client is disconnected from the host (host quits / crashes / relay timeout),
+// it cleanly shuts down NGO and returns to the main menu.
 public class NetworkSessionLifecycle : MonoBehaviour
 {
     [Header("Scenes")]
@@ -40,12 +38,12 @@ public class NetworkSessionLifecycle : MonoBehaviour
         var nm = NetworkManager.Singleton;
         if (nm == null) return;
 
-        // We only care about *this* machine being disconnected.
+        // We only care about this machine being disconnected.
         if (clientId != nm.LocalClientId)
             return;
 
         // If we're the host, we usually handle quitting via our own UI (pause menu).
-        // This script is mainly to protect *clients* when host dies / leaves.
+        // This script is mainly to protect clients when host dies / leaves.
         if (nm.IsHost)
         {
             Debug.Log("[NetworkSessionLifecycle] Local host disconnected (stopping session).");

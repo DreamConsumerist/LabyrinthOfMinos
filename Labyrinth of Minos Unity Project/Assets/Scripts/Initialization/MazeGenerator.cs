@@ -57,7 +57,7 @@ public class MazeGenerator : MonoBehaviour
         int W = 2 * cellsW + 1;
         var open = new bool[H, W]; // all walls false by default
 
-        // --- NEW: compute a seed that is shared between host & clients via LobbyContext.JoinCode ---
+        // compute a seed that is shared between host & clients via LobbyContext.JoinCode ---
         int seed = ComputeSeedFromContext();
         var rnd = new System.Random(seed);
 
@@ -85,7 +85,7 @@ public class MazeGenerator : MonoBehaviour
             }
         }
 
-        // --- Braid to target dead-end range with donut guards ---
+        // Braid to target dead-end range with donut guards 
         BraidToDeadEndTarget(open, rnd);
 
         // choose start/end (odd,odd corners are guaranteed cells)
@@ -93,7 +93,7 @@ public class MazeGenerator : MonoBehaviour
         var end = new Vector2Int(W - 2, H - 2);
         if (!open[end.y, end.x])
         {
-            // PATCH: ensure we don't open rim walls; connect end via interior-only wall to interior-open cell
+            //  we don't open rim walls; connect end via interior-only wall to interior-open cell
             int[] dr = { -1, 1, 0, 0 };
             int[] dc = { 0, 0, -1, 1 };
             for (int k = 0; k < 4; k++)
@@ -129,13 +129,8 @@ public class MazeGenerator : MonoBehaviour
         };
     }
 
-    // --- NEW: centralised seed logic ---
+    //  centralised seed logic 
 
-    /// <summary>
-    /// Chooses a deterministic seed. If a lobby join code exists, we
-    /// derive the seed from that so host + clients agree on the layout.
-    /// Otherwise we fall back to fixedSeed / random.
-    /// </summary>
     private int ComputeSeedFromContext()
     {
         // If we're in a networked lobby, everyone shares the same join code.
@@ -159,10 +154,10 @@ public class MazeGenerator : MonoBehaviour
         return UnityEngine.Random.Range(int.MinValue, int.MaxValue);
     }
 
-    /// <summary>
-    /// Deterministically converts a short alphanumeric join code (e.g. "MGT87K")
-    /// into a signed 32-bit int seed. Same code  same seed on all machines.
-    /// </summary>
+    
+    // Deterministically converts a short alphanumeric join code (e.g. "MGT87K")
+    // into a signed 32-bit int seed. Same code  same seed on all machines.
+    
     public static int SeedFromJoinCode(string code)
     {
         if (string.IsNullOrEmpty(code))
@@ -179,7 +174,7 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
-    //  Helpers (unchanged) ---
+    //  Helpers 
     IEnumerable<(int r2, int c2, int wr, int wc)> NeighCells(int r, int c, int H, int W)
     {
         int[] dr = { -2, 2, 0, 0 };
@@ -206,7 +201,7 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
-    // PATCH: helper to identify perimeter tiles
+    //  helper to identify perimeter tiles
     bool IsBorder(int r, int c, int H, int W)
     {
         return (r == 0 || c == 0 || r == H - 1 || c == W - 1);

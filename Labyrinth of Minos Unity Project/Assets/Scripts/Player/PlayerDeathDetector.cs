@@ -7,7 +7,7 @@ public class PlayerDeathDetector : NetworkBehaviour
 {
     [Header("Detection")]
     [Tooltip("Optional: if set, only objects on these layers can kill the player.")]
-    [SerializeField] private LayerMask killerLayers = ~0; // default: everything
+    [SerializeField] private LayerMask killerLayers = ~0; 
     [Tooltip("Use tag check to identify the minotaur (recommended).")]
     [SerializeField] private string minotaurTag = "Minotaur";
 
@@ -25,11 +25,11 @@ public class PlayerDeathDetector : NetworkBehaviour
         // Only the server decides deaths
         if (!IsServer || _coolingDown) return;
 
-        // Layer filter (optional)
+        
         if (((1 << other.gameObject.layer) & killerLayers) == 0)
             return;
 
-        // Must be the minotaur: by tag OR by a marker component on the minotaur
+        // Must be the minotaur
         bool isMinotaur =
             (!string.IsNullOrEmpty(minotaurTag) && other.CompareTag(minotaurTag)) ||
             other.GetComponentInParent<MinotaurBehaviorController>() != null;
@@ -38,14 +38,14 @@ public class PlayerDeathDetector : NetworkBehaviour
 
         _coolingDown = true;
 
-        // Optional: global death SFX at the collision point
+        
         if (deathSfx != null)
             PlayDeathSfxClientRpc(other.transform.position);
 
         // Show death screen to THIS player only
         ShowDeathForClientClientRpc(SendTo(OwnerClientId));
 
-        // (Optional) disable movement/server-side logic here if needed
+        
 
         StartCoroutine(ClearCooldown());
     }
@@ -56,7 +56,7 @@ public class PlayerDeathDetector : NetworkBehaviour
         _coolingDown = false;
     }
 
-    // --- RPCs ---
+    //  RPCs 
 
     [ClientRpc]
     private void PlayDeathSfxClientRpc(Vector3 atPos)

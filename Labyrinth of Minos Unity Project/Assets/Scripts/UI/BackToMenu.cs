@@ -11,8 +11,7 @@ public class BackToMenu : MonoBehaviour
         {
             NetworkManager.Singleton.Shutdown();
 
-            // Optional: fully destroy the NetworkManager GameObject
-            // (useful if you keep it in DontDestroyOnLoad)
+            
             Destroy(NetworkManager.Singleton.gameObject);
         }
 

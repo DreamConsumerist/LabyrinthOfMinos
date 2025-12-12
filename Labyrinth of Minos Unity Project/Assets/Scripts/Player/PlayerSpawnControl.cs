@@ -262,9 +262,6 @@ public class PlayerSpawnControl : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Checks if candidate is within minDistance in XZ plane of any position in used.
-    /// </summary>
     private bool IsTooCloseXZ(Vector3 candidate, List<Vector3> used, float minDistance)
     {
         if (used == null || used.Count == 0)

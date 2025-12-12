@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class SettingsMenu : MonoBehaviour
 {
-    [SerializeField] GameObject settingsPanel;   // assign SettingsPanel
-    [SerializeField] bool pauseWhenOpen = false; // true in Gameplay scene
+    [SerializeField] GameObject settingsPanel;   
+    [SerializeField] bool pauseWhenOpen = false; 
     [Header("Sections")]
     public AudioSettingsUI audioUI;
     public VideoSettingsUI videoUI;
@@ -37,7 +37,7 @@ public class SettingsMenu : MonoBehaviour
         }
     }
 
-    // Wire this to your Apply button
+    
     public void ApplyAndClose()
     {
         // Apply to systems + save
@@ -48,7 +48,7 @@ public class SettingsMenu : MonoBehaviour
         CloseInternal();
     }
 
-    // Wire this to your Close/Back button
+    
     public void CloseWithoutApply()
     {
         // Revert UI back to saved values (discard pending UI changes)
