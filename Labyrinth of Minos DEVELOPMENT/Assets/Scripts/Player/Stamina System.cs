@@ -12,17 +12,27 @@ public class StaminaSystem : NetworkBehaviour
     [Header("Sprint Threshold")]
     [SerializeField] float minSprintStamina = 25f;
 
-    [Header("Debug (read-only at runtime)")]
-    [SerializeField] float currentStamina;
+    private readonly NetworkVariable<float> _currentStamina = new NetworkVariable<float>(
+        0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private readonly NetworkVariable<bool> _isSprinting = new NetworkVariable<bool>(
+        false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private readonly NetworkVariable<bool> _wantsSprint = new NetworkVariable<bool>(
+        false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     private StarterAssetsInputs _input;
 
-    // Are we currently sprinting according to the stamina system?
-    bool _isSprinting;
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (IsServer)
+        {
+            _currentStamina.Value = maxStamina;
+        }
+    }
 
     void Start()
     {
-        currentStamina = maxStamina;
         _input = GetComponent<StarterAssetsInputs>();
 
         // Ensure we don't inherit some weird serialized "sprint = true" state
@@ -34,51 +44,63 @@ public class StaminaSystem : NetworkBehaviour
 
     void Update()
     {
-        if (!IsOwner) return;
-        if (_input == null) return;
+        if (IsOwner && _input != null)
+        {
+            _wantsSprint.Value = _input.sprint;
+        }
 
-        bool wantsToSprint = _input.sprint;
+        if (IsServer)
+        {
+            ServerTickStamina();
+        }
+    }
+
+    private void ServerTickStamina()
+    {
+        bool wantsToSprint = _wantsSprint.Value;
+        bool sprinting = _isSprinting.Value;
+        float stamina = _currentStamina.Value;
 
         // --- Sprint state machine ---
 
-        if (_isSprinting)
+        if (sprinting)
         {
             // Stop sprinting if player lets go OR we hit 0 stamina
-            if (!wantsToSprint || currentStamina <= 0f)
+            if (!wantsToSprint || stamina <= 0f)
             {
-                _isSprinting = false;
+                sprinting = false;
             }
         }
         else
         {
             // Not sprinting: can start if holding sprint AND above the threshold
-            if (wantsToSprint && currentStamina >= minSprintStamina)
+            if (wantsToSprint && stamina >= minSprintStamina)
             {
-                _isSprinting = true;
+                sprinting = true;
             }
         }
 
         // --- Apply drain / regen ---
 
-        if (_isSprinting)
+        if (sprinting)
         {
-            currentStamina -= drainRate * Time.deltaTime;
+            stamina -= drainRate * Time.deltaTime;
 
-            if (currentStamina <= 0f)
+            if (stamina <= 0f)
             {
-                currentStamina = 0f;
-                _isSprinting = false;
+                stamina = 0f;
+                sprinting = false;
             }
         }
         else
         {
             // Regen anytime we're NOT actually sprinting,
             // even if the player is holding the sprint button.
-            currentStamina += regenRate * Time.deltaTime;
+            stamina += regenRate * Time.deltaTime;
         }
 
-        currentStamina = Mathf.Clamp(currentStamina, 0f, maxStamina);
-        //Debug.Log($"[StaminaSystem] stamina={currentStamina}");
+        _currentStamina.Value = Mathf.Clamp(stamina, 0f, maxStamina);
+        _isSprinting.Value = sprinting;
     }
 
     /// <summary>
@@ -86,17 +108,17 @@ public class StaminaSystem : NetworkBehaviour
     /// </summary>
     public bool CanSprint()
     {
-        return _isSprinting;
+        return _isSprinting.Value;
     }
 
     /// <summary>
-    /// Returns normalized stamina [0–1] for UI.
+    /// Returns normalized stamina [0ï¿½1] for UI.
     /// </summary>
     public float GetStamina()
     {
-        return currentStamina / maxStamina;
+        return _currentStamina.Value / maxStamina;
     }
 
-    public float CurrentStaminaValue => currentStamina;
+    public float CurrentStaminaValue => _currentStamina.Value;
     public float MinSprintStaminaValue => minSprintStamina;
 }

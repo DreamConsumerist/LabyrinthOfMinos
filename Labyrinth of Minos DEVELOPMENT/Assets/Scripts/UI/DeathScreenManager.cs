@@ -30,6 +30,7 @@ public class DeathScreenManager : MonoBehaviour
     private readonly List<MonoBehaviour> _disabledPauseRelays = new List<MonoBehaviour>();
 
     private bool DeathActive => deathGroup && deathGroup.interactable;
+    public bool IsShowing => DeathActive;
 
     private void Awake()
     {
@@ -80,8 +81,10 @@ public class DeathScreenManager : MonoBehaviour
 
     private void ReturnToMenu()
     {
-        HideImmediate();
-        NetworkSessionLifecycle.LeaveSession();
+        if (LeaveConfirmationDialog.Instance != null)
+            LeaveConfirmationDialog.Instance.RequestLeave();
+        else
+            NetworkSessionLifecycle.LeaveSession();
     }
 
     private void EnsureLocalPlayerInput()

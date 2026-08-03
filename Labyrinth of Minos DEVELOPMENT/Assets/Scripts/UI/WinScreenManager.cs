@@ -30,6 +30,7 @@ public class WinScreenManager : MonoBehaviour
     private readonly List<MonoBehaviour> _disabledPauseRelays = new List<MonoBehaviour>();
 
     private bool WinActive => winGroup && winGroup.interactable;
+    public bool IsShowing => WinActive;
 
     private void Awake()
     {
@@ -91,8 +92,10 @@ public class WinScreenManager : MonoBehaviour
 
     private void ReturnToMenu()
     {
-        HideImmediate();
-        NetworkSessionLifecycle.LeaveSession();
+        if (LeaveConfirmationDialog.Instance != null)
+            LeaveConfirmationDialog.Instance.RequestLeave();
+        else
+            NetworkSessionLifecycle.LeaveSession();
     }
 
     private void EnsureLocalPlayerInput()

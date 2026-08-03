@@ -119,7 +119,7 @@ public class PauseInputRelay : NetworkBehaviour
     private void OnCancelPerformed(InputAction.CallbackContext _)
     {
         // Only close if currently open; otherwise let UI 'Cancel' do its normal thing
-        if (menu != null && menu.IsOpen) menu.Close();
+        if (menu != null && menu.IsShowing) menu.Close();
     }
 
     private void OnMenuToggled(bool isOpen)

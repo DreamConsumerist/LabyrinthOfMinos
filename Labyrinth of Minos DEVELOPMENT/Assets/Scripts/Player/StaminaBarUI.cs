@@ -39,7 +39,15 @@ public class StaminaBarUI : NetworkBehaviour
     {
         if (stamina == null || fillImage == null) return;
 
-        // GetStamina() already returns 0–1 in your system
+        if(staminaCanvas != null)
+        {
+            staminaCanvas.enabled = !GameplayMenuState.AnyMenuOpen;
+        }
+        if (GameplayMenuState.AnyMenuOpen)
+        {
+            return;
+        }
+        // GetStamina() already returns 0ï¿½1 in your system
         float value = stamina.GetStamina();
         fillImage.fillAmount = value;
 

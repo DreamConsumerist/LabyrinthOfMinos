@@ -7,12 +7,20 @@ public class LocalPauseMenu : MonoBehaviour
     [Header("References")]
     [Tooltip("Assign your Pause Panel root object (set inactive by default).")]
     [SerializeField] private GameObject pauseUI;
+    public static LocalPauseMenu Instance { get; private set; }
 
-    public bool IsOpen { get; private set; }
+    public bool IsShowing { get; private set; }
     public event Action<bool> OnToggled; // Fired after menu open/close
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
         if (!pauseUI)
             Debug.LogWarning("LocalPauseMenu: No pauseUI assigned. Hook your panel in the inspector.");
 
@@ -28,13 +36,13 @@ public class LocalPauseMenu : MonoBehaviour
     /// <summary>Toggle the pause menu. Called by PauseInputRelay or a UI button.</summary>
     public void Toggle()
     {
-        if (IsOpen) Close(); else Open();
+        if (IsShowing) Close(); else Open();
     }
 
     public void Open()
     {
-        if (IsOpen) return;
-        IsOpen = true;
+        if (IsShowing) return;
+        IsShowing = true;
 
         if (pauseUI) pauseUI.SetActive(true);
 
@@ -46,8 +54,8 @@ public class LocalPauseMenu : MonoBehaviour
 
     public void Close()
     {
-        if (!IsOpen) return;
-        IsOpen = false;
+        if (!IsShowing) return;
+        IsShowing = false;
 
         if (pauseUI) pauseUI.SetActive(false);
 
@@ -67,7 +75,10 @@ public class LocalPauseMenu : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-        NetworkSessionLifecycle.LeaveSession();
+        if (LeaveConfirmationDialog.Instance != null)
+            LeaveConfirmationDialog.Instance.RequestLeave();
+        else
+            NetworkSessionLifecycle.LeaveSession();
     }
 
     //re-assert the correct cursor state when the app regains focus
@@ -83,7 +94,7 @@ public class LocalPauseMenu : MonoBehaviour
 
     public void EnsureCursorForCurrentState()
     {
-        if (IsOpen) ApplyCursorAndAudio(isPaused: true);
+        if (IsShowing) ApplyCursorAndAudio(isPaused: true);
         else ApplyCursorAndAudio(isPaused: false);
     }
 
@@ -96,7 +107,7 @@ public class LocalPauseMenu : MonoBehaviour
 
     private void CloseImmediate()
     {
-        IsOpen = false;
+        IsShowing = false;
         if (pauseUI) pauseUI.SetActive(false);
 
         // on first launch, enforce gameplay state
