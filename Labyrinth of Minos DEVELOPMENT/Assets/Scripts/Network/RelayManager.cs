@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Unity.Netcode;
@@ -63,14 +64,15 @@ public class RelayManager : MonoBehaviour
             var transport = GetTransport();
             if (transport == null) return null;
 
+            var endpoint = allocation.ServerEndpoints.First(e => e.ConnectionType == "dtls");
             var relayServerData = new RelayServerData(
-                allocation.RelayServer.IpV4,
-                (ushort)allocation.RelayServer.Port,
+                endpoint.Host,
+                (ushort)endpoint.Port,
                 allocation.AllocationIdBytes,
                 allocation.ConnectionData,
                 allocation.ConnectionData,
                 allocation.Key,
-                true,
+                endpoint.Secure,
                 false);
             transport.SetRelayServerData(relayServerData);
 
@@ -100,14 +102,15 @@ public class RelayManager : MonoBehaviour
             var transport = GetTransport();
             if (transport == null) return false;
 
+            var endpoint = joinAllocation.ServerEndpoints.First(e => e.ConnectionType == "dtls");
             var relayServerData = new RelayServerData(
-                joinAllocation.RelayServer.IpV4,
-                (ushort)joinAllocation.RelayServer.Port,
+                endpoint.Host,
+                (ushort)endpoint.Port,
                 joinAllocation.AllocationIdBytes,
                 joinAllocation.ConnectionData,
                 joinAllocation.HostConnectionData,
                 joinAllocation.Key,
-                true,
+                endpoint.Secure,
                 false);
             transport.SetRelayServerData(relayServerData);
 
