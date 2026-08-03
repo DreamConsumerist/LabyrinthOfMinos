@@ -35,8 +35,7 @@ public class GlobalKeyProgress : NetworkBehaviour
         }
     }
 
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void ResetProgressServerRpc()
+    public void ResetProgress()
     {
         if (!IsServer) return;
         NextKeyIndex.Value = 1;

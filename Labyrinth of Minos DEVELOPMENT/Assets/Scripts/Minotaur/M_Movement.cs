@@ -45,12 +45,12 @@ public class MinotaurMovement : MonoBehaviour
         if (!isInitialized || controller.maze == null) return;
         Vector3 chasePos = Vector3.negativeInfinity;
         
-        if (controller.GetCurrState() == controller.ChaseState)
+        if (controller.GetCurrState() == controller.ChaseState && controller.currentTarget != null)
         {
             chasePos = controller.currentTarget.transform.position;
 
             // if close enough, ignore A* and chase directly
-            if ((controller.currentTarget != null) && (Vector3.Distance(controller.rb.position, chasePos) <= controller.parameters.pointRadius + .5))
+            if (Vector3.Distance(controller.rb.position, chasePos) <= controller.parameters.pointRadius + .5)
             {
                 DirectChase(chasePos, moveSpeed, rotationSpeed);
                 return;

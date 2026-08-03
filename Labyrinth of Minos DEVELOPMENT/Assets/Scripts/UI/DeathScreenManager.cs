@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
@@ -82,12 +81,7 @@ public class DeathScreenManager : MonoBehaviour
     private void ReturnToMenu()
     {
         HideImmediate();
-        if (NetworkManager.Singleton != null &&
-            (NetworkManager.Singleton.IsClient || NetworkManager.Singleton.IsServer))
-        {
-            NetworkManager.Singleton.Shutdown();
-        }
-        SceneManager.LoadScene("MainMenu");
+        NetworkSessionLifecycle.LeaveSession();
     }
 
     private void EnsureLocalPlayerInput()

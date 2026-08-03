@@ -1,8 +1,6 @@
 // LocalPauseMenu.cs
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using Unity.Netcode;
 
 public class LocalPauseMenu : MonoBehaviour
 {
@@ -69,13 +67,7 @@ public class LocalPauseMenu : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-        //  cleanly leave any NGO session (host or client)
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
-        {
-            NetworkManager.Singleton.Shutdown();
-        }
-
-        SceneManager.LoadScene("MainMenu");
+        NetworkSessionLifecycle.LeaveSession();
     }
 
     //re-assert the correct cursor state when the app regains focus

@@ -56,6 +56,25 @@ public class NetworkSessionLifecycle : MonoBehaviour
         StartCoroutine(ReturnToMainMenuRoutine());
     }
 
+    public static void LeaveSession(string mainMenuSceneName = "MainMenu")
+    {
+        var nm = NetworkManager.Singleton;
+        if (nm != null)
+        {
+            if (nm.IsListening)
+            {
+                if (nm.IsHost)
+                {
+                    Debug.LogWarning("[NetworkSessionLifecycle] Host is ending the session — all connected players will be disconnected.");
+                }
+                nm.Shutdown();
+            }
+            Destroy(nm.gameObject);
+        }
+
+        SceneManager.LoadScene(mainMenuSceneName);
+    }
+
     private IEnumerator ReturnToMainMenuRoutine()
     {
         var nm = NetworkManager.Singleton;

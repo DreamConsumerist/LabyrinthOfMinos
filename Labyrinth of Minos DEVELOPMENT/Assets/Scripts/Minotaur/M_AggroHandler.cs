@@ -26,8 +26,8 @@ public class MinotaurAggroHandler : MonoBehaviour
         if (controller.aggroValues.ContainsKey(player))
         {
             controller.aggroValues[player] += value * modifier;
+            Debug.Log(player.name + " has " + controller.aggroValues[player] + " aggro right now");
         }
-        Debug.Log(player.name + " has " + controller.aggroValues[player] + " aggro right now");
     }
 
     private void AggroDecay()
